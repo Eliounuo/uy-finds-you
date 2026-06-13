@@ -1,0 +1,74 @@
+import { Link, useRouterState } from "@tanstack/react-router";
+import {
+  Home,
+  Map as MapIcon,
+  Heart,
+  MessageCircle,
+  User,
+  Inbox,
+  Building2,
+  CalendarDays,
+  BarChart3,
+} from "lucide-react";
+import { useApp } from "@/lib/app-mode";
+import { cn } from "@/lib/utils";
+
+const liteTabs = [
+  { to: "/", label: "Главная", icon: Home, exact: true },
+  { to: "/map", label: "Карта", icon: MapIcon },
+  { to: "/requests", label: "Заявки", icon: Inbox },
+  { to: "/chat", label: "Чат", icon: MessageCircle },
+  { to: "/profile", label: "Профиль", icon: User },
+];
+
+const proTabs = [
+  { to: "/pro", label: "Объекты", icon: Building2, exact: true },
+  { to: "/pro/calendar", label: "Календарь", icon: CalendarDays },
+  { to: "/pro/requests", label: "Заявки", icon: Inbox },
+  { to: "/pro/chat", label: "Чат", icon: MessageCircle },
+  { to: "/pro/stats", label: "Аналитика", icon: BarChart3 },
+];
+
+export function BottomNav() {
+  const { mode } = useApp();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const tabs = mode === "lite" ? liteTabs : proTabs;
+
+  return (
+    <nav className="safe-bottom sticky bottom-0 z-30 mt-auto border-t border-border bg-card/95 px-2 pt-2 backdrop-blur-lg">
+      <ul className="grid grid-cols-5">
+        {tabs.map((t) => {
+          const active = t.exact ? pathname === t.to : pathname.startsWith(t.to);
+          const Icon = t.icon;
+          return (
+            <li key={t.to}>
+              <Link
+                to={t.to}
+                className={cn(
+                  "flex flex-col items-center gap-1 rounded-lg px-1 py-1.5 text-[10px] font-medium transition-colors",
+                  active ? "text-primary" : "text-muted-foreground"
+                )}
+              >
+                <Icon className={cn("h-5 w-5", active && "stroke-[2.5]")} />
+                <span className="truncate">{t.label}</span>
+                {active && <span className="-mt-0.5 h-1 w-1 rounded-full bg-primary" />}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}
+
+export function FavoritesTab() {
+  return (
+    <Link
+      to="/favorites"
+      className="fixed bottom-24 right-4 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-card shadow-pop ring-1 ring-border"
+      aria-label="Избранное"
+    >
+      <Heart className="h-5 w-5" />
+    </Link>
+  );
+}
