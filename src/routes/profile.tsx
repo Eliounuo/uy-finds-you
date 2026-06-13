@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ChevronRight,
   Heart,
@@ -9,9 +9,13 @@ import {
   HelpCircle,
   LogOut,
   Building2,
+  LogIn,
 } from "lucide-react";
+import { toast } from "sonner";
 import { AppHeader } from "@/components/app-header";
 import { useApp } from "@/lib/app-mode";
+import { useAuth } from "@/lib/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
@@ -19,6 +23,21 @@ export const Route = createFileRoute("/profile")({
 
 function Profile() {
   const { mode, setMode } = useApp();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const displayName =
+    (user?.user_metadata?.full_name as string | undefined) ||
+    (user?.user_metadata?.name as string | undefined) ||
+    user?.email?.split("@")[0] ||
+    "Гость";
+  const initial = displayName.charAt(0).toUpperCase();
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    toast.success("Вы вышли из аккаунта");
+    navigate({ to: "/auth" });
+  };
 
   return (
     <>
@@ -27,16 +46,27 @@ function Profile() {
         <div className="rounded-2xl bg-gradient-to-br from-primary to-[oklch(0.55_0.22_22)] p-4 text-primary-foreground">
           <div className="flex items-center gap-3">
             <div className="grid h-14 w-14 place-items-center rounded-full bg-background/20 font-display text-xl font-bold backdrop-blur">
-              А
+              {initial}
             </div>
-            <div>
-              <div className="font-display text-lg font-bold">Айбек</div>
-              <div className="text-xs opacity-85">+7 777 ••• 4521</div>
+            <div className="min-w-0 flex-1">
+              <div className="truncate font-display text-lg font-bold">{displayName}</div>
+              <div className="truncate text-xs opacity-85">
+                {user ? user.email : "Войдите, чтобы создавать заявки"}
+              </div>
             </div>
           </div>
-          <button className="mt-3 rounded-full bg-background/20 px-3 py-1.5 text-xs font-semibold backdrop-blur">
-            Войти через JaSyn ID
-          </button>
+          {user ? (
+            <button className="mt-3 rounded-full bg-background/20 px-3 py-1.5 text-xs font-semibold backdrop-blur">
+              Привязать JaSyn ID
+            </button>
+          ) : (
+            <Link
+              to="/auth"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-background px-3 py-1.5 text-xs font-bold text-primary"
+            >
+              <LogIn className="h-3.5 w-3.5" /> Войти или зарегистрироваться
+            </Link>
+          )}
         </div>
 
         <button
@@ -69,9 +99,14 @@ function Profile() {
           <Row icon={HelpCircle} label="Поддержка" />
         </Section>
 
-        <button className="flex w-full items-center justify-center gap-2 rounded-2xl bg-card p-4 text-sm font-semibold text-destructive ring-1 ring-border">
-          <LogOut className="h-4 w-4" /> Выйти
-        </button>
+        {user && (
+          <button
+            onClick={handleSignOut}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-card p-4 text-sm font-semibold text-destructive ring-1 ring-border"
+          >
+            <LogOut className="h-4 w-4" /> Выйти
+          </button>
+        )}
 
         <p className="pt-2 text-center text-[11px] text-muted-foreground">UY · v0.1 MVP</p>
       </div>
