@@ -90,14 +90,12 @@ export const openRequestsQuery = (userId: string | null) =>
       if (!userId) return [];
       const { data, error } = await supabase
         .from("requests")
-        .select("*, profiles!requests_client_id_fkey(full_name, avatar_url)")
+        .select("*")
         .eq("status", "open")
         .neq("client_id", userId)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as (RequestRow & {
-        profiles: { full_name: string | null; avatar_url: string | null } | null;
-      })[];
+      return (data ?? []) as RequestRow[];
     },
   });
 
