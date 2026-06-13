@@ -1,36 +1,27 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { Search, Sparkles, ArrowRight, Zap } from "lucide-react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Search, Sparkles, ArrowRight, Zap, Loader2 } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { PropertyCard } from "@/components/property-card";
-import { properties } from "@/lib/mock-data";
+import { propertiesQuery } from "@/lib/queries";
 
 export const Route = createFileRoute("/")({
   component: Home,
 });
 
-const cities = ["Все", "Астана", "Алматы", "Шымкент"];
+const cities = ["Все", "Алматы", "Астана", "Шымкент"];
 
 function Home() {
   const [city, setCity] = useState("Все");
   const [q, setQ] = useState("");
-
-  const list = useMemo(() => {
-    return properties.filter(
-      (p) =>
-        (city === "Все" || p.city === city) &&
-        (q === "" ||
-          p.title.toLowerCase().includes(q.toLowerCase()) ||
-          p.district.toLowerCase().includes(q.toLowerCase()))
-    );
-  }, [city, q]);
+  const { data: list = [], isLoading } = useQuery(propertiesQuery({ city, search: q }));
 
   return (
     <>
       <AppHeader showModeSwitcher />
 
       <div className="space-y-4 px-4 pt-2">
-        {/* Hero CTA: создание заявки */}
         <Link
           to="/create-request"
           className="relative block overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-[oklch(0.55_0.22_22)] p-5 text-primary-foreground shadow-glow"
@@ -53,18 +44,16 @@ function Home() {
           <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
         </Link>
 
-        {/* Search */}
         <div className="flex items-center gap-2 rounded-2xl bg-card px-3.5 py-3 shadow-card ring-1 ring-border">
           <Search className="h-4 w-4 text-muted-foreground" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Район, ЖК, адрес..."
+            placeholder="Название, район…"
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
         </div>
 
-        {/* City chips */}
         <div className="scrollbar-hide -mx-4 flex gap-2 overflow-x-auto px-4">
           {cities.map((c) => {
             const active = c === city;
@@ -74,9 +63,7 @@ function Home() {
                 onClick={() => setCity(c)}
                 className={
                   "shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors " +
-                  (active
-                    ? "bg-foreground text-background"
-                    : "bg-card text-muted-foreground ring-1 ring-border")
+                  (active ? "bg-foreground text-background" : "bg-card text-muted-foreground ring-1 ring-border")
                 }
               >
                 {c}
@@ -90,8 +77,15 @@ function Home() {
           <span className="text-xs text-muted-foreground">{list.length} вариантов</span>
         </div>
 
-        {/* Feed: одна крупная карточка, далее 2 в ряд, далее вертикально */}
         <div className="space-y-3 pb-32">
+          {isLoading && (
+            <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+          )}
+          {!isLoading && list.length === 0 && (
+            <div className="rounded-2xl bg-card p-6 text-center text-sm text-muted-foreground ring-1 ring-border">
+              По выбранным фильтрам ничего не найдено
+            </div>
+          )}
           {list[0] && <PropertyCard p={list[0]} />}
           {list.length > 1 && (
             <div className="grid grid-cols-2 gap-3">

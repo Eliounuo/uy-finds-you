@@ -1,100 +1,79 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
-import { useState } from "react";
-import { Send } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, Send, Loader2 } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
-import { chats, type ChatThread } from "@/lib/mock-data";
-import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/use-auth";
+import { chatMessagesQuery, chatHeaderQuery } from "@/lib/queries";
+import { supabase } from "@/integrations/supabase/client";
+import { formatDateTime } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/chat/$id")({
-  component: ChatRoom,
-  loader: ({ params }) => {
-    const c = chats.find((x) => x.id === params.id);
-    if (!c) throw notFound();
-    return c;
-  },
-  notFoundComponent: () => (
-    <div className="p-6 text-center text-sm text-muted-foreground">Чат не найден</div>
-  ),
-});
+export const Route = createFileRoute("/chat/$id")({ component: ChatRoom });
 
 function ChatRoom() {
-  const chat = Route.useLoaderData() as ChatThread;
+  const { id } = Route.useParams();
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const { data: header } = useQuery(chatHeaderQuery(id));
+  const { data: messages = [], isLoading } = useQuery(chatMessagesQuery(id));
   const [text, setText] = useState("");
-  const [messages, setMessages] = useState<ChatThread["messages"]>(chat.messages);
+  const [sending, setSending] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages.length]);
 
-  const send = () => {
-    if (!text.trim()) return;
-    setMessages((m) => [
-      ...m,
-      { id: String(Date.now()), from: "me" as const, text: text.trim(), time: "сейчас" },
-    ]);
+  useEffect(() => {
+    const channel = supabase
+      .channel(`messages:${id}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `chat_id=eq.${id}` }, () => {
+        qc.invalidateQueries({ queryKey: ["chat-messages", id] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [id, qc]);
+
+  const send = async () => {
+    if (!text.trim() || !user || sending) return;
+    setSending(true);
+    const body = text.trim();
     setText("");
+    await supabase.from("messages").insert({ chat_id: id, sender_id: user.id, body });
+    qc.invalidateQueries({ queryKey: ["chat-messages", id] });
+    setSending(false);
   };
 
   return (
     <div className="flex h-screen flex-col">
-      <AppHeader
-        back
-        right={
-          <div className="flex items-center gap-2">
-            <img src={chat.withAvatar} alt="" className="h-9 w-9 rounded-full object-cover" />
-            <div className="flex flex-col leading-tight">
-              <span className="text-sm font-bold">{chat.withName}</span>
-              <span className="text-[10px] text-muted-foreground">в сети</span>
-            </div>
-          </div>
-        }
-      />
-
-      <div className="flex-1 space-y-2 overflow-y-auto px-4 py-3">
-        <div className="mx-auto max-w-fit rounded-full bg-muted px-3 py-1 text-[11px] text-muted-foreground">
-          По объекту: {chat.propertyTitle}
+      <header className="flex items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur">
+        <Link to="/chat" className="grid h-9 w-9 place-items-center rounded-full bg-card ring-1 ring-border"><ArrowLeft className="h-4 w-4"/></Link>
+        <div className="min-w-0 flex-1">
+          <div className="truncate font-display font-bold">{header?.properties?.title ?? "Диалог"}</div>
+          <div className="text-[11px] text-muted-foreground">{header?.properties?.city}</div>
         </div>
-        {messages.map((m) => (
-          <div
-            key={m.id}
-            className={cn(
-              "flex",
-              m.from === "me" ? "justify-end" : "justify-start"
-            )}
-          >
-            <div
-              className={cn(
-                "max-w-[78%] rounded-2xl px-3.5 py-2 text-sm",
-                m.from === "me"
-                  ? "rounded-br-md bg-primary text-primary-foreground"
-                  : "rounded-bl-md bg-card ring-1 ring-border"
-              )}
-            >
-              {m.text}
-              <div
-                className={cn(
-                  "mt-0.5 text-[10px]",
-                  m.from === "me" ? "text-primary-foreground/70" : "text-muted-foreground"
-                )}
-              >
-                {m.time}
+      </header>
+
+      <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto px-4 py-3">
+        {isLoading && <div className="flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground"/></div>}
+        {messages.map((m) => {
+          const mine = m.sender_id === user?.id;
+          return (
+            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[75%] rounded-2xl px-3.5 py-2 text-sm ${mine ? "bg-primary text-primary-foreground" : "bg-card ring-1 ring-border"}`}>
+                <div>{m.body}</div>
+                <div className={`mt-0.5 text-[10px] ${mine ? "opacity-80" : "text-muted-foreground"}`}>{formatDateTime(m.created_at)}</div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      <div className="safe-bottom flex items-center gap-2 border-t border-border bg-card px-3 py-2">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder="Сообщение…"
-          className="flex-1 rounded-full bg-muted px-4 py-2.5 text-sm outline-none placeholder:text-muted-foreground"
-        />
-        <button
-          onClick={send}
-          className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground"
-          aria-label="Отправить"
-        >
-          <Send className="h-4 w-4" />
+      <div className="safe-bottom flex items-center gap-2 border-t border-border bg-background px-3 py-2">
+        <input value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder="Сообщение…" maxLength={1000}
+          className="flex-1 rounded-full bg-card px-4 py-2.5 text-sm outline-none ring-1 ring-border"/>
+        <button onClick={send} disabled={!text.trim() || sending} className="grid h-11 w-11 place-items-center rounded-full bg-primary text-primary-foreground disabled:opacity-50">
+          {sending ? <Loader2 className="h-4 w-4 animate-spin"/> : <Send className="h-4 w-4"/>}
         </button>
       </div>
     </div>

@@ -1,31 +1,57 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { MapPin, CalendarDays, Users, Wallet, Sparkles, Check } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { MapPin, CalendarDays, Users, Wallet, Sparkles, Check, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { AppHeader } from "@/components/app-header";
-import { formatKZT } from "@/lib/mock-data";
+import { formatKZT, CITIES } from "@/lib/mock-data";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/use-auth";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/create-request")({
-  component: CreateRequest,
-});
+export const Route = createFileRoute("/create-request")({ component: CreateRequest });
 
-const cities = ["Астана", "Алматы", "Шымкент", "Караганда", "Актау"];
-const guestsOptions = [1, 2, 3, 4, 5, "6+"];
+const guestsOptions = [1, 2, 3, 4, 5, 6];
 
 function CreateRequest() {
   const navigate = useNavigate();
-  const [city, setCity] = useState("Алматы");
-  const [guests, setGuests] = useState<string | number>(2);
+  const { user } = useAuth();
+  const [city, setCity] = useState<string>("Алматы");
+  const [guests, setGuests] = useState(2);
   const [budget, setBudget] = useState(25000);
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [notes, setNotes] = useState("");
   const [done, setDone] = useState(false);
 
-  const submit = () => {
-    setDone(true);
-    setTimeout(() => navigate({ to: "/requests" }), 1200);
-  };
+  const submit = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error("Войдите, чтобы отправить заявку");
+      if (!checkIn || !checkOut) throw new Error("Выберите даты");
+      const { error } = await supabase.from("requests").insert({
+        client_id: user.id, city, check_in: checkIn, check_out: checkOut,
+        guests, budget_max: budget, notes: notes || null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => { setDone(true); setTimeout(() => navigate({ to: "/requests" }), 1200); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  if (!user) {
+    return (
+      <>
+        <AppHeader title="Новая заявка" back />
+        <div className="px-4 pt-6">
+          <div className="rounded-2xl bg-card p-6 text-center ring-1 ring-border">
+            <Sparkles className="mx-auto h-10 w-10 text-primary"/>
+            <p className="mt-3 text-sm text-muted-foreground">Войдите, чтобы создать заявку</p>
+            <Link to="/auth" className="mt-3 inline-block rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Войти</Link>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   if (done) {
     return (
@@ -34,9 +60,7 @@ function CreateRequest() {
           <Check className="h-10 w-10" strokeWidth={3} />
         </div>
         <h2 className="mt-5 font-display text-2xl font-bold">Заявка отправлена</h2>
-        <p className="mt-2 text-center text-sm text-muted-foreground">
-          Владельцы получают вашу заявку и пришлют предложения в течение нескольких минут.
-        </p>
+        <p className="mt-2 text-center text-sm text-muted-foreground">Владельцы получат вашу заявку и пришлют предложения.</p>
       </div>
     );
   }
@@ -49,26 +73,15 @@ function CreateRequest() {
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
             <Sparkles className="h-3.5 w-3.5" /> 30 секунд
           </div>
-          <p className="mt-1 text-sm text-foreground">
-            Опишите, что вы хотите — владельцы пришлют предложения сами.
-          </p>
+          <p className="mt-1 text-sm text-foreground">Опишите, что вы хотите — владельцы пришлют предложения.</p>
         </div>
 
         <Section icon={MapPin} title="Город">
           <div className="scrollbar-hide -mx-4 flex gap-2 overflow-x-auto px-4">
-            {cities.map((c) => (
-              <button
-                key={c}
-                onClick={() => setCity(c)}
-                className={cn(
-                  "shrink-0 rounded-full px-4 py-2 text-sm font-semibold",
-                  c === city
-                    ? "bg-foreground text-background"
-                    : "bg-card text-muted-foreground ring-1 ring-border"
-                )}
-              >
-                {c}
-              </button>
+            {CITIES.map((c) => (
+              <button key={c} onClick={() => setCity(c)}
+                className={cn("shrink-0 rounded-full px-4 py-2 text-sm font-semibold",
+                  c === city ? "bg-foreground text-background" : "bg-card text-muted-foreground ring-1 ring-border")}>{c}</button>
             ))}
           </div>
         </Section>
@@ -77,21 +90,11 @@ function CreateRequest() {
           <div className="grid grid-cols-2 gap-3">
             <label className="rounded-xl bg-card p-3 ring-1 ring-border">
               <div className="text-[11px] uppercase text-muted-foreground">Заезд</div>
-              <input
-                type="date"
-                value={checkIn}
-                onChange={(e) => setCheckIn(e.target.value)}
-                className="mt-1 w-full bg-transparent text-sm outline-none"
-              />
+              <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="mt-1 w-full bg-transparent text-sm outline-none"/>
             </label>
             <label className="rounded-xl bg-card p-3 ring-1 ring-border">
               <div className="text-[11px] uppercase text-muted-foreground">Выезд</div>
-              <input
-                type="date"
-                value={checkOut}
-                onChange={(e) => setCheckOut(e.target.value)}
-                className="mt-1 w-full bg-transparent text-sm outline-none"
-              />
+              <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="mt-1 w-full bg-transparent text-sm outline-none"/>
             </label>
           </div>
         </Section>
@@ -99,70 +102,34 @@ function CreateRequest() {
         <Section icon={Users} title="Гостей">
           <div className="flex flex-wrap gap-2">
             {guestsOptions.map((g) => (
-              <button
-                key={g}
-                onClick={() => setGuests(g)}
-                className={cn(
-                  "h-11 w-11 rounded-full text-sm font-semibold",
-                  g === guests
-                    ? "bg-foreground text-background"
-                    : "bg-card text-muted-foreground ring-1 ring-border"
-                )}
-              >
-                {g}
-              </button>
+              <button key={g} onClick={() => setGuests(g)}
+                className={cn("h-11 w-11 rounded-full text-sm font-semibold",
+                  g === guests ? "bg-foreground text-background" : "bg-card text-muted-foreground ring-1 ring-border")}>{g}</button>
             ))}
           </div>
         </Section>
 
         <Section icon={Wallet} title={`Бюджет до ${formatKZT(budget)} / ночь`}>
-          <input
-            type="range"
-            min={5000}
-            max={100000}
-            step={1000}
-            value={budget}
-            onChange={(e) => setBudget(Number(e.target.value))}
-            className="w-full accent-[var(--color-primary)]"
-          />
-          <div className="flex justify-between text-[11px] text-muted-foreground">
-            <span>5 000 ₸</span>
-            <span>100 000 ₸</span>
-          </div>
+          <input type="range" min={5000} max={100000} step={1000} value={budget} onChange={(e) => setBudget(Number(e.target.value))} className="w-full accent-[var(--color-primary)]"/>
         </Section>
 
-        <Section title="Пожелания (необязательно)">
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Например: тихий двор, рядом метро, можно с животным…"
-            rows={3}
-            className="w-full resize-none rounded-xl bg-card p-3 text-sm outline-none ring-1 ring-border placeholder:text-muted-foreground"
-          />
+        <Section title="Пожелания">
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Тихий двор, рядом метро…" rows={3} maxLength={500}
+            className="w-full resize-none rounded-xl bg-card p-3 text-sm outline-none ring-1 ring-border placeholder:text-muted-foreground"/>
         </Section>
       </div>
 
-      <div className="safe-bottom fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/95 px-4 pt-3 backdrop-blur-lg">
-        <button
-          onClick={submit}
-          className="w-full rounded-full bg-primary py-3.5 font-display text-base font-bold text-primary-foreground shadow-glow"
-        >
-          Отправить заявку
+      <div className="safe-bottom fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/95 px-4 pt-3 pb-3 backdrop-blur-lg">
+        <button onClick={() => submit.mutate()} disabled={submit.isPending}
+          className="flex h-12 w-full items-center justify-center rounded-full bg-primary font-display text-base font-bold text-primary-foreground shadow-glow disabled:opacity-60">
+          {submit.isPending ? <Loader2 className="h-5 w-5 animate-spin"/> : "Отправить заявку"}
         </button>
       </div>
     </>
   );
 }
 
-function Section({
-  title,
-  icon: Icon,
-  children,
-}: {
-  title: string;
-  icon?: React.ComponentType<{ className?: string }>;
-  children: React.ReactNode;
-}) {
+function Section({ title, icon: Icon, children }: { title: string; icon?: React.ComponentType<{ className?: string }>; children: React.ReactNode }) {
   return (
     <div>
       <div className="mb-2 flex items-center gap-1.5">

@@ -1,4 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/use-auth";
 
 export type AppMode = "lite" | "pro";
 export type Theme = "light" | "dark";
@@ -8,29 +10,42 @@ type AppState = {
   setMode: (m: AppMode) => void;
   theme: Theme;
   toggleTheme: () => void;
-  favorites: string[];
-  toggleFavorite: (id: string) => void;
 };
 
 const Ctx = createContext<AppState | null>(null);
 
 export function AppModeProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [mode, setModeState] = useState<AppMode>("lite");
   const [theme, setTheme] = useState<Theme>("light");
-  const [favorites, setFavorites] = useState<string[]>([]);
 
+  // Boot from localStorage
   useEffect(() => {
     const m = localStorage.getItem("uy:mode") as AppMode | null;
     const t = localStorage.getItem("uy:theme") as Theme | null;
-    const f = localStorage.getItem("uy:fav");
     if (m) setModeState(m);
     if (t) setTheme(t);
     else {
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       setTheme(prefersDark ? "dark" : "light");
     }
-    if (f) setFavorites(JSON.parse(f));
   }, []);
+
+  // Pull mode from profile when user signs in
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("mode")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.mode === "lite" || data?.mode === "pro") {
+          setModeState(data.mode);
+          localStorage.setItem("uy:mode", data.mode);
+        }
+      });
+  }, [user]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -40,23 +55,14 @@ export function AppModeProvider({ children }: { children: ReactNode }) {
   const setMode = (m: AppMode) => {
     setModeState(m);
     localStorage.setItem("uy:mode", m);
+    if (user) {
+      supabase.from("profiles").update({ mode: m }).eq("id", user.id).then(() => {});
+    }
   };
 
   const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
 
-  const toggleFavorite = (id: string) => {
-    setFavorites((prev) => {
-      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
-      localStorage.setItem("uy:fav", JSON.stringify(next));
-      return next;
-    });
-  };
-
-  return (
-    <Ctx.Provider value={{ mode, setMode, theme, toggleTheme, favorites, toggleFavorite }}>
-      {children}
-    </Ctx.Provider>
-  );
+  return <Ctx.Provider value={{ mode, setMode, theme, toggleTheme }}>{children}</Ctx.Provider>;
 }
 
 export function useApp() {

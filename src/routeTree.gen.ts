@@ -23,7 +23,6 @@ import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as PropertyIdRouteImport } from './routes/property.$id'
 import { Route as ProStatsRouteImport } from './routes/pro.stats'
 import { Route as ProRequestsRouteImport } from './routes/pro.requests'
-import { Route as ProChatRouteImport } from './routes/pro.chat'
 import { Route as ProCalendarRouteImport } from './routes/pro.calendar'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
 
@@ -97,11 +96,6 @@ const ProRequestsRoute = ProRequestsRouteImport.update({
   path: '/requests',
   getParentRoute: () => ProRoute,
 } as any)
-const ProChatRoute = ProChatRouteImport.update({
-  id: '/chat',
-  path: '/chat',
-  getParentRoute: () => ProRoute,
-} as any)
 const ProCalendarRoute = ProCalendarRouteImport.update({
   id: '/calendar',
   path: '/calendar',
@@ -125,7 +119,6 @@ export interface FileRoutesByFullPath {
   '/requests': typeof RequestsRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
-  '/pro/chat': typeof ProChatRoute
   '/pro/requests': typeof ProRequestsRoute
   '/pro/stats': typeof ProStatsRoute
   '/property/$id': typeof PropertyIdRoute
@@ -143,7 +136,6 @@ export interface FileRoutesByTo {
   '/requests': typeof RequestsRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
-  '/pro/chat': typeof ProChatRoute
   '/pro/requests': typeof ProRequestsRoute
   '/pro/stats': typeof ProStatsRoute
   '/property/$id': typeof PropertyIdRoute
@@ -163,7 +155,6 @@ export interface FileRoutesById {
   '/requests': typeof RequestsRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
-  '/pro/chat': typeof ProChatRoute
   '/pro/requests': typeof ProRequestsRoute
   '/pro/stats': typeof ProStatsRoute
   '/property/$id': typeof PropertyIdRoute
@@ -184,7 +175,6 @@ export interface FileRouteTypes {
     | '/requests'
     | '/chat/$id'
     | '/pro/calendar'
-    | '/pro/chat'
     | '/pro/requests'
     | '/pro/stats'
     | '/property/$id'
@@ -202,7 +192,6 @@ export interface FileRouteTypes {
     | '/requests'
     | '/chat/$id'
     | '/pro/calendar'
-    | '/pro/chat'
     | '/pro/requests'
     | '/pro/stats'
     | '/property/$id'
@@ -221,7 +210,6 @@ export interface FileRouteTypes {
     | '/requests'
     | '/chat/$id'
     | '/pro/calendar'
-    | '/pro/chat'
     | '/pro/requests'
     | '/pro/stats'
     | '/property/$id'
@@ -344,13 +332,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProRequestsRouteImport
       parentRoute: typeof ProRoute
     }
-    '/pro/chat': {
-      id: '/pro/chat'
-      path: '/chat'
-      fullPath: '/pro/chat'
-      preLoaderRoute: typeof ProChatRouteImport
-      parentRoute: typeof ProRoute
-    }
     '/pro/calendar': {
       id: '/pro/calendar'
       path: '/calendar'
@@ -370,7 +351,6 @@ declare module '@tanstack/react-router' {
 
 interface ProRouteChildren {
   ProCalendarRoute: typeof ProCalendarRoute
-  ProChatRoute: typeof ProChatRoute
   ProRequestsRoute: typeof ProRequestsRoute
   ProStatsRoute: typeof ProStatsRoute
   ProIndexRoute: typeof ProIndexRoute
@@ -378,7 +358,6 @@ interface ProRouteChildren {
 
 const ProRouteChildren: ProRouteChildren = {
   ProCalendarRoute: ProCalendarRoute,
-  ProChatRoute: ProChatRoute,
   ProRequestsRoute: ProRequestsRoute,
   ProStatsRoute: ProStatsRoute,
   ProIndexRoute: ProIndexRoute,
@@ -403,13 +382,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

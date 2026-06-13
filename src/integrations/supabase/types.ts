@@ -14,6 +14,217 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          check_in: string
+          check_out: string
+          client_id: string
+          created_at: string
+          guests: number
+          id: string
+          offer_id: string | null
+          owner_id: string
+          property_id: string
+          status: string
+          total_price: number
+        }
+        Insert: {
+          check_in: string
+          check_out: string
+          client_id: string
+          created_at?: string
+          guests: number
+          id?: string
+          offer_id?: string | null
+          owner_id: string
+          property_id: string
+          status?: string
+          total_price: number
+        }
+        Update: {
+          check_in?: string
+          check_out?: string
+          client_id?: string
+          created_at?: string
+          guests?: number
+          id?: string
+          offer_id?: string | null
+          owner_id?: string
+          property_id?: string
+          status?: string
+          total_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chats: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          last_message_at: string
+          offer_id: string
+          owner_id: string
+          property_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          offer_id: string
+          owner_id: string
+          property_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          offer_id?: string
+          owner_id?: string
+          property_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chats_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: true
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chats_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      favorites: {
+        Row: {
+          created_at: string
+          property_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          property_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          property_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string
+          chat_id: string
+          created_at: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          chat_id: string
+          created_at?: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          chat_id?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offers: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          owner_id: string
+          price_per_night: number
+          property_id: string
+          request_id: string
+          status: string
+          total_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          owner_id: string
+          price_per_night: number
+          property_id: string
+          request_id: string
+          status?: string
+          total_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          owner_id?: string
+          price_per_night?: number
+          property_id?: string
+          request_id?: string
+          status?: string
+          total_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -44,12 +255,187 @@ export type Database = {
         }
         Relationships: []
       }
+      properties: {
+        Row: {
+          address: string | null
+          amenities: string[]
+          area: number | null
+          beds: number | null
+          city: string
+          created_at: string
+          currency: string
+          description: string | null
+          district: string | null
+          guests: number | null
+          id: string
+          lat: number | null
+          lng: number | null
+          owner_id: string
+          photos: string[]
+          price_per_night: number
+          rating: number
+          reviews_count: number
+          rooms: number | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          amenities?: string[]
+          area?: number | null
+          beds?: number | null
+          city: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          district?: string | null
+          guests?: number | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          owner_id: string
+          photos?: string[]
+          price_per_night: number
+          rating?: number
+          reviews_count?: number
+          rooms?: number | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          amenities?: string[]
+          area?: number | null
+          beds?: number | null
+          city?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          district?: string | null
+          guests?: number | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          owner_id?: string
+          photos?: string[]
+          price_per_night?: number
+          rating?: number
+          reviews_count?: number
+          rooms?: number | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      requests: {
+        Row: {
+          amenities: string[]
+          budget_max: number
+          check_in: string
+          check_out: string
+          city: string
+          client_id: string
+          created_at: string
+          district: string | null
+          expires_at: string
+          guests: number
+          id: string
+          notes: string | null
+          status: string
+        }
+        Insert: {
+          amenities?: string[]
+          budget_max: number
+          check_in: string
+          check_out: string
+          city: string
+          client_id: string
+          created_at?: string
+          district?: string | null
+          expires_at?: string
+          guests?: number
+          id?: string
+          notes?: string | null
+          status?: string
+        }
+        Update: {
+          amenities?: string[]
+          budget_max?: number
+          check_in?: string
+          check_out?: string
+          city?: string
+          client_id?: string
+          created_at?: string
+          district?: string | null
+          expires_at?: string
+          guests?: number
+          id?: string
+          notes?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          author_id: string
+          booking_id: string
+          created_at: string
+          id: string
+          property_id: string
+          rating: number
+          text: string | null
+        }
+        Insert: {
+          author_id: string
+          booking_id: string
+          created_at?: string
+          id?: string
+          property_id: string
+          rating: number
+          text?: string | null
+        }
+        Update: {
+          author_id?: string
+          booking_id?: string
+          created_at?: string
+          id?: string
+          property_id?: string
+          rating?: number
+          text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_chat_participant: {
+        Args: { _chat_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_request_client: {
+        Args: { _request_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
