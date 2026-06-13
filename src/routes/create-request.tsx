@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { MapPin, CalendarDays, Users, Wallet, Sparkles, Check, Loader2 } from "lucide-react";
@@ -15,7 +15,7 @@ const guestsOptions = [1, 2, 3, 4, 5, 6];
 
 function CreateRequest() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [city, setCity] = useState<string>("Алматы");
   const [guests, setGuests] = useState(2);
   const [budget, setBudget] = useState(25000);
@@ -26,7 +26,7 @@ function CreateRequest() {
 
   const submit = useMutation({
     mutationFn: async () => {
-      if (!user) throw new Error("Войдите, чтобы отправить заявку");
+      if (!user) throw new Error("AUTH_REQUIRED");
       if (!checkIn || !checkOut) throw new Error("Выберите даты");
       const { error } = await supabase.from("requests").insert({
         client_id: user.id, city, check_in: checkIn, check_out: checkOut,
@@ -35,23 +35,24 @@ function CreateRequest() {
       if (error) throw error;
     },
     onSuccess: () => { setDone(true); setTimeout(() => navigate({ to: "/requests" }), 1200); },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => {
+      if (e.message === "AUTH_REQUIRED") {
+        toast.info("Войдите, чтобы отправить заявку");
+        navigate({ to: "/auth" });
+        return;
+      }
+      toast.error(e.message);
+    },
   });
 
-  if (!user) {
+  if (loading) {
     return (
-      <>
-        <AppHeader title="Новая заявка" back />
-        <div className="px-4 pt-6">
-          <div className="rounded-2xl bg-card p-6 text-center ring-1 ring-border">
-            <Sparkles className="mx-auto h-10 w-10 text-primary"/>
-            <p className="mt-3 text-sm text-muted-foreground">Войдите, чтобы создать заявку</p>
-            <Link to="/auth" className="mt-3 inline-block rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Войти</Link>
-          </div>
-        </div>
-      </>
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
     );
   }
+
 
   if (done) {
     return (
