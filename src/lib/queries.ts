@@ -141,15 +141,11 @@ export const myChatsQuery = (userId: string | null) =>
       if (!userId) return [];
       const { data, error } = await supabase
         .from("chats")
-        .select("*, properties(*), client:profiles!chats_client_id_fkey(full_name, avatar_url), owner:profiles!chats_owner_id_fkey(full_name, avatar_url)")
+        .select("*, properties(*)")
         .or(`client_id.eq.${userId},owner_id.eq.${userId}`)
         .order("last_message_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as (Chat & {
-        properties: Property | null;
-        client: { full_name: string | null; avatar_url: string | null } | null;
-        owner: { full_name: string | null; avatar_url: string | null } | null;
-      })[];
+      return (data ?? []) as (Chat & { properties: Property | null })[];
     },
   });
 
