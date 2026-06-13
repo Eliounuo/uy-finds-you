@@ -2,7 +2,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { Send } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
-import { chats } from "@/lib/mock-data";
+import { chats, type ChatThread } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/chat/$id")({
@@ -18,15 +18,16 @@ export const Route = createFileRoute("/chat/$id")({
 });
 
 function ChatRoom() {
-  const chat = Route.useLoaderData();
+  const chat = Route.useLoaderData() as ChatThread;
   const [text, setText] = useState("");
-  const [messages, setMessages] = useState(chat.messages);
+  const [messages, setMessages] = useState<ChatThread["messages"]>(chat.messages);
+
 
   const send = () => {
     if (!text.trim()) return;
     setMessages((m) => [
       ...m,
-      { id: String(Date.now()), from: "me", text: text.trim(), time: "сейчас" },
+      { id: String(Date.now()), from: "me" as const, text: text.trim(), time: "сейчас" },
     ]);
     setText("");
   };

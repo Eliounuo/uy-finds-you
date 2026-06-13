@@ -39,7 +39,7 @@ const amenityIcons: Record<string, React.ComponentType<{ className?: string }>> 
 };
 
 function PropertyPage() {
-  const p = Route.useLoaderData();
+  const p = Route.useLoaderData() as (typeof properties)[number];
   const { favorites, toggleFavorite } = useApp();
   const fav = favorites.includes(p.id);
   const [idx, setIdx] = useState(0);
@@ -88,7 +88,7 @@ function PropertyPage() {
               <ChevronRight className="h-4 w-4" />
             </button>
             <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
-              {p.images.map((_, i) => (
+              {p.images.map((_: string, i: number) => (
                 <span
                   key={i}
                   className={cn(
@@ -156,7 +156,7 @@ function PropertyPage() {
         <div>
           <h3 className="mb-2 font-display text-base font-bold">Удобства</h3>
           <div className="grid grid-cols-2 gap-2">
-            {p.amenities.map((a) => {
+            {p.amenities.map((a: string) => {
               const Icon = amenityIcons[a] ?? Wifi;
               return (
                 <div key={a} className="flex items-center gap-2 rounded-xl bg-card p-3 text-sm ring-1 ring-border">
