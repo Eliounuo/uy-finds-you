@@ -1,168 +1,103 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { CalendarDays, Users, Wallet, Send, X } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Users, CalendarDays, Wallet, Inbox, Loader2, Send } from "lucide-react";
+import { toast } from "sonner";
 import { AppHeader } from "@/components/app-header";
-import { incomingRequests, proProperties, formatKZT } from "@/lib/mock-data";
-import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/use-auth";
+import { openRequestsQuery, myPropertiesQuery, type RequestRow } from "@/lib/queries";
+import { supabase } from "@/integrations/supabase/client";
+import { formatKZT, formatDate, nightsBetween } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/pro/requests")({
-  component: ProRequests,
-});
+export const Route = createFileRoute("/pro/requests")({ component: ProRequests });
 
 function ProRequests() {
-  const [offerFor, setOfferFor] = useState<string | null>(null);
+  const { user } = useAuth();
+  const { data = [], isLoading } = useQuery(openRequestsQuery(user?.id ?? null));
+  const [active, setActive] = useState<RequestRow | null>(null);
 
   return (
     <>
       <AppHeader title="Заявки клиентов" />
       <div className="space-y-3 px-4 pt-2 pb-32">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">{incomingRequests.length} новых</span>
-          <div className="flex gap-1 rounded-full bg-card p-1 ring-1 ring-border">
-            <button className="rounded-full bg-foreground px-3 py-1 text-xs font-semibold text-background">
-              Все
-            </button>
-            <button className="rounded-full px-3 py-1 text-xs font-semibold text-muted-foreground">
-              Подходящие
-            </button>
-          </div>
-        </div>
-
-        {incomingRequests.map((r) => (
-          <div key={r.id} className="rounded-2xl bg-card p-4 shadow-card ring-1 ring-border">
-            <div className="flex items-start gap-3">
-              <img src={r.clientAvatar} alt={r.clientName} className="h-10 w-10 rounded-full object-cover" />
-              <div className="flex-1">
-                <div className="flex items-baseline justify-between gap-2">
-                  <div className="font-display font-bold">{r.clientName}</div>
-                  <span className="text-[11px] text-muted-foreground">{r.createdAt}</span>
-                </div>
-                <div className="text-xs text-muted-foreground">{r.city}, {r.district}</div>
-              </div>
+        {isLoading && <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground"/></div>}
+        {!isLoading && data.length === 0 && (
+          <div className="rounded-2xl bg-card p-6 text-center ring-1 ring-border"><Inbox className="mx-auto h-10 w-10 text-muted-foreground"/><p className="mt-2 text-sm text-muted-foreground">Пока нет открытых заявок</p></div>
+        )}
+        {data.map((r) => (
+          <button key={r.id} onClick={() => setActive(r)} className="block w-full rounded-2xl bg-card p-4 text-left ring-1 ring-border">
+            <div className="flex items-center justify-between">
+              <div className="font-display font-bold">{r.city}{r.district ? `, ${r.district}` : ""}</div>
+              <div className="text-[11px] text-muted-foreground">{formatDate(r.created_at)}</div>
             </div>
-
-            <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl bg-muted/50 p-2">
-              <Mini icon={CalendarDays} label={`${r.checkIn.slice(5)} — ${r.checkOut.slice(5)}`} />
-              <Mini icon={Users} label={`${r.guests} чел`} />
-              <Mini icon={Wallet} label={`до ${(r.budgetMax / 1000).toFixed(0)}к`} />
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3"/> {formatDate(r.check_in)} — {formatDate(r.check_out)}</span>
+              <span className="flex items-center gap-1"><Users className="h-3 w-3"/> {r.guests}</span>
+              <span className="flex items-center gap-1"><Wallet className="h-3 w-3"/> до {formatKZT(r.budget_max)}</span>
             </div>
-
-            {r.notes && (
-              <p className="mt-2 text-xs text-muted-foreground">«{r.notes}»</p>
-            )}
-
-            <div className="mt-3 flex gap-2">
-              <button
-                onClick={() => setOfferFor(r.id)}
-                className="flex-1 rounded-full bg-primary py-2.5 text-sm font-bold text-primary-foreground"
-              >
-                Отправить предложение
-              </button>
-              <button
-                className="grid h-10 w-10 place-items-center rounded-full bg-muted text-muted-foreground"
-                aria-label="Скрыть"
-              >
-                <X className="h-4 w-4" />
-              </button>
+            {r.notes && <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{r.notes}</p>}
+            <div className="mt-3 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-primary-foreground">
+              <Send className="h-3 w-3"/> Сделать предложение
             </div>
-          </div>
+          </button>
         ))}
       </div>
-
-      {offerFor && <OfferSheet onClose={() => setOfferFor(null)} />}
+      {active && <OfferSheet request={active} onClose={() => setActive(null)} />}
     </>
   );
 }
 
-function Mini({
-  icon: Icon,
-  label,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-}) {
-  return (
-    <div className="flex items-center gap-1 text-[11px] font-semibold">
-      <Icon className="h-3 w-3 text-primary" />
-      <span className="truncate">{label}</span>
-    </div>
-  );
-}
-
-function OfferSheet({ onClose }: { onClose: () => void }) {
-  const [propertyId, setPropertyId] = useState(proProperties[0].id);
-  const [price, setPrice] = useState(proProperties[0].price);
+function OfferSheet({ request, onClose }: { request: RequestRow; onClose: () => void }) {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const { data: props = [] } = useQuery(myPropertiesQuery(user?.id ?? null));
+  const [propertyId, setPropertyId] = useState<string>("");
+  const [price, setPrice] = useState(request.budget_max);
   const [message, setMessage] = useState("");
+  const nights = nightsBetween(request.check_in, request.check_out);
+
+  const send = useMutation({
+    mutationFn: async () => {
+      if (!user || !propertyId) throw new Error("Выберите объект");
+      const { error } = await supabase.from("offers").insert({
+        request_id: request.id, property_id: propertyId, owner_id: user.id,
+        price_per_night: price, total_price: price * nights, message: message || null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => { toast.success("Предложение отправлено"); qc.invalidateQueries({ queryKey: ["open-requests"] }); onClose(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end bg-black/50" onClick={onClose}>
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="safe-bottom w-full rounded-t-3xl bg-card p-5"
-      >
-        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-muted" />
-        <h3 className="font-display text-lg font-bold">Новое предложение</h3>
-        <p className="mt-0.5 text-xs text-muted-foreground">Выберите объект и условия</p>
+    <div className="fixed inset-0 z-50 flex items-end bg-black/50" onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} className="safe-bottom w-full rounded-t-3xl bg-background p-5">
+        <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border"/>
+        <h2 className="font-display text-lg font-bold">Предложение клиенту</h2>
+        {props.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">Сначала добавьте хотя бы один объект.</p>
+        ) : (
+          <>
+            <label className="mt-3 block text-xs font-semibold uppercase text-muted-foreground">Объект</label>
+            <select value={propertyId} onChange={(e) => setPropertyId(e.target.value)} className="mt-1 w-full rounded-xl bg-card p-3 text-sm ring-1 ring-border">
+              <option value="">— выберите —</option>
+              {props.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}
+            </select>
 
-        <div className="mt-4 space-y-3">
-          <div>
-            <div className="mb-1 text-[11px] font-bold uppercase text-muted-foreground">Объект</div>
-            <div className="space-y-2">
-              {proProperties.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => { setPropertyId(p.id); setPrice(p.price); }}
-                  className={cn(
-                    "flex w-full items-center gap-3 rounded-xl p-2 text-left ring-1 transition-colors",
-                    p.id === propertyId
-                      ? "bg-primary/10 ring-primary"
-                      : "bg-background ring-border"
-                  )}
-                >
-                  <img src={p.images[0]} alt="" className="h-12 w-12 rounded-lg object-cover" />
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-bold">{p.title}</div>
-                    <div className="text-[11px] text-muted-foreground">{formatKZT(p.price)} / ночь</div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
+            <label className="mt-3 block text-xs font-semibold uppercase text-muted-foreground">Цена за ночь</label>
+            <input type="number" value={price} onChange={(e) => setPrice(Number(e.target.value))} className="mt-1 w-full rounded-xl bg-card p-3 text-sm ring-1 ring-border"/>
+            <div className="mt-1 text-[11px] text-muted-foreground">Итого {nights} ноч. · {formatKZT(price * nights)}</div>
 
-          <label className="block">
-            <div className="mb-1 text-[11px] font-bold uppercase text-muted-foreground">Цена за ночь</div>
-            <input
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(Number(e.target.value))}
-              className="w-full rounded-xl bg-background px-3 py-2.5 text-sm outline-none ring-1 ring-border"
-            />
-          </label>
+            <label className="mt-3 block text-xs font-semibold uppercase text-muted-foreground">Сообщение</label>
+            <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} maxLength={500} placeholder="Что подкупает в вашем варианте…"
+              className="mt-1 w-full resize-none rounded-xl bg-card p-3 text-sm ring-1 ring-border"/>
 
-          <label className="block">
-            <div className="mb-1 text-[11px] font-bold uppercase text-muted-foreground">Сообщение</div>
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              rows={3}
-              placeholder="Привет! У меня свободна квартира на ваши даты…"
-              className="w-full resize-none rounded-xl bg-background p-3 text-sm outline-none ring-1 ring-border"
-            />
-          </label>
-        </div>
-
-        <div className="mt-4 flex gap-2">
-          <button onClick={onClose} className="flex-1 rounded-full bg-muted py-3 text-sm font-bold">
-            Отмена
-          </button>
-          <Link
-            to="/pro/chat"
-            onClick={onClose}
-            className="flex flex-1 items-center justify-center gap-1 rounded-full bg-primary py-3 text-sm font-bold text-primary-foreground"
-          >
-            <Send className="h-4 w-4" /> Отправить
-          </Link>
-        </div>
+            <button onClick={() => send.mutate()} disabled={send.isPending}
+              className="mt-4 flex h-12 w-full items-center justify-center rounded-full bg-primary font-display text-base font-bold text-primary-foreground disabled:opacity-60">
+              {send.isPending ? <Loader2 className="h-5 w-5 animate-spin"/> : "Отправить"}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
