@@ -29,10 +29,19 @@ const proTabs = [
   { to: "/pro/stats", label: "Аналитика", icon: BarChart3 },
 ];
 
+const HIDDEN_PATTERNS = [
+  /^\/auth$/,
+  /^\/create-request$/,
+  /^\/chat\/[^/]+$/,
+  /^\/pro\/properties(\/|$)/,
+];
+
 export function BottomNav() {
   const { mode } = useApp();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  if (HIDDEN_PATTERNS.some((re) => re.test(pathname))) return null;
   const tabs = mode === "lite" ? liteTabs : proTabs;
+
 
   return (
     <nav className="safe-bottom sticky bottom-0 z-30 mt-auto border-t border-border bg-card/95 px-2 pt-2 backdrop-blur-lg">
