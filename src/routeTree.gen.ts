@@ -11,13 +11,19 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RequestsRouteImport } from './routes/requests'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ProRouteImport } from './routes/pro'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as CreateRequestRouteImport } from './routes/create-request'
 import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProIndexRouteImport } from './routes/pro.index'
 import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as PropertyIdRouteImport } from './routes/property.$id'
+import { Route as ProStatsRouteImport } from './routes/pro.stats'
+import { Route as ProRequestsRouteImport } from './routes/pro.requests'
+import { Route as ProChatRouteImport } from './routes/pro.chat'
+import { Route as ProCalendarRouteImport } from './routes/pro.calendar'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
 
 const RequestsRoute = RequestsRouteImport.update({
@@ -28,6 +34,11 @@ const RequestsRoute = RequestsRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProRoute = ProRouteImport.update({
+  id: '/pro',
+  path: '/pro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MapRoute = MapRouteImport.update({
@@ -55,6 +66,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProIndexRoute = ProIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProRoute,
+} as any)
 const ChatIndexRoute = ChatIndexRouteImport.update({
   id: '/chat/',
   path: '/chat/',
@@ -64,6 +80,26 @@ const PropertyIdRoute = PropertyIdRouteImport.update({
   id: '/property/$id',
   path: '/property/$id',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ProStatsRoute = ProStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => ProRoute,
+} as any)
+const ProRequestsRoute = ProRequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
+  getParentRoute: () => ProRoute,
+} as any)
+const ProChatRoute = ProChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => ProRoute,
+} as any)
+const ProCalendarRoute = ProCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => ProRoute,
 } as any)
 const ChatIdRoute = ChatIdRouteImport.update({
   id: '/chat/$id',
@@ -77,11 +113,17 @@ export interface FileRoutesByFullPath {
   '/create-request': typeof CreateRequestRoute
   '/favorites': typeof FavoritesRoute
   '/map': typeof MapRoute
+  '/pro': typeof ProRouteWithChildren
   '/profile': typeof ProfileRoute
   '/requests': typeof RequestsRoute
   '/chat/$id': typeof ChatIdRoute
+  '/pro/calendar': typeof ProCalendarRoute
+  '/pro/chat': typeof ProChatRoute
+  '/pro/requests': typeof ProRequestsRoute
+  '/pro/stats': typeof ProStatsRoute
   '/property/$id': typeof PropertyIdRoute
   '/chat/': typeof ChatIndexRoute
+  '/pro/': typeof ProIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -92,8 +134,13 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/requests': typeof RequestsRoute
   '/chat/$id': typeof ChatIdRoute
+  '/pro/calendar': typeof ProCalendarRoute
+  '/pro/chat': typeof ProChatRoute
+  '/pro/requests': typeof ProRequestsRoute
+  '/pro/stats': typeof ProStatsRoute
   '/property/$id': typeof PropertyIdRoute
   '/chat': typeof ChatIndexRoute
+  '/pro': typeof ProIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -102,11 +149,17 @@ export interface FileRoutesById {
   '/create-request': typeof CreateRequestRoute
   '/favorites': typeof FavoritesRoute
   '/map': typeof MapRoute
+  '/pro': typeof ProRouteWithChildren
   '/profile': typeof ProfileRoute
   '/requests': typeof RequestsRoute
   '/chat/$id': typeof ChatIdRoute
+  '/pro/calendar': typeof ProCalendarRoute
+  '/pro/chat': typeof ProChatRoute
+  '/pro/requests': typeof ProRequestsRoute
+  '/pro/stats': typeof ProStatsRoute
   '/property/$id': typeof PropertyIdRoute
   '/chat/': typeof ChatIndexRoute
+  '/pro/': typeof ProIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -116,11 +169,17 @@ export interface FileRouteTypes {
     | '/create-request'
     | '/favorites'
     | '/map'
+    | '/pro'
     | '/profile'
     | '/requests'
     | '/chat/$id'
+    | '/pro/calendar'
+    | '/pro/chat'
+    | '/pro/requests'
+    | '/pro/stats'
     | '/property/$id'
     | '/chat/'
+    | '/pro/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -131,8 +190,13 @@ export interface FileRouteTypes {
     | '/profile'
     | '/requests'
     | '/chat/$id'
+    | '/pro/calendar'
+    | '/pro/chat'
+    | '/pro/requests'
+    | '/pro/stats'
     | '/property/$id'
     | '/chat'
+    | '/pro'
   id:
     | '__root__'
     | '/'
@@ -140,11 +204,17 @@ export interface FileRouteTypes {
     | '/create-request'
     | '/favorites'
     | '/map'
+    | '/pro'
     | '/profile'
     | '/requests'
     | '/chat/$id'
+    | '/pro/calendar'
+    | '/pro/chat'
+    | '/pro/requests'
+    | '/pro/stats'
     | '/property/$id'
     | '/chat/'
+    | '/pro/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -153,6 +223,7 @@ export interface RootRouteChildren {
   CreateRequestRoute: typeof CreateRequestRoute
   FavoritesRoute: typeof FavoritesRoute
   MapRoute: typeof MapRoute
+  ProRoute: typeof ProRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   RequestsRoute: typeof RequestsRoute
   ChatIdRoute: typeof ChatIdRoute
@@ -174,6 +245,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pro': {
+      id: '/pro'
+      path: '/pro'
+      fullPath: '/pro'
+      preLoaderRoute: typeof ProRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/map': {
@@ -211,6 +289,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pro/': {
+      id: '/pro/'
+      path: '/'
+      fullPath: '/pro/'
+      preLoaderRoute: typeof ProIndexRouteImport
+      parentRoute: typeof ProRoute
+    }
     '/chat/': {
       id: '/chat/'
       path: '/chat'
@@ -225,6 +310,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PropertyIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pro/stats': {
+      id: '/pro/stats'
+      path: '/stats'
+      fullPath: '/pro/stats'
+      preLoaderRoute: typeof ProStatsRouteImport
+      parentRoute: typeof ProRoute
+    }
+    '/pro/requests': {
+      id: '/pro/requests'
+      path: '/requests'
+      fullPath: '/pro/requests'
+      preLoaderRoute: typeof ProRequestsRouteImport
+      parentRoute: typeof ProRoute
+    }
+    '/pro/chat': {
+      id: '/pro/chat'
+      path: '/chat'
+      fullPath: '/pro/chat'
+      preLoaderRoute: typeof ProChatRouteImport
+      parentRoute: typeof ProRoute
+    }
+    '/pro/calendar': {
+      id: '/pro/calendar'
+      path: '/calendar'
+      fullPath: '/pro/calendar'
+      preLoaderRoute: typeof ProCalendarRouteImport
+      parentRoute: typeof ProRoute
+    }
     '/chat/$id': {
       id: '/chat/$id'
       path: '/chat/$id'
@@ -235,12 +348,31 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ProRouteChildren {
+  ProCalendarRoute: typeof ProCalendarRoute
+  ProChatRoute: typeof ProChatRoute
+  ProRequestsRoute: typeof ProRequestsRoute
+  ProStatsRoute: typeof ProStatsRoute
+  ProIndexRoute: typeof ProIndexRoute
+}
+
+const ProRouteChildren: ProRouteChildren = {
+  ProCalendarRoute: ProCalendarRoute,
+  ProChatRoute: ProChatRoute,
+  ProRequestsRoute: ProRequestsRoute,
+  ProStatsRoute: ProStatsRoute,
+  ProIndexRoute: ProIndexRoute,
+}
+
+const ProRouteWithChildren = ProRoute._addFileChildren(ProRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BookingsRoute: BookingsRoute,
   CreateRequestRoute: CreateRequestRoute,
   FavoritesRoute: FavoritesRoute,
   MapRoute: MapRoute,
+  ProRoute: ProRouteWithChildren,
   ProfileRoute: ProfileRoute,
   RequestsRoute: RequestsRoute,
   ChatIdRoute: ChatIdRoute,
