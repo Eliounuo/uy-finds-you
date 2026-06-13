@@ -1,12 +1,14 @@
 import { Link } from "@tanstack/react-router";
 import { Heart, Star, MapPin } from "lucide-react";
-import { useApp } from "@/lib/app-mode";
-import { formatKZT, type Property } from "@/lib/mock-data";
+import { useFavorites, useToggleFavorite } from "@/lib/use-favorites";
+import { formatKZT } from "@/lib/mock-data";
+import type { Property } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
 export function PropertyCard({ p, compact = false }: { p: Property; compact?: boolean }) {
-  const { favorites, toggleFavorite } = useApp();
-  const fav = favorites.includes(p.id);
+  const favs = useFavorites();
+  const toggle = useToggleFavorite();
+  const fav = favs.has(p.id);
 
   return (
     <Link
@@ -14,17 +16,14 @@ export function PropertyCard({ p, compact = false }: { p: Property; compact?: bo
       params={{ id: p.id }}
       className="group block overflow-hidden rounded-2xl bg-card shadow-card ring-1 ring-border transition-transform active:scale-[0.98]"
     >
-      <div className={cn("relative w-full overflow-hidden", compact ? "aspect-square" : "aspect-[4/3]")}>
-        <img
-          src={p.images[0]}
-          alt={p.title}
-          loading="lazy"
-          className="h-full w-full object-cover"
-        />
+      <div className={cn("relative w-full overflow-hidden bg-muted", compact ? "aspect-square" : "aspect-[4/3]")}>
+        {p.photos[0] && (
+          <img src={p.photos[0]} alt={p.title} loading="lazy" className="h-full w-full object-cover" />
+        )}
         <button
           onClick={(e) => {
             e.preventDefault();
-            toggleFavorite(p.id);
+            toggle.mutate({ propertyId: p.id, isFav: fav });
           }}
           className="absolute right-2 top-2 grid h-9 w-9 place-items-center rounded-full bg-background/85 backdrop-blur"
           aria-label="В избранное"
@@ -33,25 +32,21 @@ export function PropertyCard({ p, compact = false }: { p: Property; compact?: bo
         </button>
         <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-xs font-semibold backdrop-blur">
           <Star className="h-3 w-3 fill-primary text-primary" />
-          {p.rating}
-          <span className="text-muted-foreground">·{p.reviewsCount}</span>
+          {Number(p.rating).toFixed(1)}
+          <span className="text-muted-foreground">·{p.reviews_count}</span>
         </div>
       </div>
 
       <div className="p-3">
-        <div className="flex items-baseline justify-between gap-2">
-          <h3 className={cn("truncate font-display font-semibold", compact ? "text-sm" : "text-base")}>
-            {p.title}
-          </h3>
-        </div>
+        <h3 className={cn("truncate font-display font-semibold", compact ? "text-sm" : "text-base")}>
+          {p.title}
+        </h3>
         <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-muted-foreground">
           <MapPin className="h-3 w-3 shrink-0" />
-          {p.city}, {p.district}
+          {p.city}{p.district ? `, ${p.district}` : ""}
         </p>
         <div className="mt-2 flex items-baseline gap-1">
-          <span className="font-display text-base font-bold text-foreground">
-            {formatKZT(p.price)}
-          </span>
+          <span className="font-display text-base font-bold text-foreground">{formatKZT(p.price_per_night)}</span>
           <span className="text-xs text-muted-foreground">/ ночь</span>
         </div>
       </div>
