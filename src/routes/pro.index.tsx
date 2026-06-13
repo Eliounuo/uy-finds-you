@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, Building2, Loader2 } from "lucide-react";
+import { Plus, Building2, Loader2, Pencil } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { useAuth } from "@/lib/use-auth";
 import { myPropertiesQuery, ownerBookingsQuery } from "@/lib/queries";
 import { formatKZT } from "@/lib/mock-data";
+import { SignedImg } from "@/components/signed-img";
 
 export const Route = createFileRoute("/pro/")({ component: ProHome });
 
@@ -34,25 +35,38 @@ function ProHome() {
           <div className="rounded-2xl border-2 border-dashed border-border bg-card p-6 text-center">
             <Building2 className="mx-auto h-10 w-10 text-muted-foreground"/>
             <p className="mt-2 text-sm text-muted-foreground">Пока нет объектов</p>
-            <p className="mt-1 text-[11px] text-muted-foreground">Добавление объектов появится в следующем обновлении</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">Добавьте первый, чтобы получать заявки</p>
           </div>
         )}
         <div className="space-y-3">
           {props.map((p) => (
-            <Link key={p.id} to="/property/$id" params={{ id: p.id }} className="flex items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border">
-              {p.photos[0] && <img src={p.photos[0]} alt="" className="h-16 w-16 rounded-xl object-cover"/>}
-              <div className="min-w-0 flex-1">
+            <div key={p.id} className="flex items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border">
+              <Link to="/property/$id" params={{ id: p.id }} className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-muted">
+                {p.photos[0] && <SignedImg path={p.photos[0]} alt="" className="h-full w-full object-cover"/>}
+              </Link>
+              <Link to="/property/$id" params={{ id: p.id }} className="min-w-0 flex-1">
                 <div className="truncate font-display font-semibold">{p.title}</div>
-                <div className="text-xs text-muted-foreground">{p.city}</div>
+                <div className="text-xs text-muted-foreground">{p.city}{p.status !== "active" ? ` · ${p.status}` : ""}</div>
                 <div className="font-display text-sm font-bold text-primary">{formatKZT(p.price_per_night)}</div>
-              </div>
-            </Link>
+              </Link>
+              <Link
+                to="/pro/properties/$id/edit"
+                params={{ id: p.id }}
+                aria-label="Редактировать"
+                className="grid h-9 w-9 place-items-center rounded-full bg-background text-muted-foreground ring-1 ring-border"
+              >
+                <Pencil className="h-4 w-4"/>
+              </Link>
+            </div>
           ))}
         </div>
 
-        <button className="flex w-full items-center justify-center gap-2 rounded-full bg-card py-3 text-sm font-semibold text-muted-foreground ring-1 ring-border" disabled>
-          <Plus className="h-4 w-4"/> Добавить объект (скоро)
-        </button>
+        <Link
+          to="/pro/properties/new"
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3 font-display text-sm font-semibold text-primary-foreground shadow-glow"
+        >
+          <Plus className="h-4 w-4"/> Добавить объект
+        </Link>
       </div>
     </>
   );

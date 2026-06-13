@@ -25,6 +25,8 @@ import { Route as ProStatsRouteImport } from './routes/pro.stats'
 import { Route as ProRequestsRouteImport } from './routes/pro.requests'
 import { Route as ProCalendarRouteImport } from './routes/pro.calendar'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
+import { Route as ProPropertiesNewRouteImport } from './routes/pro.properties.new'
+import { Route as ProPropertiesIdEditRouteImport } from './routes/pro.properties.$id.edit'
 
 const RequestsRoute = RequestsRouteImport.update({
   id: '/requests',
@@ -106,6 +108,16 @@ const ChatIdRoute = ChatIdRouteImport.update({
   path: '/chat/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProPropertiesNewRoute = ProPropertiesNewRouteImport.update({
+  id: '/properties/new',
+  path: '/properties/new',
+  getParentRoute: () => ProRoute,
+} as any)
+const ProPropertiesIdEditRoute = ProPropertiesIdEditRouteImport.update({
+  id: '/properties/$id/edit',
+  path: '/properties/$id/edit',
+  getParentRoute: () => ProRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -124,6 +136,8 @@ export interface FileRoutesByFullPath {
   '/property/$id': typeof PropertyIdRoute
   '/chat/': typeof ChatIndexRoute
   '/pro/': typeof ProIndexRoute
+  '/pro/properties/new': typeof ProPropertiesNewRoute
+  '/pro/properties/$id/edit': typeof ProPropertiesIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -141,6 +155,8 @@ export interface FileRoutesByTo {
   '/property/$id': typeof PropertyIdRoute
   '/chat': typeof ChatIndexRoute
   '/pro': typeof ProIndexRoute
+  '/pro/properties/new': typeof ProPropertiesNewRoute
+  '/pro/properties/$id/edit': typeof ProPropertiesIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -160,6 +176,8 @@ export interface FileRoutesById {
   '/property/$id': typeof PropertyIdRoute
   '/chat/': typeof ChatIndexRoute
   '/pro/': typeof ProIndexRoute
+  '/pro/properties/new': typeof ProPropertiesNewRoute
+  '/pro/properties/$id/edit': typeof ProPropertiesIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -180,6 +198,8 @@ export interface FileRouteTypes {
     | '/property/$id'
     | '/chat/'
     | '/pro/'
+    | '/pro/properties/new'
+    | '/pro/properties/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -197,6 +217,8 @@ export interface FileRouteTypes {
     | '/property/$id'
     | '/chat'
     | '/pro'
+    | '/pro/properties/new'
+    | '/pro/properties/$id/edit'
   id:
     | '__root__'
     | '/'
@@ -215,6 +237,8 @@ export interface FileRouteTypes {
     | '/property/$id'
     | '/chat/'
     | '/pro/'
+    | '/pro/properties/new'
+    | '/pro/properties/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -346,6 +370,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pro/properties/new': {
+      id: '/pro/properties/new'
+      path: '/properties/new'
+      fullPath: '/pro/properties/new'
+      preLoaderRoute: typeof ProPropertiesNewRouteImport
+      parentRoute: typeof ProRoute
+    }
+    '/pro/properties/$id/edit': {
+      id: '/pro/properties/$id/edit'
+      path: '/properties/$id/edit'
+      fullPath: '/pro/properties/$id/edit'
+      preLoaderRoute: typeof ProPropertiesIdEditRouteImport
+      parentRoute: typeof ProRoute
+    }
   }
 }
 
@@ -354,6 +392,8 @@ interface ProRouteChildren {
   ProRequestsRoute: typeof ProRequestsRoute
   ProStatsRoute: typeof ProStatsRoute
   ProIndexRoute: typeof ProIndexRoute
+  ProPropertiesNewRoute: typeof ProPropertiesNewRoute
+  ProPropertiesIdEditRoute: typeof ProPropertiesIdEditRoute
 }
 
 const ProRouteChildren: ProRouteChildren = {
@@ -361,6 +401,8 @@ const ProRouteChildren: ProRouteChildren = {
   ProRequestsRoute: ProRequestsRoute,
   ProStatsRoute: ProStatsRoute,
   ProIndexRoute: ProIndexRoute,
+  ProPropertiesNewRoute: ProPropertiesNewRoute,
+  ProPropertiesIdEditRoute: ProPropertiesIdEditRoute,
 }
 
 const ProRouteWithChildren = ProRoute._addFileChildren(ProRouteChildren)

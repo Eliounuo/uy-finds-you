@@ -4,6 +4,7 @@ import { useFavorites, useToggleFavorite } from "@/lib/use-favorites";
 import { formatKZT } from "@/lib/mock-data";
 import type { Property } from "@/lib/queries";
 import { cn } from "@/lib/utils";
+import { SignedImg } from "@/components/signed-img";
 
 export function PropertyCard({ p, compact = false }: { p: Property; compact?: boolean }) {
   const favs = useFavorites();
@@ -18,7 +19,7 @@ export function PropertyCard({ p, compact = false }: { p: Property; compact?: bo
     >
       <div className={cn("relative w-full overflow-hidden bg-muted", compact ? "aspect-square" : "aspect-[4/3]")}>
         {p.photos[0] && (
-          <img src={p.photos[0]} alt={p.title} loading="lazy" className="h-full w-full object-cover" />
+          <SignedImg path={p.photos[0]} alt={p.title} loading="lazy" className="h-full w-full object-cover" />
         )}
         <button
           onClick={(e) => {
