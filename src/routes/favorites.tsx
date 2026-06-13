@@ -1,40 +1,45 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Heart } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Heart, Loader2 } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { PropertyCard } from "@/components/property-card";
-import { useApp } from "@/lib/app-mode";
-import { properties } from "@/lib/mock-data";
+import { useAuth } from "@/lib/use-auth";
+import { favoritesQuery } from "@/lib/queries";
 
 export const Route = createFileRoute("/favorites")({
-  component: Favorites,
+  component: FavoritesPage,
 });
 
-function Favorites() {
-  const { favorites } = useApp();
-  const list = properties.filter((p) => favorites.includes(p.id));
+function FavoritesPage() {
+  const { user } = useAuth();
+  const { data = [], isLoading } = useQuery(favoritesQuery(user?.id ?? null));
+  const list = data.map((f) => f.properties).filter(Boolean) as NonNullable<(typeof data)[number]["properties"]>[];
 
   return (
     <>
       <AppHeader title="Избранное" />
       <div className="space-y-3 px-4 pt-2 pb-32">
-        {list.length === 0 ? (
-          <div className="mt-16 flex flex-col items-center text-center">
-            <div className="grid h-16 w-16 place-items-center rounded-full bg-accent">
-              <Heart className="h-7 w-7 text-primary" />
-            </div>
-            <h3 className="mt-4 font-display text-lg font-bold">Пока пусто</h3>
-            <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-              Добавляйте квартиры в избранное — они появятся здесь.
-            </p>
-            <Link
-              to="/"
-              className="mt-5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
-            >
-              Подобрать
+        {!user && (
+          <div className="rounded-2xl bg-card p-6 text-center ring-1 ring-border">
+            <Heart className="mx-auto h-10 w-10 text-muted-foreground" />
+            <p className="mt-3 text-sm text-muted-foreground">Войдите, чтобы сохранять понравившиеся варианты</p>
+            <Link to="/auth" className="mt-3 inline-block rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+              Войти
             </Link>
           </div>
-        ) : (
-          list.map((p) => <PropertyCard key={p.id} p={p} />)
+        )}
+        {user && isLoading && (
+          <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+        )}
+        {user && !isLoading && list.length === 0 && (
+          <div className="rounded-2xl bg-card p-6 text-center text-sm text-muted-foreground ring-1 ring-border">
+            Пока пусто — добавьте варианты ♥
+          </div>
+        )}
+        {list.length > 0 && (
+          <div className="grid grid-cols-2 gap-3">
+            {list.map((p) => <PropertyCard key={p.id} p={p} compact />)}
+          </div>
         )}
       </div>
     </>
