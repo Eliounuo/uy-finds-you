@@ -33,6 +33,7 @@ const HIDDEN_PATTERNS = [
   /^\/auth$/,
   /^\/complete-profile$/,
   /^\/profile\/edit$/,
+  /^\/profile\/theme$/,
   /^\/create-request$/,
   /^\/become-host$/,
   /^\/chat\/[^/]+$/,
