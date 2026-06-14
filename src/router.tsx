@@ -10,12 +10,10 @@ export const getRouter = () => {
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
-    // Preload every route's chunk as soon as the router renders, so navigation
-    // between pages is instant and no "loading chunk" round-trips happen later.
-    defaultPreload: "render",
-    defaultPreloadDelay: 0,
+    // Preload route chunks on hover/touch intent — fast nav without
+    // overwhelming the browser by fetching every chunk at mount.
+    defaultPreload: "intent",
   });
 
   return router;
 };
-
