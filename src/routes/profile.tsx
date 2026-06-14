@@ -154,6 +154,7 @@ function Profile() {
         <Section title="Аккаунт">
           <Row icon={Shield} label="Безопасность" />
           <Row icon={Settings} label="Настройки" />
+          <Row icon={Moon} label="Тема" to="/profile/theme" />
           <Row icon={HelpCircle} label="Поддержка" />
         </Section>
 
