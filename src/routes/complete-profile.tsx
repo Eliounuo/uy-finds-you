@@ -55,9 +55,7 @@ function CompleteProfile() {
   useEffect(() => {
     if (profileLoading) return;
     if (profile && isProfileComplete(profile)) {
-      const next = typeof (search as Record<string, unknown>)?.next === "string"
-        ? ((search as Record<string, string>).next as string)
-        : "/";
+      const next = typeof search?.next === "string" ? (search.next as string) : "/";
       navigate({ to: next });
     }
   }, [profile, profileLoading, navigate, search]);
