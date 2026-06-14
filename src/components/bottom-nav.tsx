@@ -28,6 +28,7 @@ const proTabs = [
   { to: "/pro/requests", label: "Заявки", icon: Inbox },
   { to: "/pro/chat", label: "Чат", icon: MessageCircle },
   { to: "/pro/stats", label: "Аналитика", icon: BarChart3 },
+  { to: "/profile", label: "Профиль", icon: User },
 ];
 
 const HIDDEN_PATTERNS = [
@@ -43,8 +44,9 @@ const HIDDEN_PATTERNS = [
 
 export function BottomNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { mode } = useApp();
   if (HIDDEN_PATTERNS.some((re) => re.test(pathname))) return null;
-  const inProArea = pathname === "/owner" || pathname.startsWith("/pro");
+  const inProArea = mode === "pro";
   const tabs = inProArea ? proTabs : liteTabs;
 
 
