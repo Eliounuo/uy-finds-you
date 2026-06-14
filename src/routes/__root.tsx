@@ -147,7 +147,31 @@ function RootComponent() {
       router.invalidate();
       if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
     });
-    return () => sub.subscription.unsubscribe();
+
+    // Auto-reload once when a stale chunk fails to load after a redeploy.
+    const onChunkError = (e: Event) => {
+      const err =
+        (e as ErrorEvent).error ??
+        (e as PromiseRejectionEvent).reason ??
+        (e as ErrorEvent).message;
+      if (!isChunkLoadError(err)) return;
+      try {
+        if (!sessionStorage.getItem(RELOAD_FLAG)) {
+          sessionStorage.setItem(RELOAD_FLAG, "1");
+          window.location.reload();
+        }
+      } catch {
+        window.location.reload();
+      }
+    };
+    window.addEventListener("error", onChunkError);
+    window.addEventListener("unhandledrejection", onChunkError);
+
+    return () => {
+      sub.subscription.unsubscribe();
+      window.removeEventListener("error", onChunkError);
+      window.removeEventListener("unhandledrejection", onChunkError);
+    };
   }, [router, queryClient]);
 
   return (
