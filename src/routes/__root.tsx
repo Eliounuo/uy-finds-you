@@ -94,7 +94,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       {
         name: "viewport",
-        content: "width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1",
+        content:
+          "width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover",
       },
       { title: "UY — посуточная аренда в Казахстане" },
       {
@@ -102,13 +103,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "UY — посуточная аренда жилья в Казахстане. Создайте заявку — и квартиры найдут вас сами.",
       },
-      { name: "theme-color", content: "#ea5a2e" },
+      { name: "theme-color", content: "#ffffff" },
+      { name: "application-name", content: "UY" },
+      // iOS standalone PWA
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "UY" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "format-detection", content: "telephone=no" },
+      { name: "apple-touch-fullscreen", content: "yes" },
+      { name: "msapplication-TileColor", content: "#ffffff" },
       { property: "og:title", content: "UY — посуточная аренда в Казахстане" },
       { property: "og:description", content: "Квартиры ищут клиента, а не наоборот." },
       { property: "og:type", content: "website" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
+      { rel: "icon", type: "image/png", sizes: "512x512", href: "/icon-512.png" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
