@@ -48,7 +48,7 @@ export function PropertyCard({ p, compact = false }: { p: Property; compact?: bo
         </p>
         <div className="mt-2 flex items-baseline gap-1">
           <span className="font-display text-base font-bold text-foreground">{formatKZT(p.price_per_night)}</span>
-          <span className="text-xs text-muted-foreground">/ ночь</span>
+          <span className="text-xs text-muted-foreground">/ сутки</span>
         </div>
       </div>
     </Link>

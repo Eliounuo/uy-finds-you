@@ -72,7 +72,7 @@ function RequestsPage() {
                         <div className="min-w-0 flex-1">
                           <div className="truncate text-sm font-semibold">{o.properties?.title}</div>
                           {o.message && <div className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">{o.message}</div>}
-                          <div className="mt-1 font-display text-sm font-bold text-primary">{formatKZT(o.price_per_night)} / ночь · итого {formatKZT(o.total_price)}</div>
+                          <div className="mt-1 font-display text-sm font-bold text-primary">{formatKZT(o.price_per_night)} / сутки · итого {formatKZT(o.total_price)}</div>
                         </div>
                       </div>
                       {o.status === 'pending' && r.status === 'open' && (

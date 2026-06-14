@@ -84,7 +84,7 @@ function OfferSheet({ request, onClose }: { request: RequestRow; onClose: () => 
               {props.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}
             </select>
 
-            <label className="mt-3 block text-xs font-semibold uppercase text-muted-foreground">Цена за ночь</label>
+            <label className="mt-3 block text-xs font-semibold uppercase text-muted-foreground">Цена за сутки</label>
             <input type="number" value={price} onChange={(e) => setPrice(Number(e.target.value))} className="mt-1 w-full rounded-xl bg-card p-3 text-sm ring-1 ring-border"/>
             <div className="mt-1 text-[11px] text-muted-foreground">Итого {nights} ноч. · {formatKZT(price * nights)}</div>
 

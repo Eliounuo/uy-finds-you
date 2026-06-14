@@ -317,7 +317,7 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
           />
         </Field>
 
-        <Field label="Цена за ночь, ₸">
+        <Field label="Цена за сутки, ₸">
           <input
             type="number"
             inputMode="numeric"
