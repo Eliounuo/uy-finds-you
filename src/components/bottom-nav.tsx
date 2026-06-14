@@ -38,11 +38,10 @@ const HIDDEN_PATTERNS = [
 ];
 
 export function BottomNav() {
-  const { mode } = useApp();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   if (HIDDEN_PATTERNS.some((re) => re.test(pathname))) return null;
   const inProArea = pathname === "/owner" || pathname.startsWith("/pro");
-  const tabs = inProArea || mode === "pro" ? proTabs : liteTabs;
+  const tabs = inProArea ? proTabs : liteTabs;
 
 
   return (
