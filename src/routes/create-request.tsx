@@ -126,7 +126,7 @@ function CreateRequest() {
           </div>
         </Section>
 
-        <Section icon={Wallet} title={`Бюджет до ${formatKZT(budget)} / ночь`}>
+        <Section icon={Wallet} title={`Бюджет до ${formatKZT(budget)} / сутки`}>
           <input type="range" min={5000} max={100000} step={1000} value={budget} onChange={(e) => setBudget(Number(e.target.value))} className="w-full accent-[var(--color-primary)]"/>
         </Section>
 
