@@ -20,7 +20,7 @@ function CompleteProfile() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading, reload } = useProfile();
-  const searchRaw = useRouterState({ select: (s) => s.location.search });
+  const searchRaw = useRouterState({ select: (s) => s.location.search as unknown });
   const search = (searchRaw ?? {}) as Record<string, unknown>;
 
   const [fullName, setFullName] = useState("");
