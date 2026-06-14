@@ -35,7 +35,7 @@ function PropertyPage() {
       {p.photos.length > 1 && (
         <div className="scrollbar-hide -mt-2 flex gap-2 overflow-x-auto px-4 pt-3">
           {p.photos.slice(1).map((src, i) => (
-            <SignedImg key={i} path={src} alt="" className="h-20 w-28 shrink-0 rounded-lg object-cover"/>
+            <SignedImg key={i} path={src} alt="" width={300} className="h-20 w-28 shrink-0 rounded-lg object-cover"/>
           ))}
         </div>
       )}
