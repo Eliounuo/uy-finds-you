@@ -52,7 +52,7 @@ export function BottomNav() {
 
   return (
     <nav className="safe-bottom sticky bottom-0 z-30 mt-auto border-t border-border bg-card/95 px-2 pt-2 backdrop-blur-lg">
-      <ul className="grid grid-cols-5">
+      <ul className={cn("grid", tabs.length === 6 ? "grid-cols-6" : "grid-cols-5")}>
         {tabs.map((t) => {
           const active = t.exact ? pathname === t.to : pathname.startsWith(t.to);
           const Icon = t.icon;
