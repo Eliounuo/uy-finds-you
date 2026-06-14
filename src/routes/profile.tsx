@@ -49,15 +49,34 @@ function Profile() {
       <div className="space-y-4 px-4 pt-2 pb-32">
         <div className="rounded-2xl bg-gradient-to-br from-primary to-[oklch(0.55_0.22_22)] p-4 text-primary-foreground">
           <div className="flex items-center gap-3">
-            <div className="grid h-14 w-14 place-items-center rounded-full bg-background/20 font-display text-xl font-bold backdrop-blur">
-              {initial}
+            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-background/20 backdrop-blur">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+              ) : user ? (
+                <div className="grid h-full w-full place-items-center font-display text-xl font-bold">
+                  {initial}
+                </div>
+              ) : (
+                <div className="grid h-full w-full place-items-center">
+                  <UserCircle2 className="h-8 w-8" />
+                </div>
+              )}
             </div>
             <div className="min-w-0 flex-1">
               <div className="truncate font-display text-lg font-bold">{displayName}</div>
               <div className="truncate text-xs opacity-85">
-                {user ? user.email : "Войдите, чтобы создавать заявки"}
+                {profile?.phone || user?.email || "Войдите, чтобы создавать заявки"}
               </div>
             </div>
+            {user && (
+              <Link
+                to="/profile/edit"
+                aria-label="Редактировать профиль"
+                className="grid h-9 w-9 place-items-center rounded-full bg-background/20 backdrop-blur"
+              >
+                <Pencil className="h-4 w-4" />
+              </Link>
+            )}
           </div>
           {user ? (
             <div className="mt-3 flex flex-wrap gap-1.5">
@@ -79,6 +98,12 @@ function Profile() {
             </Link>
           )}
         </div>
+
+        {user && (
+          <Section title="Профиль">
+            <Row icon={Pencil} label="Редактировать профиль" to="/profile/edit" />
+          </Section>
+        )}
 
         {/* Сдача недвижимости */}
         <Section title="Сдача недвижимости">
