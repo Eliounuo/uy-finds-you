@@ -15,6 +15,7 @@ import {
   ArrowRight,
   Pencil,
   UserCircle2,
+  Moon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/app-header";
