@@ -37,11 +37,31 @@ function NotFoundComponent() {
   );
 }
 
+function isChunkLoadError(error: unknown): boolean {
+  const msg = error instanceof Error ? `${error.name} ${error.message}` : String(error ?? "");
+  return /Importing a module script failed|Failed to fetch dynamically imported module|ChunkLoadError|Loading chunk|Loading CSS chunk/i.test(
+    msg,
+  );
+}
+
+const RELOAD_FLAG = "__uy_chunk_reload";
+
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    // Auto-recover from stale chunk errors after a redeploy by forcing a hard reload once.
+    if (typeof window !== "undefined" && isChunkLoadError(error)) {
+      try {
+        if (!sessionStorage.getItem(RELOAD_FLAG)) {
+          sessionStorage.setItem(RELOAD_FLAG, "1");
+          window.location.reload();
+        }
+      } catch {
+        window.location.reload();
+      }
+    }
   }, [error]);
 
   return (
@@ -54,6 +74,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
+              try { sessionStorage.removeItem(RELOAD_FLAG); } catch {}
               router.invalidate();
               reset();
             }}
