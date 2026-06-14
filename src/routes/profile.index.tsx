@@ -29,7 +29,7 @@ export const Route = createFileRoute("/profile/")({
 });
 
 function Profile() {
-  const { isLandlord, setMode } = useApp();
+  const { isLandlord, mode, setMode } = useApp();
   const { user } = useAuth();
   const { profile } = useProfile();
   const navigate = useNavigate();
