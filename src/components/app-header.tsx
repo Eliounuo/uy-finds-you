@@ -1,5 +1,5 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { ArrowLeft, Moon, Sun, ChevronDown } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ArrowLeft, Moon, Sun } from "lucide-react";
 import { useApp } from "@/lib/app-mode";
 import { cn } from "@/lib/utils";
 
@@ -7,13 +7,13 @@ type Props = {
   title?: string;
   back?: boolean;
   right?: React.ReactNode;
+  /** @deprecated Role switching now happens via Profile → Сдача недвижимости */
   showModeSwitcher?: boolean;
   transparent?: boolean;
 };
 
-export function AppHeader({ title, back, right, showModeSwitcher, transparent }: Props) {
-  const { mode, setMode, theme, toggleTheme } = useApp();
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+export function AppHeader({ title, back, right, transparent }: Props) {
+  const { mode, theme, toggleTheme } = useApp();
 
   return (
     <header
@@ -31,15 +31,17 @@ export function AppHeader({ title, back, right, showModeSwitcher, transparent }:
           <ArrowLeft className="h-4 w-4" />
         </button>
       ) : (
-        <Link to={mode === "lite" ? "/" : "/pro"} className="flex items-center gap-1.5">
+        <Link to={mode === "pro" ? "/pro" : "/"} className="flex items-center gap-1.5">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground font-display font-bold">
             U
           </span>
           <div className="flex flex-col leading-none">
             <span className="font-display text-lg font-bold tracking-tight">UY</span>
-            <span className="text-[9px] font-semibold uppercase tracking-wider text-primary">
-              {mode}
-            </span>
+            {mode === "pro" && (
+              <span className="text-[9px] font-semibold uppercase tracking-wider text-primary">
+                Кабинет
+              </span>
+            )}
           </div>
         </Link>
       )}
@@ -47,16 +49,6 @@ export function AppHeader({ title, back, right, showModeSwitcher, transparent }:
       {title && <h1 className="ml-1 truncate font-display text-lg font-semibold">{title}</h1>}
 
       <div className="ml-auto flex items-center gap-1.5">
-        {showModeSwitcher && (
-          <button
-            onClick={() => setMode(mode === "lite" ? "pro" : "lite")}
-            className="flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-accent-foreground"
-            aria-label="Переключить режим"
-          >
-            {mode === "lite" ? "Lite" : "Pro"}
-            <ChevronDown className="h-3 w-3" />
-          </button>
-        )}
         <button
           onClick={toggleTheme}
           className="flex h-9 w-9 items-center justify-center rounded-full bg-card ring-1 ring-border"
@@ -69,3 +61,4 @@ export function AppHeader({ title, back, right, showModeSwitcher, transparent }:
     </header>
   );
 }
+

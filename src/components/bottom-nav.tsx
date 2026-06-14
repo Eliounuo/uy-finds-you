@@ -10,7 +10,7 @@ import {
   CalendarDays,
   BarChart3,
 } from "lucide-react";
-import { useApp } from "@/lib/app-mode";
+
 import { cn } from "@/lib/utils";
 
 const liteTabs = [
@@ -32,15 +32,16 @@ const proTabs = [
 const HIDDEN_PATTERNS = [
   /^\/auth$/,
   /^\/create-request$/,
+  /^\/become-host$/,
   /^\/chat\/[^/]+$/,
   /^\/pro\/properties(\/|$)/,
 ];
 
 export function BottomNav() {
-  const { mode } = useApp();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   if (HIDDEN_PATTERNS.some((re) => re.test(pathname))) return null;
-  const tabs = mode === "lite" ? liteTabs : proTabs;
+  const inProArea = pathname === "/owner" || pathname.startsWith("/pro");
+  const tabs = inProArea ? proTabs : liteTabs;
 
 
   return (

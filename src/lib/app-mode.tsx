@@ -10,6 +10,9 @@ type AppState = {
   setMode: (m: AppMode) => void;
   theme: Theme;
   toggleTheme: () => void;
+  isLandlord: boolean;
+  activatingLandlord: boolean;
+  activateLandlord: () => Promise<void>;
 };
 
 const Ctx = createContext<AppState | null>(null);
@@ -18,6 +21,8 @@ export function AppModeProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [mode, setModeState] = useState<AppMode>("lite");
   const [theme, setTheme] = useState<Theme>("light");
+  const [isLandlord, setIsLandlord] = useState(false);
+  const [activatingLandlord, setActivatingLandlord] = useState(false);
 
   // Boot from localStorage
   useEffect(() => {
@@ -31,18 +36,24 @@ export function AppModeProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Pull mode from profile when user signs in
+  // Pull mode + landlord status from profile when user signs in
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setIsLandlord(false);
+      return;
+    }
     supabase
       .from("profiles")
-      .select("mode")
+      .select("mode, is_landlord")
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => {
         if (data?.mode === "lite" || data?.mode === "pro") {
           setModeState(data.mode);
           localStorage.setItem("uy:mode", data.mode);
+        }
+        if (data && typeof data.is_landlord === "boolean") {
+          setIsLandlord(data.is_landlord);
         }
       });
   }, [user]);
@@ -62,7 +73,30 @@ export function AppModeProvider({ children }: { children: ReactNode }) {
 
   const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
 
-  return <Ctx.Provider value={{ mode, setMode, theme, toggleTheme }}>{children}</Ctx.Provider>;
+  const activateLandlord = async () => {
+    if (!user || isLandlord) return;
+    setActivatingLandlord(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ is_landlord: true, mode: "pro" })
+        .eq("id", user.id);
+      if (error) throw error;
+      setIsLandlord(true);
+      setModeState("pro");
+      localStorage.setItem("uy:mode", "pro");
+    } finally {
+      setActivatingLandlord(false);
+    }
+  };
+
+  return (
+    <Ctx.Provider
+      value={{ mode, setMode, theme, toggleTheme, isLandlord, activatingLandlord, activateLandlord }}
+    >
+      {children}
+    </Ctx.Provider>
+  );
 }
 
 export function useApp() {
