@@ -32,6 +32,7 @@ const proTabs = [
 const HIDDEN_PATTERNS = [
   /^\/auth$/,
   /^\/create-request$/,
+  /^\/become-host$/,
   /^\/chat\/[^/]+$/,
   /^\/pro\/properties(\/|$)/,
 ];

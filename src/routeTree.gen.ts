@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RequestsRouteImport } from './routes/requests'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProRouteImport } from './routes/pro'
+import { Route as OwnerRouteImport } from './routes/owner'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as CreateRequestRouteImport } from './routes/create-request'
 import { Route as BookingsRouteImport } from './routes/bookings'
+import { Route as BecomeHostRouteImport } from './routes/become-host'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProIndexRouteImport } from './routes/pro.index'
@@ -43,6 +45,11 @@ const ProRoute = ProRouteImport.update({
   path: '/pro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OwnerRoute = OwnerRouteImport.update({
+  id: '/owner',
+  path: '/owner',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MapRoute = MapRouteImport.update({
   id: '/map',
   path: '/map',
@@ -61,6 +68,11 @@ const CreateRequestRoute = CreateRequestRouteImport.update({
 const BookingsRoute = BookingsRouteImport.update({
   id: '/bookings',
   path: '/bookings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BecomeHostRoute = BecomeHostRouteImport.update({
+  id: '/become-host',
+  path: '/become-host',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -122,10 +134,12 @@ const ProPropertiesIdEditRoute = ProPropertiesIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/become-host': typeof BecomeHostRoute
   '/bookings': typeof BookingsRoute
   '/create-request': typeof CreateRequestRoute
   '/favorites': typeof FavoritesRoute
   '/map': typeof MapRoute
+  '/owner': typeof OwnerRoute
   '/pro': typeof ProRouteWithChildren
   '/profile': typeof ProfileRoute
   '/requests': typeof RequestsRoute
@@ -142,10 +156,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/become-host': typeof BecomeHostRoute
   '/bookings': typeof BookingsRoute
   '/create-request': typeof CreateRequestRoute
   '/favorites': typeof FavoritesRoute
   '/map': typeof MapRoute
+  '/owner': typeof OwnerRoute
   '/profile': typeof ProfileRoute
   '/requests': typeof RequestsRoute
   '/chat/$id': typeof ChatIdRoute
@@ -162,10 +178,12 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/become-host': typeof BecomeHostRoute
   '/bookings': typeof BookingsRoute
   '/create-request': typeof CreateRequestRoute
   '/favorites': typeof FavoritesRoute
   '/map': typeof MapRoute
+  '/owner': typeof OwnerRoute
   '/pro': typeof ProRouteWithChildren
   '/profile': typeof ProfileRoute
   '/requests': typeof RequestsRoute
@@ -184,10 +202,12 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/become-host'
     | '/bookings'
     | '/create-request'
     | '/favorites'
     | '/map'
+    | '/owner'
     | '/pro'
     | '/profile'
     | '/requests'
@@ -204,10 +224,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/become-host'
     | '/bookings'
     | '/create-request'
     | '/favorites'
     | '/map'
+    | '/owner'
     | '/profile'
     | '/requests'
     | '/chat/$id'
@@ -223,10 +245,12 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/auth'
+    | '/become-host'
     | '/bookings'
     | '/create-request'
     | '/favorites'
     | '/map'
+    | '/owner'
     | '/pro'
     | '/profile'
     | '/requests'
@@ -244,10 +268,12 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  BecomeHostRoute: typeof BecomeHostRoute
   BookingsRoute: typeof BookingsRoute
   CreateRequestRoute: typeof CreateRequestRoute
   FavoritesRoute: typeof FavoritesRoute
   MapRoute: typeof MapRoute
+  OwnerRoute: typeof OwnerRoute
   ProRoute: typeof ProRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   RequestsRoute: typeof RequestsRoute
@@ -279,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/owner': {
+      id: '/owner'
+      path: '/owner'
+      fullPath: '/owner'
+      preLoaderRoute: typeof OwnerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/map': {
       id: '/map'
       path: '/map'
@@ -305,6 +338,13 @@ declare module '@tanstack/react-router' {
       path: '/bookings'
       fullPath: '/bookings'
       preLoaderRoute: typeof BookingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/become-host': {
+      id: '/become-host'
+      path: '/become-host'
+      fullPath: '/become-host'
+      preLoaderRoute: typeof BecomeHostRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -410,10 +450,12 @@ const ProRouteWithChildren = ProRoute._addFileChildren(ProRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  BecomeHostRoute: BecomeHostRoute,
   BookingsRoute: BookingsRoute,
   CreateRequestRoute: CreateRequestRoute,
   FavoritesRoute: FavoritesRoute,
   MapRoute: MapRoute,
+  OwnerRoute: OwnerRoute,
   ProRoute: ProRouteWithChildren,
   ProfileRoute: ProfileRoute,
   RequestsRoute: RequestsRoute,

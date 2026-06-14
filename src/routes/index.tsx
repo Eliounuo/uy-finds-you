@@ -19,7 +19,7 @@ function Home() {
 
   return (
     <>
-      <AppHeader showModeSwitcher />
+      <AppHeader />
 
       <div className="space-y-4 px-4 pt-2">
         <Link
