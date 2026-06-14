@@ -132,6 +132,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppModeProvider>
+        <ProfileGate />
         <div className="flex min-h-screen flex-col bg-background text-foreground">
           <main className="flex flex-1 flex-col pb-2">
             <Outlet />
