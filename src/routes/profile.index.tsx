@@ -125,24 +125,59 @@ function Profile() {
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </Link>
           ) : (
-            <button
-              onClick={() => {
-                setMode("pro");
-                navigate({ to: "/owner" });
-              }}
-              className="flex w-full items-center gap-3 px-4 py-3.5 text-left"
-            >
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
-                <Building2 className="h-5 w-5" />
-              </div>
-              <div className="flex-1">
-                <div className="font-display font-bold">🏢 Кабинет владельца</div>
-                <div className="text-xs text-muted-foreground">
-                  Объекты, заявки, баланс
+            <>
+              {/* Переключатель режима */}
+              <div className="border-b border-border px-4 py-3.5">
+                <div className="mb-2 flex items-center justify-between">
+                  <div>
+                    <div className="font-display text-sm font-bold">Режим использования</div>
+                    <div className="text-[11px] text-muted-foreground">
+                      Переключайтесь между ролями
+                    </div>
+                  </div>
+                </div>
+                <div className="relative grid grid-cols-2 rounded-xl bg-muted p-1">
+                  <div
+                    className="absolute inset-y-1 w-[calc(50%-4px)] rounded-lg bg-background shadow-sm ring-1 ring-border transition-transform duration-300"
+                    style={{ transform: mode === "pro" ? "translateX(calc(100% + 4px))" : "translateX(0)" }}
+                  />
+                  <button
+                    onClick={() => setMode("lite")}
+                    className={`relative z-10 flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition-colors ${
+                      mode === "lite" ? "text-primary" : "text-muted-foreground"
+                    }`}
+                  >
+                    <HomeIcon className="h-3.5 w-3.5" /> Клиент
+                  </button>
+                  <button
+                    onClick={() => setMode("pro")}
+                    className={`relative z-10 flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition-colors ${
+                      mode === "pro" ? "text-primary" : "text-muted-foreground"
+                    }`}
+                  >
+                    <Building2 className="h-3.5 w-3.5" /> Владелец
+                  </button>
                 </div>
               </div>
-              <ArrowRight className="h-5 w-5 text-muted-foreground" />
-            </button>
+              <button
+                onClick={() => {
+                  setMode("pro");
+                  navigate({ to: "/owner" });
+                }}
+                className="flex w-full items-center gap-3 px-4 py-3.5 text-left"
+              >
+                <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <Building2 className="h-5 w-5" />
+                </div>
+                <div className="flex-1">
+                  <div className="font-display font-bold">🏢 Кабинет владельца</div>
+                  <div className="text-xs text-muted-foreground">
+                    Объекты, заявки, баланс
+                  </div>
+                </div>
+                <ArrowRight className="h-5 w-5 text-muted-foreground" />
+              </button>
+            </>
           )}
         </Section>
 
