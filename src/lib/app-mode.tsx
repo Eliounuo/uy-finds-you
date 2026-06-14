@@ -71,7 +71,7 @@ export function AppModeProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "light" === t ? "dark" : "dark"));
+  const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
 
   const activateLandlord = async () => {
     if (!user || isLandlord) return;
