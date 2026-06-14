@@ -15,6 +15,7 @@ import {
   ArrowRight,
   Pencil,
   UserCircle2,
+  Moon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/app-header";
@@ -154,6 +155,7 @@ function Profile() {
         <Section title="Аккаунт">
           <Row icon={Shield} label="Безопасность" />
           <Row icon={Settings} label="Настройки" />
+          <Row icon={Moon} label="Тема" to="/profile/theme" />
           <Row icon={HelpCircle} label="Поддержка" />
         </Section>
 

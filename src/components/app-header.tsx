@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Moon, Sun } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useApp } from "@/lib/app-mode";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +13,7 @@ type Props = {
 };
 
 export function AppHeader({ title, back, right, transparent }: Props) {
-  const { mode, theme, toggleTheme } = useApp();
+  const { mode } = useApp();
 
   return (
     <header
@@ -49,13 +49,6 @@ export function AppHeader({ title, back, right, transparent }: Props) {
       {title && <h1 className="ml-1 truncate font-display text-lg font-semibold">{title}</h1>}
 
       <div className="ml-auto flex items-center gap-1.5">
-        <button
-          onClick={toggleTheme}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-card ring-1 ring-border"
-          aria-label="Тема"
-        >
-          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </button>
         {right}
       </div>
     </header>
