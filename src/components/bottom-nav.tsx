@@ -31,6 +31,8 @@ const proTabs = [
 
 const HIDDEN_PATTERNS = [
   /^\/auth$/,
+  /^\/complete-profile$/,
+  /^\/profile\/edit$/,
   /^\/create-request$/,
   /^\/become-host$/,
   /^\/chat\/[^/]+$/,
