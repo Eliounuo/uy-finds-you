@@ -10,7 +10,8 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-const cities = ["Все", "Алматы", "Астана", "Шымкент"];
+const cities = ["Все", "Кокшетау", "Алматы", "Астана", "Шымкент", "Караганда", "Актау"];
+const activeCities = new Set(["Все", "Кокшетау"]);
 
 function Home() {
   const [city, setCity] = useState("Все");
