@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useApp } from "@/lib/app-mode";
 
 const liteTabs = [
   { to: "/", label: "Главная", icon: Home, exact: true },
