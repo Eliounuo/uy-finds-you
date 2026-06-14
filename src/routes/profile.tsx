@@ -10,6 +10,9 @@ import {
   LogOut,
   Building2,
   LogIn,
+  Home as HomeIcon,
+  CheckCircle2,
+  ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/app-header";
@@ -22,7 +25,7 @@ export const Route = createFileRoute("/profile")({
 });
 
 function Profile() {
-  const { mode, setMode } = useApp();
+  const { isLandlord, setMode } = useApp();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -41,7 +44,7 @@ function Profile() {
 
   return (
     <>
-      <AppHeader title="Профиль" showModeSwitcher />
+      <AppHeader title="Профиль" />
       <div className="space-y-4 px-4 pt-2 pb-32">
         <div className="rounded-2xl bg-gradient-to-br from-primary to-[oklch(0.55_0.22_22)] p-4 text-primary-foreground">
           <div className="flex items-center gap-3">
@@ -56,9 +59,16 @@ function Profile() {
             </div>
           </div>
           {user ? (
-            <button className="mt-3 rounded-full bg-background/20 px-3 py-1.5 text-xs font-semibold backdrop-blur">
-              Привязать JaSyn ID
-            </button>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              <span className="inline-flex items-center gap-1 rounded-full bg-background/20 px-2.5 py-1 text-[11px] font-semibold backdrop-blur">
+                <HomeIcon className="h-3 w-3" /> Арендатор
+              </span>
+              {isLandlord && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-background px-2.5 py-1 text-[11px] font-bold text-primary">
+                  <CheckCircle2 className="h-3 w-3" /> Арендодатель активирован
+                </span>
+              )}
+            </div>
           ) : (
             <Link
               to="/auth"
@@ -69,23 +79,45 @@ function Profile() {
           )}
         </div>
 
-        <button
-          onClick={() => setMode(mode === "lite" ? "pro" : "lite")}
-          className="flex w-full items-center gap-3 rounded-2xl bg-card p-4 text-left ring-1 ring-border"
-        >
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-accent text-primary">
-            <Building2 className="h-5 w-5" />
-          </div>
-          <div className="flex-1">
-            <div className="font-display font-bold">
-              Переключиться в UY {mode === "lite" ? "Pro" : "Lite"}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {mode === "lite" ? "Сдаёте жильё? Управляйте объектами." : "Снимайте жильё."}
-            </div>
-          </div>
-          <ChevronRight className="h-5 w-5 text-muted-foreground" />
-        </button>
+        {/* Сдача недвижимости */}
+        <Section title="Сдача недвижимости">
+          {!isLandlord ? (
+            <Link
+              to="/become-host"
+              className="flex items-center gap-3 px-4 py-3.5"
+            >
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-accent text-primary">
+                🏠
+              </div>
+              <div className="flex-1">
+                <div className="font-display font-bold">Сдача недвижимости</div>
+                <div className="text-xs text-muted-foreground">
+                  Зарабатывайте на своей квартире
+                </div>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </Link>
+          ) : (
+            <button
+              onClick={() => {
+                setMode("pro");
+                navigate({ to: "/owner" });
+              }}
+              className="flex w-full items-center gap-3 px-4 py-3.5 text-left"
+            >
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                <Building2 className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <div className="font-display font-bold">🏢 Кабинет владельца</div>
+                <div className="text-xs text-muted-foreground">
+                  Объекты, заявки, баланс
+                </div>
+              </div>
+              <ArrowRight className="h-5 w-5 text-muted-foreground" />
+            </button>
+          )}
+        </Section>
 
         <Section title="Активность">
           <Row icon={Heart} label="Избранное" to="/favorites" />
