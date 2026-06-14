@@ -21,6 +21,7 @@ import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as BecomeHostRouteImport } from './routes/become-host'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProfileIndexRouteImport } from './routes/profile.index'
 import { Route as ProIndexRouteImport } from './routes/pro.index'
 import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as PropertyIdRouteImport } from './routes/property.$id'
@@ -92,6 +93,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileIndexRoute = ProfileIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProfileRoute,
 } as any)
 const ProIndexRoute = ProIndexRouteImport.update({
   id: '/',
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/property/$id': typeof PropertyIdRoute
   '/chat/': typeof ChatIndexRoute
   '/pro/': typeof ProIndexRoute
+  '/profile/': typeof ProfileIndexRoute
   '/pro/properties/new': typeof ProPropertiesNewRoute
   '/pro/properties/$id/edit': typeof ProPropertiesIdEditRoute
 }
@@ -184,7 +191,6 @@ export interface FileRoutesByTo {
   '/favorites': typeof FavoritesRoute
   '/map': typeof MapRoute
   '/owner': typeof OwnerRoute
-  '/profile': typeof ProfileRouteWithChildren
   '/requests': typeof RequestsRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
@@ -195,6 +201,7 @@ export interface FileRoutesByTo {
   '/property/$id': typeof PropertyIdRoute
   '/chat': typeof ChatIndexRoute
   '/pro': typeof ProIndexRoute
+  '/profile': typeof ProfileIndexRoute
   '/pro/properties/new': typeof ProPropertiesNewRoute
   '/pro/properties/$id/edit': typeof ProPropertiesIdEditRoute
 }
@@ -221,6 +228,7 @@ export interface FileRoutesById {
   '/property/$id': typeof PropertyIdRoute
   '/chat/': typeof ChatIndexRoute
   '/pro/': typeof ProIndexRoute
+  '/profile/': typeof ProfileIndexRoute
   '/pro/properties/new': typeof ProPropertiesNewRoute
   '/pro/properties/$id/edit': typeof ProPropertiesIdEditRoute
 }
@@ -248,6 +256,7 @@ export interface FileRouteTypes {
     | '/property/$id'
     | '/chat/'
     | '/pro/'
+    | '/profile/'
     | '/pro/properties/new'
     | '/pro/properties/$id/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -261,7 +270,6 @@ export interface FileRouteTypes {
     | '/favorites'
     | '/map'
     | '/owner'
-    | '/profile'
     | '/requests'
     | '/chat/$id'
     | '/pro/calendar'
@@ -272,6 +280,7 @@ export interface FileRouteTypes {
     | '/property/$id'
     | '/chat'
     | '/pro'
+    | '/profile'
     | '/pro/properties/new'
     | '/pro/properties/$id/edit'
   id:
@@ -297,6 +306,7 @@ export interface FileRouteTypes {
     | '/property/$id'
     | '/chat/'
     | '/pro/'
+    | '/profile/'
     | '/pro/properties/new'
     | '/pro/properties/$id/edit'
   fileRoutesById: FileRoutesById
@@ -405,6 +415,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile/': {
+      id: '/profile/'
+      path: '/'
+      fullPath: '/profile/'
+      preLoaderRoute: typeof ProfileIndexRouteImport
+      parentRoute: typeof ProfileRoute
+    }
     '/pro/': {
       id: '/pro/'
       path: '/'
@@ -508,11 +525,13 @@ const ProRouteWithChildren = ProRoute._addFileChildren(ProRouteChildren)
 interface ProfileRouteChildren {
   ProfileEditRoute: typeof ProfileEditRoute
   ProfileThemeRoute: typeof ProfileThemeRoute
+  ProfileIndexRoute: typeof ProfileIndexRoute
 }
 
 const ProfileRouteChildren: ProfileRouteChildren = {
   ProfileEditRoute: ProfileEditRoute,
   ProfileThemeRoute: ProfileThemeRoute,
+  ProfileIndexRoute: ProfileIndexRoute,
 }
 
 const ProfileRouteWithChildren =
