@@ -79,11 +79,27 @@ function CreateRequest() {
 
         <Section icon={MapPin} title="Город">
           <div className="scrollbar-hide -mx-4 flex gap-2 overflow-x-auto px-4">
-            {CITIES.map((c) => (
-              <button key={c} onClick={() => setCity(c)}
-                className={cn("shrink-0 rounded-full px-4 py-2 text-sm font-semibold",
-                  c === city ? "bg-foreground text-background" : "bg-card text-muted-foreground ring-1 ring-border")}>{c}</button>
-            ))}
+            {CITIES.map((c) => {
+              const isActive = ACTIVE_CITIES.includes(c);
+              return (
+                <button
+                  key={c}
+                  disabled={!isActive}
+                  onClick={() => isActive && setCity(c)}
+                  className={cn(
+                    "shrink-0 rounded-full px-4 py-2 text-sm font-semibold",
+                    c === city
+                      ? "bg-foreground text-background"
+                      : isActive
+                        ? "bg-card text-muted-foreground ring-1 ring-border"
+                        : "cursor-not-allowed bg-muted text-muted-foreground/50 ring-1 ring-border/50"
+                  )}
+                >
+                  {c}
+                  {!isActive && <span className="ml-1 text-[10px] opacity-60">скоро</span>}
+                </button>
+              );
+            })}
           </div>
         </Section>
 
