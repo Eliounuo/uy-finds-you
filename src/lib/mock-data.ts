@@ -20,7 +20,8 @@ export const amenityLabels: Record<string, string> = {
 
 export const ALL_AMENITIES = Object.keys(amenityLabels);
 
-export const CITIES = ["Алматы", "Астана", "Шымкент", "Караганда", "Актау"] as const;
+export const CITIES = ["Кокшетау", "Алматы", "Астана", "Шымкент", "Караганда", "Актау"] as const;
+export const ACTIVE_CITIES = ["Кокшетау"] as const;
 
 export const formatDate = (iso: string) => {
   const d = new Date(iso);
