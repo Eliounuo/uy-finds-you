@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RequestsRouteImport } from './routes/requests'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProRouteImport } from './routes/pro'
 import { Route as OwnerRouteImport } from './routes/owner'
 import { Route as MapRouteImport } from './routes/map'
@@ -36,6 +37,11 @@ import { Route as ProPropertiesIdEditRouteImport } from './routes/pro.properties
 const RequestsRoute = RequestsRouteImport.update({
   id: '/requests',
   path: '/requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProRoute = ProRouteImport.update({
@@ -89,9 +95,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileIndexRoute = ProfileIndexRouteImport.update({
-  id: '/profile/',
-  path: '/profile/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProfileRoute,
 } as any)
 const ProIndexRoute = ProIndexRouteImport.update({
   id: '/',
@@ -109,14 +115,14 @@ const PropertyIdRoute = PropertyIdRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileThemeRoute = ProfileThemeRouteImport.update({
-  id: '/profile/theme',
-  path: '/profile/theme',
-  getParentRoute: () => rootRouteImport,
+  id: '/theme',
+  path: '/theme',
+  getParentRoute: () => ProfileRoute,
 } as any)
 const ProfileEditRoute = ProfileEditRouteImport.update({
-  id: '/profile/edit',
-  path: '/profile/edit',
-  getParentRoute: () => rootRouteImport,
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => ProfileRoute,
 } as any)
 const ProStatsRoute = ProStatsRouteImport.update({
   id: '/stats',
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/map': typeof MapRoute
   '/owner': typeof OwnerRoute
   '/pro': typeof ProRouteWithChildren
+  '/profile': typeof ProfileRouteWithChildren
   '/requests': typeof RequestsRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
@@ -210,6 +217,7 @@ export interface FileRoutesById {
   '/map': typeof MapRoute
   '/owner': typeof OwnerRoute
   '/pro': typeof ProRouteWithChildren
+  '/profile': typeof ProfileRouteWithChildren
   '/requests': typeof RequestsRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
@@ -237,6 +245,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/owner'
     | '/pro'
+    | '/profile'
     | '/requests'
     | '/chat/$id'
     | '/pro/calendar'
@@ -286,6 +295,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/owner'
     | '/pro'
+    | '/profile'
     | '/requests'
     | '/chat/$id'
     | '/pro/calendar'
@@ -312,13 +322,11 @@ export interface RootRouteChildren {
   MapRoute: typeof MapRoute
   OwnerRoute: typeof OwnerRoute
   ProRoute: typeof ProRouteWithChildren
+  ProfileRoute: typeof ProfileRouteWithChildren
   RequestsRoute: typeof RequestsRoute
   ChatIdRoute: typeof ChatIdRoute
-  ProfileEditRoute: typeof ProfileEditRoute
-  ProfileThemeRoute: typeof ProfileThemeRoute
   PropertyIdRoute: typeof PropertyIdRoute
   ChatIndexRoute: typeof ChatIndexRoute
-  ProfileIndexRoute: typeof ProfileIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -328,6 +336,13 @@ declare module '@tanstack/react-router' {
       path: '/requests'
       fullPath: '/requests'
       preLoaderRoute: typeof RequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pro': {
@@ -402,10 +417,10 @@ declare module '@tanstack/react-router' {
     }
     '/profile/': {
       id: '/profile/'
-      path: '/profile'
+      path: '/'
       fullPath: '/profile/'
       preLoaderRoute: typeof ProfileIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ProfileRoute
     }
     '/pro/': {
       id: '/pro/'
@@ -430,17 +445,17 @@ declare module '@tanstack/react-router' {
     }
     '/profile/theme': {
       id: '/profile/theme'
-      path: '/profile/theme'
+      path: '/theme'
       fullPath: '/profile/theme'
       preLoaderRoute: typeof ProfileThemeRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ProfileRoute
     }
     '/profile/edit': {
       id: '/profile/edit'
-      path: '/profile/edit'
+      path: '/edit'
       fullPath: '/profile/edit'
       preLoaderRoute: typeof ProfileEditRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ProfileRoute
     }
     '/pro/stats': {
       id: '/pro/stats'
@@ -507,6 +522,21 @@ const ProRouteChildren: ProRouteChildren = {
 
 const ProRouteWithChildren = ProRoute._addFileChildren(ProRouteChildren)
 
+interface ProfileRouteChildren {
+  ProfileEditRoute: typeof ProfileEditRoute
+  ProfileThemeRoute: typeof ProfileThemeRoute
+  ProfileIndexRoute: typeof ProfileIndexRoute
+}
+
+const ProfileRouteChildren: ProfileRouteChildren = {
+  ProfileEditRoute: ProfileEditRoute,
+  ProfileThemeRoute: ProfileThemeRoute,
+  ProfileIndexRoute: ProfileIndexRoute,
+}
+
+const ProfileRouteWithChildren =
+  ProfileRoute._addFileChildren(ProfileRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
@@ -518,13 +548,11 @@ const rootRouteChildren: RootRouteChildren = {
   MapRoute: MapRoute,
   OwnerRoute: OwnerRoute,
   ProRoute: ProRouteWithChildren,
+  ProfileRoute: ProfileRouteWithChildren,
   RequestsRoute: RequestsRoute,
   ChatIdRoute: ChatIdRoute,
-  ProfileEditRoute: ProfileEditRoute,
-  ProfileThemeRoute: ProfileThemeRoute,
   PropertyIdRoute: PropertyIdRoute,
   ChatIndexRoute: ChatIndexRoute,
-  ProfileIndexRoute: ProfileIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
