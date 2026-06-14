@@ -13,11 +13,14 @@ import {
   Home as HomeIcon,
   CheckCircle2,
   ArrowRight,
+  Pencil,
+  UserCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/app-header";
 import { useApp } from "@/lib/app-mode";
 import { useAuth } from "@/lib/use-auth";
+import { useAvatarUrl, useProfile } from "@/lib/use-profile";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/profile")({
@@ -27,14 +30,12 @@ export const Route = createFileRoute("/profile")({
 function Profile() {
   const { isLandlord, setMode } = useApp();
   const { user } = useAuth();
+  const { profile } = useProfile();
   const navigate = useNavigate();
 
-  const displayName =
-    (user?.user_metadata?.full_name as string | undefined) ||
-    (user?.user_metadata?.name as string | undefined) ||
-    user?.email?.split("@")[0] ||
-    "Гость";
+  const displayName = profile?.full_name?.trim() || "Гость";
   const initial = displayName.charAt(0).toUpperCase();
+  const avatarUrl = useAvatarUrl(profile?.avatar_url);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
