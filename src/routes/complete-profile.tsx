@@ -81,9 +81,7 @@ function CompleteProfile() {
       if (error) throw error;
       await reload();
       toast.success("Профиль готов");
-      const next = typeof (search as Record<string, unknown>)?.next === "string"
-        ? ((search as Record<string, string>).next as string)
-        : "/";
+      const next = typeof search?.next === "string" ? (search.next as string) : "/";
       navigate({ to: next });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Не удалось сохранить профиль");
