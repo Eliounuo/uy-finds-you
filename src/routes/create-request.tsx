@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { MapPin, CalendarDays, Users, Wallet, Sparkles, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/app-header";
-import { formatKZT, CITIES } from "@/lib/mock-data";
+import { formatKZT, CITIES, ACTIVE_CITIES } from "@/lib/mock-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { cn } from "@/lib/utils";
@@ -16,7 +16,7 @@ const guestsOptions = [1, 2, 3, 4, 5, 6];
 function CreateRequest() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const [city, setCity] = useState<string>("Алматы");
+  const [city, setCity] = useState<string>("Кокшетау");
   const [guests, setGuests] = useState(2);
   const [budget, setBudget] = useState(25000);
   const [checkIn, setCheckIn] = useState("");
@@ -79,11 +79,27 @@ function CreateRequest() {
 
         <Section icon={MapPin} title="Город">
           <div className="scrollbar-hide -mx-4 flex gap-2 overflow-x-auto px-4">
-            {CITIES.map((c) => (
-              <button key={c} onClick={() => setCity(c)}
-                className={cn("shrink-0 rounded-full px-4 py-2 text-sm font-semibold",
-                  c === city ? "bg-foreground text-background" : "bg-card text-muted-foreground ring-1 ring-border")}>{c}</button>
-            ))}
+            {CITIES.map((c) => {
+              const isActive = ACTIVE_CITIES.includes(c);
+              return (
+                <button
+                  key={c}
+                  disabled={!isActive}
+                  onClick={() => isActive && setCity(c)}
+                  className={cn(
+                    "shrink-0 rounded-full px-4 py-2 text-sm font-semibold",
+                    c === city
+                      ? "bg-foreground text-background"
+                      : isActive
+                        ? "bg-card text-muted-foreground ring-1 ring-border"
+                        : "cursor-not-allowed bg-muted text-muted-foreground/50 ring-1 ring-border/50"
+                  )}
+                >
+                  {c}
+                  {!isActive && <span className="ml-1 text-[10px] opacity-60">скоро</span>}
+                </button>
+              );
+            })}
           </div>
         </Section>
 

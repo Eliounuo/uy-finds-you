@@ -10,10 +10,11 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-const cities = ["Все", "Алматы", "Астана", "Шымкент"];
+const cities = ["Все", "Кокшетау", "Алматы", "Астана", "Шымкент", "Караганда", "Актау"];
+const activeCities = new Set(["Все", "Кокшетау"]);
 
 function Home() {
-  const [city, setCity] = useState("Все");
+  const [city, setCity] = useState("Кокшетау");
   const [q, setQ] = useState("");
   const { data: list = [], isLoading } = useQuery(propertiesQuery({ city, search: q }));
 
@@ -56,17 +57,26 @@ function Home() {
 
         <div className="scrollbar-hide -mx-4 flex gap-2 overflow-x-auto px-4">
           {cities.map((c) => {
-            const active = c === city;
+            const isActiveCity = activeCities.has(c);
+            const selected = c === city;
             return (
               <button
                 key={c}
-                onClick={() => setCity(c)}
+                disabled={!isActiveCity}
+                onClick={() => isActiveCity && setCity(c)}
                 className={
                   "shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors " +
-                  (active ? "bg-foreground text-background" : "bg-card text-muted-foreground ring-1 ring-border")
+                  (selected
+                    ? "bg-foreground text-background"
+                    : isActiveCity
+                      ? "bg-card text-muted-foreground ring-1 ring-border"
+                      : "cursor-not-allowed bg-muted text-muted-foreground/50 ring-1 ring-border/50")
                 }
               >
                 {c}
+                {!isActiveCity && (
+                  <span className="ml-1 text-[10px] opacity-60">скоро</span>
+                )}
               </button>
             );
           })}
