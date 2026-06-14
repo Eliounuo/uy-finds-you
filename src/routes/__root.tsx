@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppModeProvider } from "@/lib/app-mode";
 import { BottomNav } from "@/components/bottom-nav";
+import { ProfileGate } from "@/components/profile-gate";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -131,6 +132,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppModeProvider>
+        <ProfileGate />
         <div className="flex min-h-screen flex-col bg-background text-foreground">
           <main className="flex flex-1 flex-col pb-2">
             <Outlet />
