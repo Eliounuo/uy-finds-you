@@ -24,7 +24,7 @@ function PropertyPage() {
     <div className="pb-32">
       <div className="relative">
         <div className="aspect-[4/3] w-full overflow-hidden bg-muted">
-          {p.photos[0] && <SignedImg path={p.photos[0]} alt={p.title} className="h-full w-full object-cover"/>}
+          {p.photos[0] && <SignedImg path={p.photos[0]} alt={p.title} loading="eager" width={1200} className="h-full w-full object-cover"/>}
         </div>
         <Link to="/" className="absolute left-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-background/90 backdrop-blur"><ArrowLeft className="h-5 w-5"/></Link>
         <button onClick={() => toggle.mutate({ propertyId: p.id, isFav: fav })} className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-background/90 backdrop-blur">
@@ -35,7 +35,7 @@ function PropertyPage() {
       {p.photos.length > 1 && (
         <div className="scrollbar-hide -mt-2 flex gap-2 overflow-x-auto px-4 pt-3">
           {p.photos.slice(1).map((src, i) => (
-            <SignedImg key={i} path={src} alt="" className="h-20 w-28 shrink-0 rounded-lg object-cover"/>
+            <SignedImg key={i} path={src} alt="" width={300} className="h-20 w-28 shrink-0 rounded-lg object-cover"/>
           ))}
         </div>
       )}

@@ -19,7 +19,13 @@ export function PropertyCard({ p, compact = false }: { p: Property; compact?: bo
     >
       <div className={cn("relative w-full overflow-hidden bg-muted", compact ? "aspect-square" : "aspect-[4/3]")}>
         {p.photos[0] && (
-          <SignedImg path={p.photos[0]} alt={p.title} loading="lazy" className="h-full w-full object-cover" />
+          <SignedImg
+            path={p.photos[0]}
+            alt={p.title}
+            loading="lazy"
+            width={compact ? 500 : 900}
+            className="h-full w-full object-cover"
+          />
         )}
         <button
           onClick={(e) => {
