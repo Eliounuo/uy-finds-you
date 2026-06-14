@@ -16,7 +16,7 @@ const guestsOptions = [1, 2, 3, 4, 5, 6];
 function CreateRequest() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const [city, setCity] = useState<string>("Алматы");
+  const [city, setCity] = useState<string>("Кокшетау");
   const [guests, setGuests] = useState(2);
   const [budget, setBudget] = useState(25000);
   const [checkIn, setCheckIn] = useState("");
