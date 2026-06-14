@@ -49,77 +49,78 @@
 }
 
 :root {
-  --radius: 1rem;
+  --radius: 1.25rem;
 
-  /* Светлая тема — белый/тёплый с красно-оранжевыми акцентами */
-  --background: oklch(0.99 0.005 60);
-  --foreground: oklch(0.18 0.01 60);
-  --surface: oklch(0.97 0.008 60);
-  --surface-foreground: oklch(0.18 0.01 60);
+  /* Светлая тема — чистый белый с насыщенно-красным акцентом (как в референсе) */
+  --background: oklch(0.995 0.002 20);
+  --foreground: oklch(0.16 0.01 20);
+  --surface: oklch(0.975 0.004 20);
+  --surface-foreground: oklch(0.16 0.01 20);
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.01 60);
+  --card-foreground: oklch(0.16 0.01 20);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.01 60);
+  --popover-foreground: oklch(0.16 0.01 20);
 
-  /* Красно-оранжевый бренд */
-  --primary: oklch(0.66 0.22 32);
-  --primary-foreground: oklch(0.99 0.005 60);
+  /* Красный бренд (≈ #E63946) */
+  --primary: oklch(0.60 0.22 25);
+  --primary-foreground: oklch(0.99 0 0);
 
-  --secondary: oklch(0.96 0.012 60);
-  --secondary-foreground: oklch(0.22 0.01 60);
+  --secondary: oklch(0.97 0.006 20);
+  --secondary-foreground: oklch(0.20 0.01 20);
 
-  --muted: oklch(0.95 0.008 60);
-  --muted-foreground: oklch(0.48 0.012 60);
+  --muted: oklch(0.96 0.005 20);
+  --muted-foreground: oklch(0.50 0.012 20);
 
-  --accent: oklch(0.94 0.04 40);
-  --accent-foreground: oklch(0.30 0.12 32);
+  --accent: oklch(0.95 0.04 25);
+  --accent-foreground: oklch(0.40 0.18 25);
 
   --success: oklch(0.65 0.16 155);
   --success-foreground: oklch(0.99 0 0);
   --warning: oklch(0.78 0.16 75);
   --warning-foreground: oklch(0.18 0.02 60);
-  --destructive: oklch(0.58 0.22 27);
+  --destructive: oklch(0.58 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
 
-  --border: oklch(0.91 0.008 60);
-  --input: oklch(0.93 0.008 60);
-  --ring: oklch(0.66 0.22 32);
+  --border: oklch(0.92 0.005 20);
+  --input: oklch(0.94 0.005 20);
+  --ring: oklch(0.60 0.22 25);
 }
 
 .dark {
-  --background: oklch(0.13 0.008 50);
-  --foreground: oklch(0.97 0.005 60);
-  --surface: oklch(0.18 0.01 50);
-  --surface-foreground: oklch(0.97 0.005 60);
+  /* Тёмная тема — глубокий графит с красными акцентами */
+  --background: oklch(0.14 0.005 20);
+  --foreground: oklch(0.98 0.003 20);
+  --surface: oklch(0.18 0.006 20);
+  --surface-foreground: oklch(0.98 0.003 20);
 
-  --card: oklch(0.17 0.01 50);
-  --card-foreground: oklch(0.97 0.005 60);
-  --popover: oklch(0.17 0.01 50);
-  --popover-foreground: oklch(0.97 0.005 60);
+  --card: oklch(0.18 0.006 20);
+  --card-foreground: oklch(0.98 0.003 20);
+  --popover: oklch(0.18 0.006 20);
+  --popover-foreground: oklch(0.98 0.003 20);
 
-  --primary: oklch(0.72 0.21 35);
-  --primary-foreground: oklch(0.12 0.01 50);
+  --primary: oklch(0.63 0.23 25);
+  --primary-foreground: oklch(0.99 0 0);
 
-  --secondary: oklch(0.22 0.012 50);
-  --secondary-foreground: oklch(0.97 0.005 60);
+  --secondary: oklch(0.22 0.008 20);
+  --secondary-foreground: oklch(0.98 0.003 20);
 
-  --muted: oklch(0.22 0.012 50);
-  --muted-foreground: oklch(0.65 0.012 60);
+  --muted: oklch(0.22 0.008 20);
+  --muted-foreground: oklch(0.68 0.012 20);
 
-  --accent: oklch(0.28 0.08 40);
-  --accent-foreground: oklch(0.92 0.05 50);
+  --accent: oklch(0.30 0.10 25);
+  --accent-foreground: oklch(0.95 0.04 25);
 
   --success: oklch(0.70 0.16 155);
   --success-foreground: oklch(0.12 0.01 50);
   --warning: oklch(0.80 0.16 75);
   --warning-foreground: oklch(0.12 0.02 50);
-  --destructive: oklch(0.65 0.22 27);
+  --destructive: oklch(0.63 0.23 25);
   --destructive-foreground: oklch(0.99 0 0);
 
-  --border: oklch(0.28 0.012 50);
-  --input: oklch(0.24 0.012 50);
-  --ring: oklch(0.72 0.21 35);
+  --border: oklch(0.28 0.008 20);
+  --input: oklch(0.24 0.008 20);
+  --ring: oklch(0.63 0.23 25);
 }
 
 @layer base {
