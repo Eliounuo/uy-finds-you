@@ -16,6 +16,7 @@ import { Route as OwnerRouteImport } from './routes/owner'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as CreateRequestRouteImport } from './routes/create-request'
+import { Route as CompleteProfileRouteImport } from './routes/complete-profile'
 import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as BecomeHostRouteImport } from './routes/become-host'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -23,6 +24,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProIndexRouteImport } from './routes/pro.index'
 import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as PropertyIdRouteImport } from './routes/property.$id'
+import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as ProStatsRouteImport } from './routes/pro.stats'
 import { Route as ProRequestsRouteImport } from './routes/pro.requests'
 import { Route as ProCalendarRouteImport } from './routes/pro.calendar'
@@ -65,6 +67,11 @@ const CreateRequestRoute = CreateRequestRouteImport.update({
   path: '/create-request',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CompleteProfileRoute = CompleteProfileRouteImport.update({
+  id: '/complete-profile',
+  path: '/complete-profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BookingsRoute = BookingsRouteImport.update({
   id: '/bookings',
   path: '/bookings',
@@ -99,6 +106,11 @@ const PropertyIdRoute = PropertyIdRouteImport.update({
   id: '/property/$id',
   path: '/property/$id',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileEditRoute = ProfileEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => ProfileRoute,
 } as any)
 const ProStatsRoute = ProStatsRouteImport.update({
   id: '/stats',
@@ -136,17 +148,19 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/become-host': typeof BecomeHostRoute
   '/bookings': typeof BookingsRoute
+  '/complete-profile': typeof CompleteProfileRoute
   '/create-request': typeof CreateRequestRoute
   '/favorites': typeof FavoritesRoute
   '/map': typeof MapRoute
   '/owner': typeof OwnerRoute
   '/pro': typeof ProRouteWithChildren
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/requests': typeof RequestsRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
   '/pro/requests': typeof ProRequestsRoute
   '/pro/stats': typeof ProStatsRoute
+  '/profile/edit': typeof ProfileEditRoute
   '/property/$id': typeof PropertyIdRoute
   '/chat/': typeof ChatIndexRoute
   '/pro/': typeof ProIndexRoute
@@ -158,16 +172,18 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/become-host': typeof BecomeHostRoute
   '/bookings': typeof BookingsRoute
+  '/complete-profile': typeof CompleteProfileRoute
   '/create-request': typeof CreateRequestRoute
   '/favorites': typeof FavoritesRoute
   '/map': typeof MapRoute
   '/owner': typeof OwnerRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/requests': typeof RequestsRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
   '/pro/requests': typeof ProRequestsRoute
   '/pro/stats': typeof ProStatsRoute
+  '/profile/edit': typeof ProfileEditRoute
   '/property/$id': typeof PropertyIdRoute
   '/chat': typeof ChatIndexRoute
   '/pro': typeof ProIndexRoute
@@ -180,17 +196,19 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/become-host': typeof BecomeHostRoute
   '/bookings': typeof BookingsRoute
+  '/complete-profile': typeof CompleteProfileRoute
   '/create-request': typeof CreateRequestRoute
   '/favorites': typeof FavoritesRoute
   '/map': typeof MapRoute
   '/owner': typeof OwnerRoute
   '/pro': typeof ProRouteWithChildren
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/requests': typeof RequestsRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
   '/pro/requests': typeof ProRequestsRoute
   '/pro/stats': typeof ProStatsRoute
+  '/profile/edit': typeof ProfileEditRoute
   '/property/$id': typeof PropertyIdRoute
   '/chat/': typeof ChatIndexRoute
   '/pro/': typeof ProIndexRoute
@@ -204,6 +222,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/become-host'
     | '/bookings'
+    | '/complete-profile'
     | '/create-request'
     | '/favorites'
     | '/map'
@@ -215,6 +234,7 @@ export interface FileRouteTypes {
     | '/pro/calendar'
     | '/pro/requests'
     | '/pro/stats'
+    | '/profile/edit'
     | '/property/$id'
     | '/chat/'
     | '/pro/'
@@ -226,6 +246,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/become-host'
     | '/bookings'
+    | '/complete-profile'
     | '/create-request'
     | '/favorites'
     | '/map'
@@ -236,6 +257,7 @@ export interface FileRouteTypes {
     | '/pro/calendar'
     | '/pro/requests'
     | '/pro/stats'
+    | '/profile/edit'
     | '/property/$id'
     | '/chat'
     | '/pro'
@@ -247,6 +269,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/become-host'
     | '/bookings'
+    | '/complete-profile'
     | '/create-request'
     | '/favorites'
     | '/map'
@@ -258,6 +281,7 @@ export interface FileRouteTypes {
     | '/pro/calendar'
     | '/pro/requests'
     | '/pro/stats'
+    | '/profile/edit'
     | '/property/$id'
     | '/chat/'
     | '/pro/'
@@ -270,12 +294,13 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   BecomeHostRoute: typeof BecomeHostRoute
   BookingsRoute: typeof BookingsRoute
+  CompleteProfileRoute: typeof CompleteProfileRoute
   CreateRequestRoute: typeof CreateRequestRoute
   FavoritesRoute: typeof FavoritesRoute
   MapRoute: typeof MapRoute
   OwnerRoute: typeof OwnerRoute
   ProRoute: typeof ProRouteWithChildren
-  ProfileRoute: typeof ProfileRoute
+  ProfileRoute: typeof ProfileRouteWithChildren
   RequestsRoute: typeof RequestsRoute
   ChatIdRoute: typeof ChatIdRoute
   PropertyIdRoute: typeof PropertyIdRoute
@@ -333,6 +358,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreateRequestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/complete-profile': {
+      id: '/complete-profile'
+      path: '/complete-profile'
+      fullPath: '/complete-profile'
+      preLoaderRoute: typeof CompleteProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/bookings': {
       id: '/bookings'
       path: '/bookings'
@@ -381,6 +413,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/property/$id'
       preLoaderRoute: typeof PropertyIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/profile/edit': {
+      id: '/profile/edit'
+      path: '/edit'
+      fullPath: '/profile/edit'
+      preLoaderRoute: typeof ProfileEditRouteImport
+      parentRoute: typeof ProfileRoute
     }
     '/pro/stats': {
       id: '/pro/stats'
@@ -447,17 +486,29 @@ const ProRouteChildren: ProRouteChildren = {
 
 const ProRouteWithChildren = ProRoute._addFileChildren(ProRouteChildren)
 
+interface ProfileRouteChildren {
+  ProfileEditRoute: typeof ProfileEditRoute
+}
+
+const ProfileRouteChildren: ProfileRouteChildren = {
+  ProfileEditRoute: ProfileEditRoute,
+}
+
+const ProfileRouteWithChildren =
+  ProfileRoute._addFileChildren(ProfileRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   BecomeHostRoute: BecomeHostRoute,
   BookingsRoute: BookingsRoute,
+  CompleteProfileRoute: CompleteProfileRoute,
   CreateRequestRoute: CreateRequestRoute,
   FavoritesRoute: FavoritesRoute,
   MapRoute: MapRoute,
   OwnerRoute: OwnerRoute,
   ProRoute: ProRouteWithChildren,
-  ProfileRoute: ProfileRoute,
+  ProfileRoute: ProfileRouteWithChildren,
   RequestsRoute: RequestsRoute,
   ChatIdRoute: ChatIdRoute,
   PropertyIdRoute: PropertyIdRoute,
