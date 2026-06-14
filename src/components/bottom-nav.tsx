@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useApp } from "@/lib/app-mode";
 
 const liteTabs = [
   { to: "/", label: "Главная", icon: Home, exact: true },
@@ -27,6 +28,7 @@ const proTabs = [
   { to: "/pro/requests", label: "Заявки", icon: Inbox },
   { to: "/pro/chat", label: "Чат", icon: MessageCircle },
   { to: "/pro/stats", label: "Аналитика", icon: BarChart3 },
+  { to: "/profile", label: "Профиль", icon: User },
 ];
 
 const HIDDEN_PATTERNS = [
@@ -42,14 +44,15 @@ const HIDDEN_PATTERNS = [
 
 export function BottomNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { mode } = useApp();
   if (HIDDEN_PATTERNS.some((re) => re.test(pathname))) return null;
-  const inProArea = pathname === "/owner" || pathname.startsWith("/pro");
+  const inProArea = mode === "pro";
   const tabs = inProArea ? proTabs : liteTabs;
 
 
   return (
     <nav className="safe-bottom sticky bottom-0 z-30 mt-auto border-t border-border bg-card/95 px-2 pt-2 backdrop-blur-lg">
-      <ul className="grid grid-cols-5">
+      <ul className={cn("grid", tabs.length === 6 ? "grid-cols-6" : "grid-cols-5")}>
         {tabs.map((t) => {
           const active = t.exact ? pathname === t.to : pathname.startsWith(t.to);
           const Icon = t.icon;
