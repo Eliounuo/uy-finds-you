@@ -24,7 +24,7 @@ import { useAuth } from "@/lib/use-auth";
 import { useAvatarUrl, useProfile } from "@/lib/use-profile";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/profile")({
+export const Route = createFileRoute("/profile/")({
   component: Profile,
 });
 
