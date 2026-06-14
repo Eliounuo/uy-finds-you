@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { MapPin, CalendarDays, Users, Wallet, Sparkles, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/app-header";
-import { formatKZT, CITIES } from "@/lib/mock-data";
+import { formatKZT, CITIES, ACTIVE_CITIES } from "@/lib/mock-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { cn } from "@/lib/utils";
