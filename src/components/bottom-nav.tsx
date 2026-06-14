@@ -10,7 +10,7 @@ import {
   CalendarDays,
   BarChart3,
 } from "lucide-react";
-import { useApp } from "@/lib/app-mode";
+
 import { cn } from "@/lib/utils";
 
 const liteTabs = [
