@@ -69,7 +69,7 @@ function PropertyPage() {
         <div className="flex items-center justify-between">
           <div>
             <div className="font-display text-xl font-bold">{formatKZT(p.price_per_night)}</div>
-            <div className="text-[11px] text-muted-foreground">за ночь</div>
+            <div className="text-[11px] text-muted-foreground">за сутки</div>
           </div>
           <Link to="/create-request" className="rounded-full bg-primary px-6 py-3 font-display text-sm font-bold text-primary-foreground shadow-glow">Создать заявку</Link>
         </div>
