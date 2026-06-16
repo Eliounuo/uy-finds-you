@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Heart, Star, MapPin, Users, BedDouble, Maximize, Loader2 } from "lucide-react";
-import { propertyQuery } from "@/lib/queries";
+import { ArrowLeft, Heart, Star, MapPin, Users, BedDouble, Maximize, Loader2, ShieldCheck } from "lucide-react";
+import { propertyQuery, profileQuery } from "@/lib/queries";
 import { formatKZT, amenityLabels } from "@/lib/mock-data";
 import { useFavorites, useToggleFavorite } from "@/lib/use-favorites";
 import { cn } from "@/lib/utils";
 import { SignedImg } from "@/components/signed-img";
+import { PropertyReviews, RatingBadge } from "@/components/reviews";
+import { ReportButton } from "@/components/report-button";
 
 export const Route = createFileRoute("/property/$id")({ component: PropertyPage });
 
