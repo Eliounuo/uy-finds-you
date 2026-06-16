@@ -59,6 +59,15 @@ function OfferSheet({ request, onClose }: { request: RequestRow; onClose: () => 
   const send = useMutation({
     mutationFn: async () => {
       if (!user || !propertyId) throw new Error("Выберите объект");
+      // Pre-check: do not let the owner offer dates that are already booked
+      const { data: available, error: availErr } = await supabase.rpc("is_property_available", {
+        _property_id: propertyId,
+        _check_in: request.check_in,
+        _check_out: request.check_out,
+        _exclude_booking_id: null as unknown as string,
+      });
+      if (availErr) throw availErr;
+      if (available === false) throw new Error("На эти даты у этого объекта уже есть бронь");
       const { error } = await supabase.from("offers").insert({
         request_id: request.id, property_id: propertyId, owner_id: user.id,
         price_per_night: price, total_price: price * nights, message: message || null,
