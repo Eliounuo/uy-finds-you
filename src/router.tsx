@@ -10,9 +10,10 @@ export const getRouter = () => {
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
-    // Preload route chunks on hover/touch intent — fast nav without
-    // overwhelming the browser by fetching every chunk at mount.
-    defaultPreload: "intent",
+    // Preloading chunks on intent caused "Importing a module script failed"
+    // races in preview after hot rebuilds. Disable preloading — TanStack Query
+    // staleTime keeps navigations fast without prefetching JS chunks.
+    defaultPreload: false,
   });
 
   return router;
