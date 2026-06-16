@@ -13,6 +13,8 @@ export const Route = createFileRoute("/bookings")({ component: BookingsPage });
 function BookingsPage() {
   const { user } = useAuth();
   const { data = [], isLoading } = useQuery(myBookingsQuery(user?.id ?? null));
+  const [reviewFor, setReviewFor] = useState<string | null>(null);
+  const today = new Date().toISOString().slice(0, 10);
 
   return (
     <>
