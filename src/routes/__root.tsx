@@ -160,9 +160,15 @@ function RootComponent() {
     try { sessionStorage.removeItem(RELOAD_FLAG); } catch {}
 
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      // Ignore TOKEN_REFRESHED / INITIAL_SESSION — they fire frequently and
+      // would otherwise invalidate every query, causing visible refetch jank.
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+      if (event === "USER_UPDATED") {
+        queryClient.invalidateQueries({ queryKey: ["profile"] });
+      } else if (event === "SIGNED_IN") {
+        queryClient.invalidateQueries();
+      }
     });
 
     return () => {

@@ -19,6 +19,7 @@ export type PropertyFilters = {
 export const propertiesQuery = (filters: PropertyFilters = {}) =>
   queryOptions({
     queryKey: ["properties", filters],
+    staleTime: 60_000,
     queryFn: async () => {
       let q = supabase
         .from("properties")
@@ -36,6 +37,7 @@ export const propertiesQuery = (filters: PropertyFilters = {}) =>
 export const propertyQuery = (id: string) =>
   queryOptions({
     queryKey: ["property", id],
+    staleTime: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("properties")
@@ -51,6 +53,7 @@ export const myPropertiesQuery = (userId: string | null) =>
   queryOptions({
     queryKey: ["my-properties", userId],
     enabled: !!userId,
+    staleTime: 30_000,
     queryFn: async () => {
       if (!userId) return [];
       const { data, error } = await supabase
@@ -68,6 +71,7 @@ export const myRequestsQuery = (userId: string | null) =>
   queryOptions({
     queryKey: ["my-requests", userId],
     enabled: !!userId,
+    staleTime: 30_000,
     queryFn: async () => {
       if (!userId) return [];
       const { data, error } = await supabase
@@ -86,6 +90,7 @@ export const openRequestsQuery = (userId: string | null) =>
   queryOptions({
     queryKey: ["open-requests", userId],
     enabled: !!userId,
+    staleTime: 30_000,
     queryFn: async () => {
       if (!userId) return [];
       const { data, error } = await supabase
@@ -104,6 +109,7 @@ export const myBookingsQuery = (userId: string | null) =>
   queryOptions({
     queryKey: ["my-bookings", userId],
     enabled: !!userId,
+    staleTime: 30_000,
     queryFn: async () => {
       if (!userId) return [];
       const { data, error } = await supabase
@@ -120,6 +126,7 @@ export const ownerBookingsQuery = (userId: string | null) =>
   queryOptions({
     queryKey: ["owner-bookings", userId],
     enabled: !!userId,
+    staleTime: 30_000,
     queryFn: async () => {
       if (!userId) return [];
       const { data, error } = await supabase
@@ -137,6 +144,7 @@ export const myChatsQuery = (userId: string | null) =>
   queryOptions({
     queryKey: ["my-chats", userId],
     enabled: !!userId,
+    staleTime: 15_000,
     queryFn: async () => {
       if (!userId) return [];
       const { data, error } = await supabase
@@ -152,6 +160,7 @@ export const myChatsQuery = (userId: string | null) =>
 export const chatMessagesQuery = (chatId: string) =>
   queryOptions({
     queryKey: ["chat-messages", chatId],
+    staleTime: 0,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("messages")
@@ -166,6 +175,7 @@ export const chatMessagesQuery = (chatId: string) =>
 export const chatHeaderQuery = (chatId: string) =>
   queryOptions({
     queryKey: ["chat", chatId],
+    staleTime: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("chats")
@@ -182,6 +192,7 @@ export const favoritesQuery = (userId: string | null) =>
   queryOptions({
     queryKey: ["favorites", userId],
     enabled: !!userId,
+    staleTime: 30_000,
     queryFn: async () => {
       if (!userId) return [];
       const { data, error } = await supabase
@@ -198,6 +209,7 @@ export const profileQuery = (userId: string | null) =>
   queryOptions({
     queryKey: ["profile", userId],
     enabled: !!userId,
+    staleTime: 5 * 60_000,
     queryFn: async () => {
       if (!userId) return null;
       const { data, error } = await supabase
