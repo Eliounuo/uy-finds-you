@@ -435,6 +435,15 @@ export type Database = {
         Args: { _chat_id: string; _user_id: string }
         Returns: boolean
       }
+      is_property_available: {
+        Args: {
+          _check_in: string
+          _check_out: string
+          _exclude_booking_id?: string
+          _property_id: string
+        }
+        Returns: boolean
+      }
       is_request_client: {
         Args: { _request_id: string; _user_id: string }
         Returns: boolean
