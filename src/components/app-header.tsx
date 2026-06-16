@@ -50,6 +50,7 @@ export function AppHeader({ title, back, right, transparent }: Props) {
       {title && <h1 className="ml-1 truncate font-display text-lg font-semibold">{title}</h1>}
 
       <div className="ml-auto flex items-center gap-1.5">
+        <NotificationsBell />
         {right}
       </div>
     </header>
