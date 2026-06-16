@@ -188,7 +188,7 @@ function Profile() {
         </Section>
 
         <Section title="Аккаунт">
-          <Row icon={Shield} label="Безопасность" />
+          <Row icon={Shield} label="Верификация" to="/profile/verification" />
           <Row icon={Settings} label="Настройки" />
           <Row icon={Moon} label="Тема" to="/profile/theme" />
           <Row icon={HelpCircle} label="Поддержка" />
