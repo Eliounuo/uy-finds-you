@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarRange, Loader2 } from "lucide-react";
+import { CalendarRange, Loader2, Star } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { useAuth } from "@/lib/use-auth";
 import { myBookingsQuery } from "@/lib/queries";
 import { formatKZT, formatDate, nightsBetween } from "@/lib/mock-data";
+import { ReviewForm } from "@/components/reviews";
 
 export const Route = createFileRoute("/bookings")({ component: BookingsPage });
 
