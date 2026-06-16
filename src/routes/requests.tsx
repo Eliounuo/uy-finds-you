@@ -26,7 +26,12 @@ function RequestsPage() {
       qc.invalidateQueries({ queryKey: ["my-bookings"] });
       qc.invalidateQueries({ queryKey: ["my-chats"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => {
+      const msg = /already booked|date_overlap|check_violation/i.test(e.message)
+        ? "Эти даты уже забронированы у владельца. Выберите другое предложение."
+        : e.message;
+      toast.error(msg);
+    },
   });
 
   return (
