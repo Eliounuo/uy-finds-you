@@ -14,6 +14,7 @@ export const Route = createFileRoute("/property/$id")({ component: PropertyPage 
 function PropertyPage() {
   const { id } = Route.useParams();
   const { data: p, isLoading } = useQuery(propertyQuery(id));
+  const { data: ownerProfile } = useQuery(profileQuery(p?.owner_id ?? null));
   const favs = useFavorites();
   const toggle = useToggleFavorite();
 
