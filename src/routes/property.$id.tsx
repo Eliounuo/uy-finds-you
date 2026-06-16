@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Heart, Star, MapPin, Users, BedDouble, Maximize, Loader2, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Heart, MapPin, Users, BedDouble, Maximize, Loader2, ShieldCheck } from "lucide-react";
 import { propertyQuery, profileQuery } from "@/lib/queries";
 import { formatKZT, amenityLabels } from "@/lib/mock-data";
 import { useFavorites, useToggleFavorite } from "@/lib/use-favorites";
