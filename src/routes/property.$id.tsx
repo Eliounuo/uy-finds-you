@@ -76,6 +76,11 @@ function PropertyPage() {
             </div>
           </div>
         )}
+
+        <div>
+          <h2 className="mb-2 font-display text-sm font-bold uppercase tracking-wider">Отзывы</h2>
+          <PropertyReviews propertyId={p.id} />
+        </div>
       </div>
 
       <div className="safe-bottom fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/95 px-4 pt-3 pb-3 backdrop-blur-lg">
