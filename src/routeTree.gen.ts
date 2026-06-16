@@ -25,6 +25,7 @@ import { Route as ProfileIndexRouteImport } from './routes/profile.index'
 import { Route as ProIndexRouteImport } from './routes/pro.index'
 import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as PropertyIdRouteImport } from './routes/property.$id'
+import { Route as ProfileVerificationRouteImport } from './routes/profile.verification'
 import { Route as ProfileThemeRouteImport } from './routes/profile.theme'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as ProStatsRouteImport } from './routes/pro.stats'
@@ -115,6 +116,11 @@ const PropertyIdRoute = PropertyIdRouteImport.update({
   path: '/property/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileVerificationRoute = ProfileVerificationRouteImport.update({
+  id: '/verification',
+  path: '/verification',
+  getParentRoute: () => ProfileRoute,
+} as any)
 const ProfileThemeRoute = ProfileThemeRouteImport.update({
   id: '/theme',
   path: '/theme',
@@ -181,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/pro/stats': typeof ProStatsRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/theme': typeof ProfileThemeRoute
+  '/profile/verification': typeof ProfileVerificationRoute
   '/property/$id': typeof PropertyIdRoute
   '/chat/': typeof ChatIndexRoute
   '/pro/': typeof ProIndexRoute
@@ -206,6 +213,7 @@ export interface FileRoutesByTo {
   '/pro/stats': typeof ProStatsRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/theme': typeof ProfileThemeRoute
+  '/profile/verification': typeof ProfileVerificationRoute
   '/property/$id': typeof PropertyIdRoute
   '/chat': typeof ChatIndexRoute
   '/pro': typeof ProIndexRoute
@@ -234,6 +242,7 @@ export interface FileRoutesById {
   '/pro/stats': typeof ProStatsRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/theme': typeof ProfileThemeRoute
+  '/profile/verification': typeof ProfileVerificationRoute
   '/property/$id': typeof PropertyIdRoute
   '/chat/': typeof ChatIndexRoute
   '/pro/': typeof ProIndexRoute
@@ -263,6 +272,7 @@ export interface FileRouteTypes {
     | '/pro/stats'
     | '/profile/edit'
     | '/profile/theme'
+    | '/profile/verification'
     | '/property/$id'
     | '/chat/'
     | '/pro/'
@@ -288,6 +298,7 @@ export interface FileRouteTypes {
     | '/pro/stats'
     | '/profile/edit'
     | '/profile/theme'
+    | '/profile/verification'
     | '/property/$id'
     | '/chat'
     | '/pro'
@@ -315,6 +326,7 @@ export interface FileRouteTypes {
     | '/pro/stats'
     | '/profile/edit'
     | '/profile/theme'
+    | '/profile/verification'
     | '/property/$id'
     | '/chat/'
     | '/pro/'
@@ -455,6 +467,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PropertyIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile/verification': {
+      id: '/profile/verification'
+      path: '/verification'
+      fullPath: '/profile/verification'
+      preLoaderRoute: typeof ProfileVerificationRouteImport
+      parentRoute: typeof ProfileRoute
+    }
     '/profile/theme': {
       id: '/profile/theme'
       path: '/theme'
@@ -546,12 +565,14 @@ const ProRouteWithChildren = ProRoute._addFileChildren(ProRouteChildren)
 interface ProfileRouteChildren {
   ProfileEditRoute: typeof ProfileEditRoute
   ProfileThemeRoute: typeof ProfileThemeRoute
+  ProfileVerificationRoute: typeof ProfileVerificationRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
 }
 
 const ProfileRouteChildren: ProfileRouteChildren = {
   ProfileEditRoute: ProfileEditRoute,
   ProfileThemeRoute: ProfileThemeRoute,
+  ProfileVerificationRoute: ProfileVerificationRoute,
   ProfileIndexRoute: ProfileIndexRoute,
 }
 

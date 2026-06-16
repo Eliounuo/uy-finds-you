@@ -116,6 +116,48 @@ export type Database = {
           },
         ]
       }
+      complaints: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          reason: string
+          reporter_id: string
+          resolution_note: string | null
+          resolved_by: string | null
+          status: Database["public"]["Enums"]["complaint_status"]
+          target_id: string
+          target_type: Database["public"]["Enums"]["complaint_target"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason: string
+          reporter_id: string
+          resolution_note?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["complaint_status"]
+          target_id: string
+          target_type: Database["public"]["Enums"]["complaint_target"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason?: string
+          reporter_id?: string
+          resolution_note?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["complaint_status"]
+          target_id?: string
+          target_type?: Database["public"]["Enums"]["complaint_target"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string
@@ -174,6 +216,42 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          read_at: string | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          read_at?: string | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          read_at?: string | null
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       offers: {
         Row: {
           created_at: string
@@ -230,31 +308,37 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           full_name: string | null
+          global_user_id: string | null
           id: string
           is_landlord: boolean
           mode: string
           phone: string | null
           updated_at: string
+          verification_status: Database["public"]["Enums"]["verification_status"]
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           full_name?: string | null
+          global_user_id?: string | null
           id: string
           is_landlord?: boolean
           mode?: string
           phone?: string | null
           updated_at?: string
+          verification_status?: Database["public"]["Enums"]["verification_status"]
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           full_name?: string | null
+          global_user_id?: string | null
           id?: string
           is_landlord?: boolean
           mode?: string
           phone?: string | null
           updated_at?: string
+          verification_status?: Database["public"]["Enums"]["verification_status"]
         }
         Relationships: []
       }
@@ -426,11 +510,96 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      verification_requests: {
+        Row: {
+          created_at: string
+          doc_url: string
+          id: string
+          review_note: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["verification_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          doc_url: string
+          id?: string
+          review_note?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["verification_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          doc_url?: string
+          id?: string
+          review_note?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["verification_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      owner_ratings: {
+        Row: {
+          avg_rating: number | null
+          owner_id: string | null
+          reviews_count: number | null
+        }
+        Relationships: []
+      }
+      property_ratings: {
+        Row: {
+          avg_rating: number | null
+          property_id: string | null
+          reviews_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      can_review_booking: { Args: { _booking_id: string }; Returns: boolean }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_chat_participant: {
         Args: { _chat_id: string; _user_id: string }
         Returns: boolean
@@ -450,7 +619,18 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      complaint_status: "open" | "reviewing" | "resolved" | "rejected"
+      complaint_target: "property" | "owner" | "client"
+      notification_type:
+        | "message"
+        | "offer_new"
+        | "offer_accepted"
+        | "offer_declined"
+        | "booking_created"
+        | "booking_cancelled"
+        | "verification_update"
+      verification_status: "unverified" | "pending" | "verified" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -577,6 +757,20 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      complaint_status: ["open", "reviewing", "resolved", "rejected"],
+      complaint_target: ["property", "owner", "client"],
+      notification_type: [
+        "message",
+        "offer_new",
+        "offer_accepted",
+        "offer_declined",
+        "booking_created",
+        "booking_cancelled",
+        "verification_update",
+      ],
+      verification_status: ["unverified", "pending", "verified", "rejected"],
+    },
   },
 } as const

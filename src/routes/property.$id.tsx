@@ -1,17 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Heart, Star, MapPin, Users, BedDouble, Maximize, Loader2 } from "lucide-react";
-import { propertyQuery } from "@/lib/queries";
+import { ArrowLeft, Heart, MapPin, Users, BedDouble, Maximize, Loader2, ShieldCheck } from "lucide-react";
+import { propertyQuery, profileQuery } from "@/lib/queries";
 import { formatKZT, amenityLabels } from "@/lib/mock-data";
 import { useFavorites, useToggleFavorite } from "@/lib/use-favorites";
 import { cn } from "@/lib/utils";
 import { SignedImg } from "@/components/signed-img";
+import { PropertyReviews, RatingBadge } from "@/components/reviews";
+import { ReportButton } from "@/components/report-button";
 
 export const Route = createFileRoute("/property/$id")({ component: PropertyPage });
 
 function PropertyPage() {
   const { id } = Route.useParams();
   const { data: p, isLoading } = useQuery(propertyQuery(id));
+  const { data: ownerProfile } = useQuery(profileQuery(p?.owner_id ?? null));
   const favs = useFavorites();
   const toggle = useToggleFavorite();
 
@@ -42,9 +45,19 @@ function PropertyPage() {
 
       <div className="space-y-5 px-4 pt-4">
         <div>
-          <h1 className="font-display text-2xl font-bold leading-tight">{p.title}</h1>
+          <div className="flex items-start justify-between gap-2">
+            <h1 className="font-display text-2xl font-bold leading-tight">{p.title}</h1>
+            <ReportButton targetType="property" targetId={p.id} />
+          </div>
           <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="h-4 w-4"/> {p.city}{p.district ? `, ${p.district}` : ""}{p.address ? ` · ${p.address}` : ""}</p>
-          <div className="mt-2 flex items-center gap-1 text-sm font-semibold"><Star className="h-4 w-4 fill-primary text-primary"/>{Number(p.rating).toFixed(1)} <span className="text-muted-foreground">· {p.reviews_count} отзывов</span></div>
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-semibold">
+            <RatingBadge propertyId={p.id} size="md" />
+            {ownerProfile?.verification_status === "verified" && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] text-primary">
+                <ShieldCheck className="h-3 w-3" /> Владелец проверен
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
@@ -63,6 +76,11 @@ function PropertyPage() {
             </div>
           </div>
         )}
+
+        <div>
+          <h2 className="mb-2 font-display text-sm font-bold uppercase tracking-wider">Отзывы</h2>
+          <PropertyReviews propertyId={p.id} />
+        </div>
       </div>
 
       <div className="safe-bottom fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/95 px-4 pt-3 pb-3 backdrop-blur-lg">
