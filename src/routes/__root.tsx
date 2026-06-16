@@ -44,18 +44,20 @@ function isChunkLoadError(error: unknown): boolean {
   );
 }
 
-const RELOAD_FLAG = "__uy_chunk_reload";
+const RELOAD_FLAG = "__uy_chunk_reload_at";
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
-    // Auto-recover from stale chunk errors after a redeploy by forcing a hard reload once.
+    // Auto-recover from stale chunk errors (after preview rebuilds / deploys).
+    // Throttle: at most one auto-reload per 10s to avoid loops.
     if (typeof window !== "undefined" && isChunkLoadError(error)) {
       try {
-        if (!sessionStorage.getItem(RELOAD_FLAG)) {
-          sessionStorage.setItem(RELOAD_FLAG, "1");
+        const last = Number(sessionStorage.getItem(RELOAD_FLAG) ?? 0);
+        if (Date.now() - last > 10_000) {
+          sessionStorage.setItem(RELOAD_FLAG, String(Date.now()));
           window.location.reload();
         }
       } catch {
