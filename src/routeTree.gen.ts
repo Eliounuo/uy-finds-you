@@ -33,6 +33,7 @@ import { Route as ProRequestsRouteImport } from './routes/pro.requests'
 import { Route as ProChatRouteImport } from './routes/pro.chat'
 import { Route as ProCalendarRouteImport } from './routes/pro.calendar'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
+import { Route as AdminAlertsRouteImport } from './routes/admin.alerts'
 import { Route as ProPropertiesNewRouteImport } from './routes/pro.properties.new'
 import { Route as ProPropertiesIdEditRouteImport } from './routes/pro.properties.$id.edit'
 
@@ -156,6 +157,11 @@ const ChatIdRoute = ChatIdRouteImport.update({
   path: '/chat/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminAlertsRoute = AdminAlertsRouteImport.update({
+  id: '/admin/alerts',
+  path: '/admin/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProPropertiesNewRoute = ProPropertiesNewRouteImport.update({
   id: '/properties/new',
   path: '/properties/new',
@@ -180,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/pro': typeof ProRouteWithChildren
   '/profile': typeof ProfileRouteWithChildren
   '/requests': typeof RequestsRoute
+  '/admin/alerts': typeof AdminAlertsRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
   '/pro/chat': typeof ProChatRoute
@@ -206,6 +213,7 @@ export interface FileRoutesByTo {
   '/map': typeof MapRoute
   '/owner': typeof OwnerRoute
   '/requests': typeof RequestsRoute
+  '/admin/alerts': typeof AdminAlertsRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
   '/pro/chat': typeof ProChatRoute
@@ -235,6 +243,7 @@ export interface FileRoutesById {
   '/pro': typeof ProRouteWithChildren
   '/profile': typeof ProfileRouteWithChildren
   '/requests': typeof RequestsRoute
+  '/admin/alerts': typeof AdminAlertsRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
   '/pro/chat': typeof ProChatRoute
@@ -265,6 +274,7 @@ export interface FileRouteTypes {
     | '/pro'
     | '/profile'
     | '/requests'
+    | '/admin/alerts'
     | '/chat/$id'
     | '/pro/calendar'
     | '/pro/chat'
@@ -291,6 +301,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/owner'
     | '/requests'
+    | '/admin/alerts'
     | '/chat/$id'
     | '/pro/calendar'
     | '/pro/chat'
@@ -319,6 +330,7 @@ export interface FileRouteTypes {
     | '/pro'
     | '/profile'
     | '/requests'
+    | '/admin/alerts'
     | '/chat/$id'
     | '/pro/calendar'
     | '/pro/chat'
@@ -348,6 +360,7 @@ export interface RootRouteChildren {
   ProRoute: typeof ProRouteWithChildren
   ProfileRoute: typeof ProfileRouteWithChildren
   RequestsRoute: typeof RequestsRoute
+  AdminAlertsRoute: typeof AdminAlertsRoute
   ChatIdRoute: typeof ChatIdRoute
   PropertyIdRoute: typeof PropertyIdRoute
   ChatIndexRoute: typeof ChatIndexRoute
@@ -523,6 +536,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/alerts': {
+      id: '/admin/alerts'
+      path: '/admin/alerts'
+      fullPath: '/admin/alerts'
+      preLoaderRoute: typeof AdminAlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pro/properties/new': {
       id: '/pro/properties/new'
       path: '/properties/new'
@@ -592,6 +612,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProRoute: ProRouteWithChildren,
   ProfileRoute: ProfileRouteWithChildren,
   RequestsRoute: RequestsRoute,
+  AdminAlertsRoute: AdminAlertsRoute,
   ChatIdRoute: ChatIdRoute,
   PropertyIdRoute: PropertyIdRoute,
   ChatIndexRoute: ChatIndexRoute,
