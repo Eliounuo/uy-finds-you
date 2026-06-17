@@ -7,6 +7,9 @@ import { AppHeader } from "@/components/app-header";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { formatDateTime } from "@/lib/mock-data";
+import type { Database } from "@/integrations/supabase/types";
+
+type RuleUpdate = Database["public"]["Tables"]["alert_rules"]["Update"];
 
 export const Route = createFileRoute("/admin/alerts")({ component: AdminAlerts });
 
@@ -95,7 +98,7 @@ function RulesSection() {
   const [creating, setCreating] = useState(false);
 
   const update = useMutation({
-    mutationFn: async (p: { id: string; patch: Record<string, unknown> }) => {
+    mutationFn: async (p: { id: string; patch: RuleUpdate }) => {
       const { error } = await supabase.from("alert_rules").update(p.patch).eq("id", p.id);
       if (error) throw error;
     },
