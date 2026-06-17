@@ -1,10 +1,16 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+
+type Json = Database["public"]["Tables"]["analytics_events"]["Insert"]["payload"];
+
+
 
 /**
  * Lightweight self-hosted analytics. Fire-and-forget; never throws.
  * Replace with PostHog later by swapping the body of `track`.
  */
 export async function track(event: string, payload: Record<string, unknown> = {}) {
+  const safePayload = payload as unknown as Json;
   try {
     const {
       data: { user },
@@ -13,7 +19,7 @@ export async function track(event: string, payload: Record<string, unknown> = {}
       user_id: user?.id ?? null,
       event,
       path: typeof window !== "undefined" ? window.location.pathname : null,
-      payload,
+      payload: safePayload,
     });
   } catch {
     // swallow — analytics must never break UX
@@ -21,6 +27,7 @@ export async function track(event: string, payload: Record<string, unknown> = {}
 }
 
 export async function logError(err: unknown, meta: Record<string, unknown> = {}) {
+  const safeMeta = meta as unknown as Json;
   try {
     const e = err instanceof Error ? err : new Error(String(err));
     const {
@@ -32,7 +39,7 @@ export async function logError(err: unknown, meta: Record<string, unknown> = {})
       stack: e.stack?.slice(0, 4000) ?? null,
       path: typeof window !== "undefined" ? window.location.pathname : null,
       user_agent: typeof navigator !== "undefined" ? navigator.userAgent : null,
-      meta,
+      meta: safeMeta,
     });
   } catch {
     // ignore

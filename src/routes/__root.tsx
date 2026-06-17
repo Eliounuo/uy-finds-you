@@ -16,6 +16,7 @@ import { BottomNav } from "@/components/bottom-nav";
 import { ProfileGate } from "@/components/profile-gate";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
+import { installGlobalErrorHandlers, logError } from "@/lib/analytics";
 
 
 function NotFoundComponent() {
@@ -51,6 +52,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    void logError(error, { boundary: "root" });
     // Auto-recover from stale chunk errors (after preview rebuilds / deploys).
     // Throttle: at most one auto-reload per 10s to avoid loops.
     if (typeof window !== "undefined" && isChunkLoadError(error)) {
@@ -160,6 +162,7 @@ function RootComponent() {
   useEffect(() => {
     // Clear any stale chunk-reload flag from a previous session.
     try { sessionStorage.removeItem(RELOAD_FLAG); } catch {}
+    installGlobalErrorHandlers();
 
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       // Ignore TOKEN_REFRESHED / INITIAL_SESSION — they fire frequently and
