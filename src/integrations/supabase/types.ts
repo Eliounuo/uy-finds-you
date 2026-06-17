@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          created_at: string
+          event: string
+          id: string
+          path: string | null
+          payload: Json
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: string
+          path?: string | null
+          payload?: Json
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: string
+          path?: string | null
+          payload?: Json
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           check_in: string
@@ -116,6 +143,38 @@ export type Database = {
           },
         ]
       }
+      commissions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          payment_id: string
+          rate: number
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          payment_id: string
+          rate?: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          payment_id?: string
+          rate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commissions_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       complaints: {
         Row: {
           created_at: string
@@ -155,6 +214,39 @@ export type Database = {
           target_id?: string
           target_type?: Database["public"]["Enums"]["complaint_target"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      error_logs: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          meta: Json
+          path: string | null
+          stack: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          meta?: Json
+          path?: string | null
+          stack?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          meta?: Json
+          path?: string | null
+          stack?: string | null
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -302,6 +394,95 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          booking_id: string
+          client_id: string
+          created_at: string
+          currency: string
+          external_id: string | null
+          id: string
+          meta: Json
+          method: Database["public"]["Enums"]["payment_method"]
+          owner_id: string
+          status: Database["public"]["Enums"]["payment_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          booking_id: string
+          client_id: string
+          created_at?: string
+          currency?: string
+          external_id?: string | null
+          id?: string
+          meta?: Json
+          method?: Database["public"]["Enums"]["payment_method"]
+          owner_id: string
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string
+          client_id?: string
+          created_at?: string
+          currency?: string
+          external_id?: string | null
+          id?: string
+          meta?: Json
+          method?: Database["public"]["Enums"]["payment_method"]
+          owner_id?: string
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payouts: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          destination: string | null
+          id: string
+          note: string | null
+          owner_id: string
+          status: Database["public"]["Enums"]["payout_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          destination?: string | null
+          id?: string
+          note?: string | null
+          owner_id: string
+          status?: Database["public"]["Enums"]["payout_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          destination?: string | null
+          id?: string
+          note?: string | null
+          owner_id?: string
+          status?: Database["public"]["Enums"]["payout_status"]
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -630,6 +811,9 @@ export type Database = {
         | "booking_created"
         | "booking_cancelled"
         | "verification_update"
+      payment_method: "card" | "kaspi" | "jasyn_wallet" | "manual"
+      payment_status: "pending" | "succeeded" | "failed" | "refunded"
+      payout_status: "pending" | "paid" | "failed"
       verification_status: "unverified" | "pending" | "verified" | "rejected"
     }
     CompositeTypes: {
@@ -770,6 +954,9 @@ export const Constants = {
         "booking_cancelled",
         "verification_update",
       ],
+      payment_method: ["card", "kaspi", "jasyn_wallet", "manual"],
+      payment_status: ["pending", "succeeded", "failed", "refunded"],
+      payout_status: ["pending", "paid", "failed"],
       verification_status: ["unverified", "pending", "verified", "rejected"],
     },
   },
