@@ -16,7 +16,9 @@ import {
   Pencil,
   UserCircle2,
   Moon,
+  AlertTriangle,
 } from "lucide-react";
+import { useQuery, queryOptions } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/app-header";
 import { useApp } from "@/lib/app-mode";
@@ -33,6 +35,18 @@ function Profile() {
   const { user } = useAuth();
   const { profile } = useProfile();
   const navigate = useNavigate();
+  const { data: isAdmin } = useQuery(
+    queryOptions({
+      queryKey: ["is-admin", user?.id ?? null],
+      enabled: !!user,
+      staleTime: 60_000,
+      queryFn: async () => {
+        if (!user) return false;
+        const { data } = await supabase.rpc("has_role", { _user_id: user.id, _role: "admin" });
+        return !!data;
+      },
+    }),
+  );
 
   const displayName = profile?.full_name?.trim() || "Гость";
   const initial = displayName.charAt(0).toUpperCase();
@@ -193,6 +207,12 @@ function Profile() {
           <Row icon={Moon} label="Тема" to="/profile/theme" />
           <Row icon={HelpCircle} label="Поддержка" />
         </Section>
+
+        {isAdmin && (
+          <Section title="Администратор">
+            <Row icon={AlertTriangle} label="Алерты и пороги" to="/admin/alerts" />
+          </Section>
+        )}
 
         {user && (
           <button
