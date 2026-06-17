@@ -14,6 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      alert_incidents: {
+        Row: {
+          count: number
+          created_at: string
+          id: string
+          rule_id: string
+          threshold: number
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          count: number
+          created_at?: string
+          id?: string
+          rule_id: string
+          threshold: number
+          window_end: string
+          window_start: string
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          id?: string
+          rule_id?: string
+          threshold?: number
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_incidents_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "alert_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      alert_rules: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          event_name: string | null
+          id: string
+          kind: Database["public"]["Enums"]["alert_kind"]
+          name: string
+          notify_admins: boolean
+          threshold: number
+          updated_at: string
+          window_minutes: number
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          event_name?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["alert_kind"]
+          name: string
+          notify_admins?: boolean
+          threshold: number
+          updated_at?: string
+          window_minutes?: number
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          event_name?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["alert_kind"]
+          name?: string
+          notify_admins?: boolean
+          threshold?: number
+          updated_at?: string
+          window_minutes?: number
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           created_at: string
@@ -774,6 +851,7 @@ export type Database = {
     }
     Functions: {
       can_review_booking: { Args: { _booking_id: string }; Returns: boolean }
+      check_alerts: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -800,6 +878,7 @@ export type Database = {
       }
     }
     Enums: {
+      alert_kind: "error_rate" | "event_spike"
       app_role: "admin" | "moderator" | "user"
       complaint_status: "open" | "reviewing" | "resolved" | "rejected"
       complaint_target: "property" | "owner" | "client"
@@ -942,6 +1021,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      alert_kind: ["error_rate", "event_spike"],
       app_role: ["admin", "moderator", "user"],
       complaint_status: ["open", "reviewing", "resolved", "rejected"],
       complaint_target: ["property", "owner", "client"],
