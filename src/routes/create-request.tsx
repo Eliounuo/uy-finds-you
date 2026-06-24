@@ -17,6 +17,9 @@ function CreateRequest() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [city, setCity] = useState<string>("Кокшетау");
+  const [district, setDistrict] = useState("");
+  const [lat, setLat] = useState("");
+  const [lng, setLng] = useState("");
   const [guests, setGuests] = useState(2);
   const [budget, setBudget] = useState(25000);
   const [checkIn, setCheckIn] = useState("");
@@ -24,12 +27,28 @@ function CreateRequest() {
   const [notes, setNotes] = useState("");
   const [done, setDone] = useState(false);
 
+  const useMyLocation = () => {
+    if (!navigator.geolocation) return toast.error("Геолокация недоступна");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLat(pos.coords.latitude.toFixed(6));
+        setLng(pos.coords.longitude.toFixed(6));
+        toast.success("Координаты добавлены");
+      },
+      () => toast.error("Не удалось определить координаты"),
+    );
+  };
+
   const submit = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("AUTH_REQUIRED");
       if (!checkIn || !checkOut) throw new Error("Выберите даты");
       const { error } = await supabase.from("requests").insert({
-        client_id: user.id, city, check_in: checkIn, check_out: checkOut,
+        client_id: user.id, city,
+        district: district.trim() || null,
+        lat: lat ? Number(lat) : null,
+        lng: lng ? Number(lng) : null,
+        check_in: checkIn, check_out: checkOut,
         guests, budget_max: budget, notes: notes || null,
       });
       if (error) throw error;
