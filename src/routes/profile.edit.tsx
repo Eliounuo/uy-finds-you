@@ -234,6 +234,23 @@ function EditProfile() {
             )}
           </div>
 
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">WhatsApp</label>
+              <input type="tel" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} maxLength={20} placeholder="+7…"
+                className="w-full rounded-2xl bg-card px-4 py-3.5 text-sm ring-1 ring-border outline-none focus:ring-primary" />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Telegram</label>
+              <input type="text" value={telegram} onChange={(e) => setTelegram(e.target.value)} maxLength={40} placeholder="username"
+                className="w-full rounded-2xl bg-card px-4 py-3.5 text-sm ring-1 ring-border outline-none focus:ring-primary" />
+            </div>
+          </div>
+          <p className="-mt-2 text-[11px] text-muted-foreground">
+            Контакты видны только после подтверждённого бронирования.
+          </p>
+
+
           <button
             type="submit"
             disabled={submitting}
