@@ -20,10 +20,12 @@ import { Route as CompleteProfileRouteImport } from './routes/complete-profile'
 import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as BecomeHostRouteImport } from './routes/become-host'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProfileIndexRouteImport } from './routes/profile.index'
 import { Route as ProIndexRouteImport } from './routes/pro.index'
 import { Route as ChatIndexRouteImport } from './routes/chat.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as PropertyIdRouteImport } from './routes/property.$id'
 import { Route as ProfileVerificationRouteImport } from './routes/profile.verification'
 import { Route as ProfileThemeRouteImport } from './routes/profile.theme'
@@ -33,6 +35,11 @@ import { Route as ProRequestsRouteImport } from './routes/pro.requests'
 import { Route as ProChatRouteImport } from './routes/pro.chat'
 import { Route as ProCalendarRouteImport } from './routes/pro.calendar'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminPropertiesRouteImport } from './routes/admin.properties'
+import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
+import { Route as AdminComplaintsRouteImport } from './routes/admin.complaints'
+import { Route as AdminBookingsRouteImport } from './routes/admin.bookings'
 import { Route as AdminAlertsRouteImport } from './routes/admin.alerts'
 import { Route as ProPropertiesNewRouteImport } from './routes/pro.properties.new'
 import { Route as ProPropertiesIdEditRouteImport } from './routes/pro.properties.$id.edit'
@@ -92,6 +99,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -111,6 +123,11 @@ const ChatIndexRoute = ChatIndexRouteImport.update({
   id: '/chat/',
   path: '/chat/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const PropertyIdRoute = PropertyIdRouteImport.update({
   id: '/property/$id',
@@ -157,10 +174,35 @@ const ChatIdRoute = ChatIdRouteImport.update({
   path: '/chat/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPropertiesRoute = AdminPropertiesRouteImport.update({
+  id: '/properties',
+  path: '/properties',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminComplaintsRoute = AdminComplaintsRouteImport.update({
+  id: '/complaints',
+  path: '/complaints',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBookingsRoute = AdminBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAlertsRoute = AdminAlertsRouteImport.update({
-  id: '/admin/alerts',
-  path: '/admin/alerts',
-  getParentRoute: () => rootRouteImport,
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => AdminRoute,
 } as any)
 const ProPropertiesNewRoute = ProPropertiesNewRouteImport.update({
   id: '/properties/new',
@@ -175,6 +217,7 @@ const ProPropertiesIdEditRoute = ProPropertiesIdEditRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/become-host': typeof BecomeHostRoute
   '/bookings': typeof BookingsRoute
@@ -187,6 +230,11 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRouteWithChildren
   '/requests': typeof RequestsRoute
   '/admin/alerts': typeof AdminAlertsRoute
+  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/complaints': typeof AdminComplaintsRoute
+  '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/properties': typeof AdminPropertiesRoute
+  '/admin/users': typeof AdminUsersRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
   '/pro/chat': typeof ProChatRoute
@@ -196,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/profile/theme': typeof ProfileThemeRoute
   '/profile/verification': typeof ProfileVerificationRoute
   '/property/$id': typeof PropertyIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/chat/': typeof ChatIndexRoute
   '/pro/': typeof ProIndexRoute
   '/profile/': typeof ProfileIndexRoute
@@ -214,6 +263,11 @@ export interface FileRoutesByTo {
   '/owner': typeof OwnerRoute
   '/requests': typeof RequestsRoute
   '/admin/alerts': typeof AdminAlertsRoute
+  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/complaints': typeof AdminComplaintsRoute
+  '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/properties': typeof AdminPropertiesRoute
+  '/admin/users': typeof AdminUsersRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
   '/pro/chat': typeof ProChatRoute
@@ -223,6 +277,7 @@ export interface FileRoutesByTo {
   '/profile/theme': typeof ProfileThemeRoute
   '/profile/verification': typeof ProfileVerificationRoute
   '/property/$id': typeof PropertyIdRoute
+  '/admin': typeof AdminIndexRoute
   '/chat': typeof ChatIndexRoute
   '/pro': typeof ProIndexRoute
   '/profile': typeof ProfileIndexRoute
@@ -232,6 +287,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/become-host': typeof BecomeHostRoute
   '/bookings': typeof BookingsRoute
@@ -244,6 +300,11 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRouteWithChildren
   '/requests': typeof RequestsRoute
   '/admin/alerts': typeof AdminAlertsRoute
+  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/complaints': typeof AdminComplaintsRoute
+  '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/properties': typeof AdminPropertiesRoute
+  '/admin/users': typeof AdminUsersRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
   '/pro/chat': typeof ProChatRoute
@@ -253,6 +314,7 @@ export interface FileRoutesById {
   '/profile/theme': typeof ProfileThemeRoute
   '/profile/verification': typeof ProfileVerificationRoute
   '/property/$id': typeof PropertyIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/chat/': typeof ChatIndexRoute
   '/pro/': typeof ProIndexRoute
   '/profile/': typeof ProfileIndexRoute
@@ -263,6 +325,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/auth'
     | '/become-host'
     | '/bookings'
@@ -275,6 +338,11 @@ export interface FileRouteTypes {
     | '/profile'
     | '/requests'
     | '/admin/alerts'
+    | '/admin/bookings'
+    | '/admin/complaints'
+    | '/admin/payments'
+    | '/admin/properties'
+    | '/admin/users'
     | '/chat/$id'
     | '/pro/calendar'
     | '/pro/chat'
@@ -284,6 +352,7 @@ export interface FileRouteTypes {
     | '/profile/theme'
     | '/profile/verification'
     | '/property/$id'
+    | '/admin/'
     | '/chat/'
     | '/pro/'
     | '/profile/'
@@ -302,6 +371,11 @@ export interface FileRouteTypes {
     | '/owner'
     | '/requests'
     | '/admin/alerts'
+    | '/admin/bookings'
+    | '/admin/complaints'
+    | '/admin/payments'
+    | '/admin/properties'
+    | '/admin/users'
     | '/chat/$id'
     | '/pro/calendar'
     | '/pro/chat'
@@ -311,6 +385,7 @@ export interface FileRouteTypes {
     | '/profile/theme'
     | '/profile/verification'
     | '/property/$id'
+    | '/admin'
     | '/chat'
     | '/pro'
     | '/profile'
@@ -319,6 +394,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/auth'
     | '/become-host'
     | '/bookings'
@@ -331,6 +407,11 @@ export interface FileRouteTypes {
     | '/profile'
     | '/requests'
     | '/admin/alerts'
+    | '/admin/bookings'
+    | '/admin/complaints'
+    | '/admin/payments'
+    | '/admin/properties'
+    | '/admin/users'
     | '/chat/$id'
     | '/pro/calendar'
     | '/pro/chat'
@@ -340,6 +421,7 @@ export interface FileRouteTypes {
     | '/profile/theme'
     | '/profile/verification'
     | '/property/$id'
+    | '/admin/'
     | '/chat/'
     | '/pro/'
     | '/profile/'
@@ -349,6 +431,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   BecomeHostRoute: typeof BecomeHostRoute
   BookingsRoute: typeof BookingsRoute
@@ -360,7 +443,6 @@ export interface RootRouteChildren {
   ProRoute: typeof ProRouteWithChildren
   ProfileRoute: typeof ProfileRouteWithChildren
   RequestsRoute: typeof RequestsRoute
-  AdminAlertsRoute: typeof AdminAlertsRoute
   ChatIdRoute: typeof ChatIdRoute
   PropertyIdRoute: typeof PropertyIdRoute
   ChatIndexRoute: typeof ChatIndexRoute
@@ -445,6 +527,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -472,6 +561,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/chat/'
       preLoaderRoute: typeof ChatIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/property/$id': {
       id: '/property/$id'
@@ -536,12 +632,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/properties': {
+      id: '/admin/properties'
+      path: '/properties'
+      fullPath: '/admin/properties'
+      preLoaderRoute: typeof AdminPropertiesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/payments': {
+      id: '/admin/payments'
+      path: '/payments'
+      fullPath: '/admin/payments'
+      preLoaderRoute: typeof AdminPaymentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/complaints': {
+      id: '/admin/complaints'
+      path: '/complaints'
+      fullPath: '/admin/complaints'
+      preLoaderRoute: typeof AdminComplaintsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/bookings': {
+      id: '/admin/bookings'
+      path: '/bookings'
+      fullPath: '/admin/bookings'
+      preLoaderRoute: typeof AdminBookingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/alerts': {
       id: '/admin/alerts'
-      path: '/admin/alerts'
+      path: '/alerts'
       fullPath: '/admin/alerts'
       preLoaderRoute: typeof AdminAlertsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/pro/properties/new': {
       id: '/pro/properties/new'
@@ -559,6 +690,28 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AdminRouteChildren {
+  AdminAlertsRoute: typeof AdminAlertsRoute
+  AdminBookingsRoute: typeof AdminBookingsRoute
+  AdminComplaintsRoute: typeof AdminComplaintsRoute
+  AdminPaymentsRoute: typeof AdminPaymentsRoute
+  AdminPropertiesRoute: typeof AdminPropertiesRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAlertsRoute: AdminAlertsRoute,
+  AdminBookingsRoute: AdminBookingsRoute,
+  AdminComplaintsRoute: AdminComplaintsRoute,
+  AdminPaymentsRoute: AdminPaymentsRoute,
+  AdminPropertiesRoute: AdminPropertiesRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface ProRouteChildren {
   ProCalendarRoute: typeof ProCalendarRoute
@@ -601,6 +754,7 @@ const ProfileRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   BecomeHostRoute: BecomeHostRoute,
   BookingsRoute: BookingsRoute,
@@ -612,7 +766,6 @@ const rootRouteChildren: RootRouteChildren = {
   ProRoute: ProRouteWithChildren,
   ProfileRoute: ProfileRouteWithChildren,
   RequestsRoute: RequestsRoute,
-  AdminAlertsRoute: AdminAlertsRoute,
   ChatIdRoute: ChatIdRoute,
   PropertyIdRoute: PropertyIdRoute,
   ChatIndexRoute: ChatIndexRoute,
@@ -620,13 +773,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

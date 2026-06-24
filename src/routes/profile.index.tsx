@@ -210,6 +210,7 @@ function Profile() {
 
         {isAdmin && (
           <Section title="Администратор">
+            <Row icon={Shield} label="Админ-панель" to="/admin" />
             <Row icon={AlertTriangle} label="Алерты и пороги" to="/admin/alerts" />
           </Section>
         )}

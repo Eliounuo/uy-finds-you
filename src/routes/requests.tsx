@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/use-auth";
 import { myRequestsQuery } from "@/lib/queries";
 import { supabase } from "@/integrations/supabase/client";
 import { formatKZT, formatDate } from "@/lib/mock-data";
+import { RequestMatches } from "@/components/request-matches";
 
 export const Route = createFileRoute("/requests")({ component: RequestsPage });
 
@@ -63,6 +64,8 @@ function RequestsPage() {
               <span className="flex items-center gap-1"><Wallet className="h-3 w-3"/> до {formatKZT(r.budget_max)}</span>
             </div>
             {r.notes && <p className="mt-2 text-xs text-muted-foreground">{r.notes}</p>}
+
+            {r.status === 'open' && <RequestMatches requestId={r.id} />}
 
             <div className="mt-3 border-t border-border pt-3">
               <h4 className="mb-2 text-sm font-semibold">Предложения ({r.offers.length})</h4>

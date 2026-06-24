@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_settings: {
+        Row: {
+          auto_reply: boolean
+          check_in_instructions: string | null
+          created_at: string
+          enabled: boolean
+          house_rules: string | null
+          minimum_price: number | null
+          negotiation_limit_percent: number | null
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          auto_reply?: boolean
+          check_in_instructions?: string | null
+          created_at?: string
+          enabled?: boolean
+          house_rules?: string | null
+          minimum_price?: number | null
+          negotiation_limit_percent?: number | null
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          auto_reply?: boolean
+          check_in_instructions?: string | null
+          created_at?: string
+          enabled?: boolean
+          house_rules?: string | null
+          minimum_price?: number | null
+          negotiation_limit_percent?: number | null
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       alert_incidents: {
         Row: {
           count: number
@@ -675,6 +711,54 @@ export type Database = {
         }
         Relationships: []
       }
+      property_availability: {
+        Row: {
+          booking_id: string | null
+          created_at: string
+          end_date: string
+          id: string
+          note: string | null
+          property_id: string
+          source: string
+          start_date: string
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string
+          end_date: string
+          id?: string
+          note?: string | null
+          property_id: string
+          source?: string
+          start_date: string
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string
+          end_date?: string
+          id?: string
+          note?: string | null
+          property_id?: string
+          source?: string
+          start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_availability_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_availability_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       requests: {
         Row: {
           amenities: string[]
@@ -688,7 +772,10 @@ export type Database = {
           expires_at: string
           guests: number
           id: string
+          lat: number | null
+          lng: number | null
           notes: string | null
+          rooms: number | null
           status: string
         }
         Insert: {
@@ -703,7 +790,10 @@ export type Database = {
           expires_at?: string
           guests?: number
           id?: string
+          lat?: number | null
+          lng?: number | null
           notes?: string | null
+          rooms?: number | null
           status?: string
         }
         Update: {
@@ -718,7 +808,10 @@ export type Database = {
           expires_at?: string
           guests?: number
           id?: string
+          lat?: number | null
+          lng?: number | null
           notes?: string | null
+          rooms?: number | null
           status?: string
         }
         Relationships: []
@@ -875,6 +968,23 @@ export type Database = {
       is_request_client: {
         Args: { _request_id: string; _user_id: string }
         Returns: boolean
+      }
+      match_properties_for_request: {
+        Args: { _request_id: string }
+        Returns: {
+          amenities: string[]
+          city: string
+          district: string
+          guests: number
+          id: string
+          photos: string[]
+          price_per_night: number
+          rating: number
+          reviews_count: number
+          rooms: number
+          score: number
+          title: string
+        }[]
       }
     }
     Enums: {
