@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, Link, useLocation } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
-import { Loader2, Users, Home, CalendarCheck, CreditCard, Flag, Bell, LayoutDashboard } from "lucide-react";
+import { Loader2, Users, Home, CalendarCheck, CreditCard, Flag, Bell, LayoutDashboard, Activity } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { useAuth } from "@/lib/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +26,7 @@ const isAdminQuery = (userId: string | null) =>
 type Tab = { to: string; label: string; icon: typeof Users; exact?: boolean };
 const TABS: Tab[] = [
   { to: "/admin", label: "Обзор", icon: LayoutDashboard, exact: true },
+  { to: "/admin/health", label: "Health", icon: Activity },
   { to: "/admin/users", label: "Юзеры", icon: Users },
   { to: "/admin/properties", label: "Объекты", icon: Home },
   { to: "/admin/bookings", label: "Брони", icon: CalendarCheck },
