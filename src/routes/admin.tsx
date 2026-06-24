@@ -67,7 +67,7 @@ function AdminLayout() {
           return (
             <Link
               key={t.to}
-              to={t.to}
+              to={t.to as "/admin"}
               className={`flex shrink-0 items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-border ${
                 active ? "bg-primary text-primary-foreground ring-primary" : "bg-card"
               }`}
