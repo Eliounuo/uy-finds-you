@@ -151,6 +151,8 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
         city: form.city,
         district: form.district.trim() || null,
         address: form.address.trim() || null,
+        lat: form.lat ? Number(form.lat) : null,
+        lng: form.lng ? Number(form.lng) : null,
         price_per_night: Number(form.price_per_night),
         rooms: form.rooms ? Number(form.rooms) : null,
         beds: form.beds ? Number(form.beds) : null,
