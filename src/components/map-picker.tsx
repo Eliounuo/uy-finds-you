@@ -33,8 +33,8 @@ export function MapPicker({
       await import("leaflet/dist/leaflet.css");
       if (cancelled || !containerRef.current) return;
 
-      const start =
-        value ?? (city && CITY_CENTERS[city]) ?? { lat: 51.169392, lng: 71.449074 };
+      const start: LatLng =
+        value ?? CITY_CENTERS[city ?? ""] ?? { lat: 51.169392, lng: 71.449074 };
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const map = (L as any).map(containerRef.current).setView([start.lat, start.lng], value ? 14 : 12);
