@@ -74,6 +74,8 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
         city: existing.city,
         district: existing.district ?? "",
         address: existing.address ?? "",
+        lat: existing.lat != null ? String(existing.lat) : "",
+        lng: existing.lng != null ? String(existing.lng) : "",
         price_per_night: String(existing.price_per_night),
         rooms: String(existing.rooms ?? ""),
         beds: String(existing.beds ?? ""),
