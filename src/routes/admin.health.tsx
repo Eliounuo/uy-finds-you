@@ -18,18 +18,18 @@ type Counts = {
 };
 
 async function fetchCounts(): Promise<Counts> {
-  const c = (q: ReturnType<typeof supabase.from>) => q.select("*", { count: "exact", head: true });
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const headSelect = { count: "exact" as const, head: true };
   const [users, props, propsActive, reqs, books, comps, openComps, errs, evs] = await Promise.all([
-    c(supabase.from("profiles")),
-    c(supabase.from("properties")),
-    supabase.from("properties").select("*", { count: "exact", head: true }).eq("status", "active"),
-    c(supabase.from("requests")),
-    c(supabase.from("bookings")),
-    c(supabase.from("complaints")),
-    supabase.from("complaints").select("*", { count: "exact", head: true }).eq("status", "open"),
-    supabase.from("error_logs").select("*", { count: "exact", head: true }).gte("created_at", since),
-    supabase.from("analytics_events").select("*", { count: "exact", head: true }).gte("created_at", since),
+    supabase.from("profiles").select("*", headSelect),
+    supabase.from("properties").select("*", headSelect),
+    supabase.from("properties").select("*", headSelect).eq("status", "active"),
+    supabase.from("requests").select("*", headSelect),
+    supabase.from("bookings").select("*", headSelect),
+    supabase.from("complaints").select("*", headSelect),
+    supabase.from("complaints").select("*", headSelect).eq("status", "open"),
+    supabase.from("error_logs").select("*", headSelect).gte("created_at", since),
+    supabase.from("analytics_events").select("*", headSelect).gte("created_at", since),
   ]);
   return {
     users: users.count ?? 0,
@@ -43,6 +43,7 @@ async function fetchCounts(): Promise<Counts> {
     events_24h: evs.count ?? 0,
   };
 }
+
 
 function Card({ icon: Icon, label, value, hint, tone }: { icon: typeof Users; label: string; value: number; hint?: string; tone?: "ok" | "warn" | "bad" }) {
   const ring =
