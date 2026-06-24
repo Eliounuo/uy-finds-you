@@ -24,6 +24,8 @@ function EditProfile() {
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [telegram, setTelegram] = useState("");
   const [avatarPath, setAvatarPath] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -42,6 +44,8 @@ function EditProfile() {
     if (!profile) return;
     setFullName(profile.full_name ?? "");
     setPhone(profile.phone ?? "");
+    setWhatsapp(profile.whatsapp ?? "");
+    setTelegram(profile.telegram ?? "");
     setAvatarPath(profile.avatar_url ?? null);
   }, [profile]);
 
@@ -104,6 +108,8 @@ function EditProfile() {
         .update({
           full_name: fullName.trim().replace(/\s+/g, " "),
           phone: normalizePhone(phone),
+          whatsapp: whatsapp.trim() || null,
+          telegram: telegram.trim().replace(/^@/, "") || null,
         })
         .eq("id", user.id);
       if (error) throw error;
