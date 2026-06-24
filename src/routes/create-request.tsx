@@ -28,17 +28,7 @@ function CreateRequest() {
   const [notes, setNotes] = useState("");
   const [done, setDone] = useState(false);
 
-  const useMyLocation = () => {
-    if (!navigator.geolocation) return toast.error("Геолокация недоступна");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLat(pos.coords.latitude.toFixed(6));
-        setLng(pos.coords.longitude.toFixed(6));
-        toast.success("Координаты добавлены");
-      },
-      () => toast.error("Не удалось определить координаты"),
-    );
-  };
+
 
   const submit = useMutation({
     mutationFn: async () => {
