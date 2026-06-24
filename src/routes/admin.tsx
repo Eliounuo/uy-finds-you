@@ -23,7 +23,8 @@ const isAdminQuery = (userId: string | null) =>
     },
   });
 
-const TABS = [
+type Tab = { to: string; label: string; icon: typeof Users; exact?: boolean };
+const TABS: Tab[] = [
   { to: "/admin", label: "Обзор", icon: LayoutDashboard, exact: true },
   { to: "/admin/users", label: "Юзеры", icon: Users },
   { to: "/admin/properties", label: "Объекты", icon: Home },
@@ -31,7 +32,7 @@ const TABS = [
   { to: "/admin/payments", label: "Платежи", icon: CreditCard },
   { to: "/admin/complaints", label: "Жалобы", icon: Flag },
   { to: "/admin/alerts", label: "Алерты", icon: Bell },
-] as const;
+];
 
 function AdminLayout() {
   const { user, loading } = useAuth();

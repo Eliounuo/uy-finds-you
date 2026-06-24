@@ -21,12 +21,14 @@ const complaintsQuery = queryOptions({
   },
 });
 
+type ComplaintStatus = "open" | "reviewing" | "resolved" | "rejected";
+
 function AdminComplaints() {
   const qc = useQueryClient();
   const { data = [], isLoading } = useQuery(complaintsQuery);
 
   const resolve = useMutation({
-    mutationFn: async (p: { id: string; status: string }) => {
+    mutationFn: async (p: { id: string; status: ComplaintStatus }) => {
       const { error } = await supabase.from("complaints").update({ status: p.status }).eq("id", p.id);
       if (error) throw error;
     },
@@ -54,7 +56,7 @@ function AdminComplaints() {
             <span className="font-display text-sm font-bold">{c.reason}</span>
             <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold uppercase">{c.status}</span>
           </div>
-          {c.details && <p className="mt-1 text-xs text-muted-foreground">{c.details}</p>}
+          {c.description && <p className="mt-1 text-xs text-muted-foreground">{c.description}</p>}
           <div className="mt-1 text-[11px] text-muted-foreground">
             {c.target_type}: {c.target_id?.slice(0,8)} · {formatDateTime(c.created_at)}
           </div>
