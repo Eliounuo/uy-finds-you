@@ -253,6 +253,23 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
       </header>
 
       <form onSubmit={handleSave} className="space-y-5 px-4 py-4 pb-32">
+        <div className={`rounded-2xl p-3 ring-1 ${checklist.ready ? "bg-success/10 ring-success/30" : "bg-warning/10 ring-warning/30"}`}>
+          <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+            {checklist.ready ? (
+              <><CheckCircle2 className="h-4 w-4 text-success" /><span className="text-success">Готово к публикации</span></>
+            ) : (
+              <><AlertCircle className="h-4 w-4 text-warning" /><span className="text-warning">Заполните для публикации</span></>
+            )}
+          </div>
+          <ul className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
+            {checklist.items.map((i) => (
+              <li key={i.key} className={`flex items-center gap-1 ${i.ok ? "text-success" : "text-muted-foreground"}`}>
+                {i.ok ? <CheckCircle2 className="h-3 w-3" /> : <span className="inline-block h-3 w-3 rounded-full border border-current opacity-60" />}
+                {i.label}
+              </li>
+            ))}
+          </ul>
+        </div>
         {/* Photos */}
         <section className="space-y-2">
           <Label>Фотографии</Label>
