@@ -25,7 +25,7 @@ export function EmptyState({
       )}
       {actionLabel && actionTo && (
         <Link
-          to={actionTo}
+          to={actionTo as never}
           className="mt-4 inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-glow"
         >
           {actionLabel}
