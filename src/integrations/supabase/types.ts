@@ -952,6 +952,7 @@ export type Database = {
       }
     }
     Functions: {
+      become_landlord: { Args: never; Returns: undefined }
       can_review_booking: { Args: { _booking_id: string }; Returns: boolean }
       can_view_contacts: {
         Args: { _target: string; _viewer: string }
