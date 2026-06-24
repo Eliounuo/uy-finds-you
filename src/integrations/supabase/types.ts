@@ -607,8 +607,11 @@ export type Database = {
           is_landlord: boolean
           mode: string
           phone: string | null
+          public_id: string | null
+          telegram: string | null
           updated_at: string
           verification_status: Database["public"]["Enums"]["verification_status"]
+          whatsapp: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -619,8 +622,11 @@ export type Database = {
           is_landlord?: boolean
           mode?: string
           phone?: string | null
+          public_id?: string | null
+          telegram?: string | null
           updated_at?: string
           verification_status?: Database["public"]["Enums"]["verification_status"]
+          whatsapp?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -631,8 +637,11 @@ export type Database = {
           is_landlord?: boolean
           mode?: string
           phone?: string | null
+          public_id?: string | null
+          telegram?: string | null
           updated_at?: string
           verification_status?: Database["public"]["Enums"]["verification_status"]
+          whatsapp?: string | null
         }
         Relationships: []
       }
@@ -944,7 +953,31 @@ export type Database = {
     }
     Functions: {
       can_review_booking: { Args: { _booking_id: string }; Returns: boolean }
+      can_view_contacts: {
+        Args: { _target: string; _viewer: string }
+        Returns: boolean
+      }
       check_alerts: { Args: never; Returns: number }
+      get_contact_info: {
+        Args: { _user_id: string }
+        Returns: {
+          phone: string
+          telegram: string
+          whatsapp: string
+        }[]
+      }
+      get_public_profile: {
+        Args: { _user_id: string }
+        Returns: {
+          avatar_url: string
+          created_at: string
+          full_name: string
+          id: string
+          is_landlord: boolean
+          public_id: string
+          verification_status: Database["public"]["Enums"]["verification_status"]
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -974,15 +1007,16 @@ export type Database = {
         Returns: {
           amenities: string[]
           city: string
+          distance_km: number
           district: string
           guests: number
           id: string
+          match_score: number
           photos: string[]
           price_per_night: number
           rating: number
           reviews_count: number
           rooms: number
-          score: number
           title: string
         }[]
       }
