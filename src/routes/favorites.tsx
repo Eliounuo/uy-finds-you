@@ -5,6 +5,7 @@ import { AppHeader } from "@/components/app-header";
 import { PropertyCard } from "@/components/property-card";
 import { useAuth } from "@/lib/use-auth";
 import { favoritesQuery } from "@/lib/queries";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/favorites")({
   component: FavoritesPage,
@@ -32,9 +33,7 @@ function FavoritesPage() {
           <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
         )}
         {user && !isLoading && list.length === 0 && (
-          <div className="rounded-2xl bg-card p-6 text-center text-sm text-muted-foreground ring-1 ring-border">
-            Пока пусто — добавьте варианты ♥
-          </div>
+          <EmptyState icon={Heart} title="Избранное пусто" description="Сохраняйте варианты сердечком — будут собираться здесь." actionLabel="Найти жильё" actionTo="/" />
         )}
         {list.length > 0 && (
           <div className="grid grid-cols-2 gap-3">

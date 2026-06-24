@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/use-auth";
 import { myBookingsQuery } from "@/lib/queries";
 import { formatKZT, formatDate, nightsBetween } from "@/lib/mock-data";
 import { ReviewForm } from "@/components/reviews";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/bookings")({ component: BookingsPage });
 
@@ -29,7 +30,7 @@ function BookingsPage() {
         )}
         {user && isLoading && <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground"/></div>}
         {user && !isLoading && data.length === 0 && (
-          <div className="rounded-2xl bg-card p-6 text-center text-sm text-muted-foreground ring-1 ring-border">У вас пока нет бронирований</div>
+          <EmptyState icon={CalendarRange} title="Пока нет бронирований" description="Создайте заявку — владельцы пришлют предложения." actionLabel="Новая заявка" actionTo="/create-request" />
         )}
         {data.map((b) => {
           const canReview = b.check_out <= today && (b.status === "confirmed" || b.status === "completed") && b.properties;
