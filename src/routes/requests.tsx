@@ -65,6 +65,8 @@ function RequestsPage() {
             </div>
             {r.notes && <p className="mt-2 text-xs text-muted-foreground">{r.notes}</p>}
 
+            {r.status === 'open' && <RequestMatches requestId={r.id} />}
+
             <div className="mt-3 border-t border-border pt-3">
               <h4 className="mb-2 text-sm font-semibold">Предложения ({r.offers.length})</h4>
               {r.offers.length === 0 ? (
