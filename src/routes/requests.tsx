@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/use-auth";
 import { myRequestsQuery } from "@/lib/queries";
 import { supabase } from "@/integrations/supabase/client";
 import { formatKZT, formatDate } from "@/lib/mock-data";
+import { RequestMatches } from "@/components/request-matches";
 
 export const Route = createFileRoute("/requests")({ component: RequestsPage });
 
