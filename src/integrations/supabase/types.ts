@@ -975,6 +975,8 @@ export type Database = {
           id: string
           is_landlord: boolean
           public_id: string
+          rating: number
+          reviews_count: number
           verification_status: Database["public"]["Enums"]["verification_status"]
         }[]
       }
