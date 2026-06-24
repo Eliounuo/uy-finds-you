@@ -5,8 +5,11 @@ import { resolveAvatarUrl } from "@/lib/avatars";
 
 export type Profile = {
   id: string;
+  public_id: string | null;
   full_name: string | null;
   phone: string | null;
+  whatsapp: string | null;
+  telegram: string | null;
   avatar_url: string | null;
   mode: "lite" | "pro";
   is_landlord: boolean;
@@ -27,7 +30,7 @@ export function useProfile() {
     setLoading(true);
     const { data } = await supabase
       .from("profiles")
-      .select("id, full_name, phone, avatar_url, mode, is_landlord")
+      .select("id, public_id, full_name, phone, whatsapp, telegram, avatar_url, mode, is_landlord")
       .eq("id", user.id)
       .maybeSingle();
     setProfile((data as Profile | null) ?? null);

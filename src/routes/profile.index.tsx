@@ -82,6 +82,11 @@ function Profile() {
               <div className="truncate text-xs opacity-85">
                 {profile?.phone || user?.email || "Войдите, чтобы создавать заявки"}
               </div>
+              {profile?.public_id && (
+                <div className="mt-0.5 font-mono text-[10px] tracking-wider opacity-70">
+                  ID: {profile.public_id}
+                </div>
+              )}
             </div>
             {user && (
               <Link
