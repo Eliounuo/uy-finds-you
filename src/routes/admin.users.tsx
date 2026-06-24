@@ -12,7 +12,7 @@ const usersQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, full_name, avatar_url, phone, verification_status, created_at")
+      .select("id, public_id, full_name, avatar_url, phone, verification_status, created_at")
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) throw error;
@@ -61,9 +61,10 @@ function AdminUsers() {
             )}
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-semibold">{u.full_name ?? "—"}</div>
-              <div className="text-[11px] text-muted-foreground">{u.phone ?? u.id.slice(0, 8)}</div>
-              <div className="text-[10px] uppercase text-muted-foreground">
-                {u.verification_status}
+              <div className="text-[11px] text-muted-foreground">{u.phone ?? "—"}</div>
+              <div className="flex items-center gap-2 text-[10px] uppercase text-muted-foreground">
+                {u.public_id && <span className="font-mono">{u.public_id}</span>}
+                <span>· {u.verification_status}</span>
               </div>
             </div>
             <button

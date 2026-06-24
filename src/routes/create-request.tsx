@@ -17,6 +17,9 @@ function CreateRequest() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [city, setCity] = useState<string>("Кокшетау");
+  const [district, setDistrict] = useState("");
+  const [lat, setLat] = useState("");
+  const [lng, setLng] = useState("");
   const [guests, setGuests] = useState(2);
   const [budget, setBudget] = useState(25000);
   const [checkIn, setCheckIn] = useState("");
@@ -24,12 +27,28 @@ function CreateRequest() {
   const [notes, setNotes] = useState("");
   const [done, setDone] = useState(false);
 
+  const useMyLocation = () => {
+    if (!navigator.geolocation) return toast.error("Геолокация недоступна");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLat(pos.coords.latitude.toFixed(6));
+        setLng(pos.coords.longitude.toFixed(6));
+        toast.success("Координаты добавлены");
+      },
+      () => toast.error("Не удалось определить координаты"),
+    );
+  };
+
   const submit = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("AUTH_REQUIRED");
       if (!checkIn || !checkOut) throw new Error("Выберите даты");
       const { error } = await supabase.from("requests").insert({
-        client_id: user.id, city, check_in: checkIn, check_out: checkOut,
+        client_id: user.id, city,
+        district: district.trim() || null,
+        lat: lat ? Number(lat) : null,
+        lng: lng ? Number(lng) : null,
+        check_in: checkIn, check_out: checkOut,
         guests, budget_max: budget, notes: notes || null,
       });
       if (error) throw error;
@@ -102,6 +121,40 @@ function CreateRequest() {
             })}
           </div>
         </Section>
+
+        <Section icon={MapPin} title="Район и точка на карте">
+          <input
+            value={district}
+            onChange={(e) => setDistrict(e.target.value)}
+            placeholder="Район (например: Медеу)"
+            className="w-full rounded-xl bg-card px-3 py-2.5 text-sm ring-1 ring-border outline-none placeholder:text-muted-foreground"
+          />
+          <div className="mt-2 grid grid-cols-[1fr_1fr_auto] gap-2">
+            <input
+              value={lat}
+              onChange={(e) => setLat(e.target.value)}
+              inputMode="decimal"
+              placeholder="Широта"
+              className="rounded-xl bg-card px-3 py-2.5 text-sm ring-1 ring-border outline-none placeholder:text-muted-foreground"
+            />
+            <input
+              value={lng}
+              onChange={(e) => setLng(e.target.value)}
+              inputMode="decimal"
+              placeholder="Долгота"
+              className="rounded-xl bg-card px-3 py-2.5 text-sm ring-1 ring-border outline-none placeholder:text-muted-foreground"
+            />
+            <button
+              type="button"
+              onClick={useMyLocation}
+              className="inline-flex items-center gap-1 rounded-xl bg-primary/10 px-3 text-xs font-semibold text-primary ring-1 ring-primary/20"
+            >
+              <MapPin className="h-3.5 w-3.5" /> GPS
+            </button>
+          </div>
+          <p className="mt-1 text-[11px] text-muted-foreground">Координаты помогают подобрать жильё рядом.</p>
+        </Section>
+
 
         <Section icon={CalendarDays} title="Даты">
           <div className="grid grid-cols-2 gap-3">
