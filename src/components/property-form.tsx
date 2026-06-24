@@ -109,6 +109,22 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
         : [...s.amenities, a],
     }));
 
+  const checklist = useMemo(() => {
+    const items = [
+      { key: "title", label: "Название", ok: form.title.trim().length > 3 },
+      { key: "desc", label: "Описание (≥20 симв.)", ok: form.description.trim().length >= 20 },
+      { key: "price", label: "Цена", ok: !!form.price_per_night && Number(form.price_per_night) > 0 },
+      { key: "addr", label: "Адрес", ok: form.address.trim().length >= 3 },
+      { key: "coord", label: "Координаты на карте", ok: !!form.lat && !!form.lng },
+      { key: "rooms", label: "Комнаты", ok: !!form.rooms && Number(form.rooms) >= 1 },
+      { key: "guests", label: "Гости", ok: !!form.guests && Number(form.guests) >= 1 },
+      { key: "photos", label: "Минимум 5 фото", ok: form.photos.length >= 5 },
+    ];
+    const missing = items.filter((i) => !i.ok);
+    return { items, missing, ready: missing.length === 0 };
+  }, [form]);
+
+
   async function handleFiles(files: FileList | null) {
     if (!files || !user) return;
     setUploading(true);
