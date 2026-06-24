@@ -17,7 +17,8 @@ type Match = {
   reviews_count: number;
   photos: string[];
   amenities: string[];
-  score: number;
+  match_score: number;
+  distance_km: number | null;
 };
 
 const matchesQuery = (requestId: string, enabled: boolean) =>
@@ -76,13 +77,14 @@ export function RequestMatches({ requestId }: { requestId: string }) {
                 <div className="truncate text-sm font-semibold">{m.title}</div>
                 <div className="text-[11px] text-muted-foreground">
                   {m.city}{m.district ? `, ${m.district}` : ""} · {m.rooms ?? "—"} комн · до {m.guests} гостей
+                  {m.distance_km != null && ` · ${m.distance_km} км`}
                 </div>
                 <div className="mt-0.5 flex items-center justify-between">
                   <span className="font-display text-sm font-bold text-primary">
                     {formatKZT(m.price_per_night)}/сутки
                   </span>
                   <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">
-                    {m.score} pts
+                    ★ {m.rating} · {m.match_score} pts
                   </span>
                 </div>
               </div>
