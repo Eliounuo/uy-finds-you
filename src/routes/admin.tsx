@@ -1,27 +1,21 @@
-import { createFileRoute, Outlet, Link, useLocation } from "@tanstack/react-router";
-import { useQuery, queryOptions } from "@tanstack/react-query";
-import { Loader2, Users, Home, CalendarCheck, CreditCard, Flag, Bell, LayoutDashboard, Activity } from "lucide-react";
+import { createFileRoute, Outlet, Link, useLocation, redirect } from "@tanstack/react-router";
+import { Users, Home, CalendarCheck, CreditCard, Flag, Bell, LayoutDashboard, Activity } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
-import { useAuth } from "@/lib/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/admin")({ component: AdminLayout });
-
-const isAdminQuery = (userId: string | null) =>
-  queryOptions({
-    queryKey: ["is-admin", userId],
-    enabled: !!userId,
-    staleTime: 60_000,
-    queryFn: async () => {
-      if (!userId) return false;
-      const { data, error } = await supabase.rpc("has_role", {
-        _user_id: userId,
-        _role: "admin",
-      });
-      if (error) throw error;
-      return !!data;
-    },
-  });
+export const Route = createFileRoute("/admin")({
+  ssr: false,
+  beforeLoad: async () => {
+    const { data: userRes } = await supabase.auth.getUser();
+    if (!userRes.user) throw redirect({ to: "/auth" });
+    const { data, error } = await supabase.rpc("has_role", {
+      _user_id: userRes.user.id,
+      _role: "admin",
+    });
+    if (error || !data) throw redirect({ to: "/" });
+  },
+  component: AdminLayout,
+});
 
 type Tab = { to: string; label: string; icon: typeof Users; exact?: boolean };
 const TABS: Tab[] = [
@@ -36,27 +30,8 @@ const TABS: Tab[] = [
 ];
 
 function AdminLayout() {
-  const { user, loading } = useAuth();
-  const { data: isAdmin, isLoading } = useQuery(isAdminQuery(user?.id ?? null));
   const loc = useLocation();
 
-  if (loading || isLoading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-  if (!user || !isAdmin) {
-    return (
-      <>
-        <AppHeader title="Админ" back />
-        <div className="px-4 pt-10 text-center text-sm text-muted-foreground">
-          Доступ только для администраторов.
-        </div>
-      </>
-    );
-  }
 
   return (
     <>
