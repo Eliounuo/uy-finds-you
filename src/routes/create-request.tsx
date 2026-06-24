@@ -122,6 +122,40 @@ function CreateRequest() {
           </div>
         </Section>
 
+        <Section icon={MapPin} title="Район и точка на карте">
+          <input
+            value={district}
+            onChange={(e) => setDistrict(e.target.value)}
+            placeholder="Район (например: Медеу)"
+            className="w-full rounded-xl bg-card px-3 py-2.5 text-sm ring-1 ring-border outline-none placeholder:text-muted-foreground"
+          />
+          <div className="mt-2 grid grid-cols-[1fr_1fr_auto] gap-2">
+            <input
+              value={lat}
+              onChange={(e) => setLat(e.target.value)}
+              inputMode="decimal"
+              placeholder="Широта"
+              className="rounded-xl bg-card px-3 py-2.5 text-sm ring-1 ring-border outline-none placeholder:text-muted-foreground"
+            />
+            <input
+              value={lng}
+              onChange={(e) => setLng(e.target.value)}
+              inputMode="decimal"
+              placeholder="Долгота"
+              className="rounded-xl bg-card px-3 py-2.5 text-sm ring-1 ring-border outline-none placeholder:text-muted-foreground"
+            />
+            <button
+              type="button"
+              onClick={useMyLocation}
+              className="inline-flex items-center gap-1 rounded-xl bg-primary/10 px-3 text-xs font-semibold text-primary ring-1 ring-primary/20"
+            >
+              <MapPin className="h-3.5 w-3.5" /> GPS
+            </button>
+          </div>
+          <p className="mt-1 text-[11px] text-muted-foreground">Координаты помогают подобрать жильё рядом.</p>
+        </Section>
+
+
         <Section icon={CalendarDays} title="Даты">
           <div className="grid grid-cols-2 gap-3">
             <label className="rounded-xl bg-card p-3 ring-1 ring-border">
