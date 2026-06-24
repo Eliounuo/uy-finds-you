@@ -221,3 +221,32 @@ export const profileQuery = (userId: string | null) =>
       return data as Profile | null;
     },
   });
+
+// Public (safe) profile — uses RPC, never exposes phone/whatsapp/telegram.
+// Use this for any view of someone else's profile.
+export type PublicProfile = {
+  id: string;
+  public_id: string | null;
+  full_name: string | null;
+  avatar_url: string | null;
+  is_landlord: boolean;
+  verification_status: "unverified" | "pending" | "verified" | "rejected";
+  rating: number;
+  reviews_count: number;
+  created_at: string;
+};
+
+export const publicProfileQuery = (userId: string | null) =>
+  queryOptions({
+    queryKey: ["public-profile", userId],
+    enabled: !!userId,
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      if (!userId) return null;
+      const { data, error } = await supabase.rpc("get_public_profile", { _user_id: userId });
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
+      return (row ?? null) as PublicProfile | null;
+    },
+  });
+
