@@ -30,27 +30,8 @@ const TABS: Tab[] = [
 ];
 
 function AdminLayout() {
-  const { user, loading } = useAuth();
-  const { data: isAdmin, isLoading } = useQuery(isAdminQuery(user?.id ?? null));
   const loc = useLocation();
 
-  if (loading || isLoading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-  if (!user || !isAdmin) {
-    return (
-      <>
-        <AppHeader title="Админ" back />
-        <div className="px-4 pt-10 text-center text-sm text-muted-foreground">
-          Доступ только для администраторов.
-        </div>
-      </>
-    );
-  }
 
   return (
     <>

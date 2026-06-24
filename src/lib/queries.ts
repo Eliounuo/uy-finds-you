@@ -93,9 +93,10 @@ export const openRequestsQuery = (userId: string | null) =>
     staleTime: 30_000,
     queryFn: async () => {
       if (!userId) return [];
+      // SECURITY: exclude lat/lng — coordinates are only revealed after offer accepted
       const { data, error } = await supabase
         .from("requests")
-        .select("*")
+        .select("id, client_id, city, district, check_in, check_out, guests, rooms, budget_max, amenities, note, status, created_at, updated_at")
         .eq("status", "open")
         .neq("client_id", userId)
         .order("created_at", { ascending: false });
