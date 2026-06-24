@@ -26,6 +26,7 @@ const isAdminQuery = (userId: string | null) =>
 type Tab = { to: string; label: string; icon: typeof Users; exact?: boolean };
 const TABS: Tab[] = [
   { to: "/admin", label: "Обзор", icon: LayoutDashboard, exact: true },
+  { to: "/admin/health", label: "Health", icon: Activity },
   { to: "/admin/users", label: "Юзеры", icon: Users },
   { to: "/admin/properties", label: "Объекты", icon: Home },
   { to: "/admin/bookings", label: "Брони", icon: CalendarCheck },
