@@ -35,7 +35,7 @@ function AdminPayments() {
       {data.map((p) => (
         <div key={p.id} className="rounded-2xl bg-card p-3 ring-1 ring-border">
           <div className="flex items-center justify-between">
-            <span className="font-display text-sm font-bold">{formatKZT(p.amount)}</span>
+            <span className="font-display text-sm font-bold">{formatKZT(Number(p.amount))}</span>
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
               p.status === "succeeded" ? "bg-success/15 text-success" :
               p.status === "failed" ? "bg-destructive/15 text-destructive" :
