@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { MapPin, CalendarDays, Users, Wallet, Sparkles, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/app-header";
+import { MapPicker } from "@/components/map-picker";
 import { formatKZT, CITIES, ACTIVE_CITIES } from "@/lib/mock-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
@@ -127,33 +128,19 @@ function CreateRequest() {
             value={district}
             onChange={(e) => setDistrict(e.target.value)}
             placeholder="Район (например: Медеу)"
-            className="w-full rounded-xl bg-card px-3 py-2.5 text-sm ring-1 ring-border outline-none placeholder:text-muted-foreground"
+            className="mb-2 w-full rounded-xl bg-card px-3 py-2.5 text-sm ring-1 ring-border outline-none placeholder:text-muted-foreground"
           />
-          <div className="mt-2 grid grid-cols-[1fr_1fr_auto] gap-2">
-            <input
-              value={lat}
-              onChange={(e) => setLat(e.target.value)}
-              inputMode="decimal"
-              placeholder="Широта"
-              className="rounded-xl bg-card px-3 py-2.5 text-sm ring-1 ring-border outline-none placeholder:text-muted-foreground"
-            />
-            <input
-              value={lng}
-              onChange={(e) => setLng(e.target.value)}
-              inputMode="decimal"
-              placeholder="Долгота"
-              className="rounded-xl bg-card px-3 py-2.5 text-sm ring-1 ring-border outline-none placeholder:text-muted-foreground"
-            />
-            <button
-              type="button"
-              onClick={useMyLocation}
-              className="inline-flex items-center gap-1 rounded-xl bg-primary/10 px-3 text-xs font-semibold text-primary ring-1 ring-primary/20"
-            >
-              <MapPin className="h-3.5 w-3.5" /> GPS
-            </button>
-          </div>
-          <p className="mt-1 text-[11px] text-muted-foreground">Координаты помогают подобрать жильё рядом.</p>
+          <MapPicker
+            value={lat && lng ? { lat: Number(lat), lng: Number(lng) } : null}
+            onChange={(v) => {
+              setLat(String(v.lat));
+              setLng(String(v.lng));
+            }}
+            city={city}
+          />
+          <p className="mt-1 text-[11px] text-muted-foreground">Точка на карте помогает подобрать жильё рядом.</p>
         </Section>
+
 
 
         <Section icon={CalendarDays} title="Даты">
