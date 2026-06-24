@@ -342,6 +342,16 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
           />
         </Field>
 
+        <section className="space-y-2">
+          <Label>Точка на карте</Label>
+          <MapPicker
+            value={form.lat && form.lng ? { lat: Number(form.lat), lng: Number(form.lng) } : null}
+            onChange={(v) => setForm((s) => ({ ...s, lat: String(v.lat), lng: String(v.lng) }))}
+            city={form.city}
+          />
+        </section>
+
+
         <Field label="Цена за сутки, ₸">
           <input
             type="number"
