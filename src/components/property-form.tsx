@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Camera, Loader2, Trash2, X } from "lucide-react";
+import { ArrowLeft, Camera, CheckCircle2, AlertCircle, Loader2, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { propertyQuery } from "@/lib/queries";
 import { ALL_AMENITIES, CITIES, amenityLabels } from "@/lib/mock-data";
+import { MapPicker } from "@/components/map-picker";
 import {
   uploadPropertyPhoto,
   deletePropertyPhoto,
@@ -21,6 +22,8 @@ type FormState = {
   city: string;
   district: string;
   address: string;
+  lat: string;
+  lng: string;
   price_per_night: string;
   rooms: string;
   beds: string;
@@ -37,6 +40,8 @@ const empty: FormState = {
   city: CITIES[0],
   district: "",
   address: "",
+  lat: "",
+  lng: "",
   price_per_night: "",
   rooms: "1",
   beds: "1",
@@ -69,6 +74,8 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
         city: existing.city,
         district: existing.district ?? "",
         address: existing.address ?? "",
+        lat: existing.lat != null ? String(existing.lat) : "",
+        lng: existing.lng != null ? String(existing.lng) : "",
         price_per_night: String(existing.price_per_night),
         rooms: String(existing.rooms ?? ""),
         beds: String(existing.beds ?? ""),
@@ -101,6 +108,22 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
         ? s.amenities.filter((x) => x !== a)
         : [...s.amenities, a],
     }));
+
+  const checklist = useMemo(() => {
+    const items = [
+      { key: "title", label: "Название", ok: form.title.trim().length > 3 },
+      { key: "desc", label: "Описание (≥20 симв.)", ok: form.description.trim().length >= 20 },
+      { key: "price", label: "Цена", ok: !!form.price_per_night && Number(form.price_per_night) > 0 },
+      { key: "addr", label: "Адрес", ok: form.address.trim().length >= 3 },
+      { key: "coord", label: "Координаты на карте", ok: !!form.lat && !!form.lng },
+      { key: "rooms", label: "Комнаты", ok: !!form.rooms && Number(form.rooms) >= 1 },
+      { key: "guests", label: "Гости", ok: !!form.guests && Number(form.guests) >= 1 },
+      { key: "photos", label: "Минимум 5 фото", ok: form.photos.length >= 5 },
+    ];
+    const missing = items.filter((i) => !i.ok);
+    return { items, missing, ready: missing.length === 0 };
+  }, [form]);
+
 
   async function handleFiles(files: FileList | null) {
     if (!files || !user) return;
@@ -144,6 +167,8 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
         city: form.city,
         district: form.district.trim() || null,
         address: form.address.trim() || null,
+        lat: form.lat ? Number(form.lat) : null,
+        lng: form.lng ? Number(form.lng) : null,
         price_per_night: Number(form.price_per_night),
         rooms: form.rooms ? Number(form.rooms) : null,
         beds: form.beds ? Number(form.beds) : null,
@@ -228,6 +253,23 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
       </header>
 
       <form onSubmit={handleSave} className="space-y-5 px-4 py-4 pb-32">
+        <div className={`rounded-2xl p-3 ring-1 ${checklist.ready ? "bg-success/10 ring-success/30" : "bg-warning/10 ring-warning/30"}`}>
+          <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+            {checklist.ready ? (
+              <><CheckCircle2 className="h-4 w-4 text-success" /><span className="text-success">Готово к публикации</span></>
+            ) : (
+              <><AlertCircle className="h-4 w-4 text-warning" /><span className="text-warning">Заполните для публикации</span></>
+            )}
+          </div>
+          <ul className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
+            {checklist.items.map((i) => (
+              <li key={i.key} className={`flex items-center gap-1 ${i.ok ? "text-success" : "text-muted-foreground"}`}>
+                {i.ok ? <CheckCircle2 className="h-3 w-3" /> : <span className="inline-block h-3 w-3 rounded-full border border-current opacity-60" />}
+                {i.label}
+              </li>
+            ))}
+          </ul>
+        </div>
         {/* Photos */}
         <section className="space-y-2">
           <Label>Фотографии</Label>
@@ -316,6 +358,16 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
             className={inputCls}
           />
         </Field>
+
+        <section className="space-y-2">
+          <Label>Точка на карте</Label>
+          <MapPicker
+            value={form.lat && form.lng ? { lat: Number(form.lat), lng: Number(form.lng) } : null}
+            onChange={(v) => setForm((s) => ({ ...s, lat: String(v.lat), lng: String(v.lng) }))}
+            city={form.city}
+          />
+        </section>
+
 
         <Field label="Цена за сутки, ₸">
           <input

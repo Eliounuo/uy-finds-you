@@ -8,6 +8,7 @@ import { myRequestsQuery } from "@/lib/queries";
 import { supabase } from "@/integrations/supabase/client";
 import { formatKZT, formatDate } from "@/lib/mock-data";
 import { RequestMatches } from "@/components/request-matches";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/requests")({ component: RequestsPage });
 
@@ -47,7 +48,7 @@ function RequestsPage() {
         {!user && <div className="rounded-2xl bg-card p-6 text-center ring-1 ring-border"><p className="text-sm text-muted-foreground">Войдите, чтобы видеть свои заявки</p></div>}
         {user && isLoading && <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground"/></div>}
         {user && !isLoading && data.length === 0 && (
-          <div className="rounded-2xl bg-card p-6 text-center ring-1 ring-border"><Inbox className="mx-auto h-10 w-10 text-muted-foreground"/><p className="mt-2 text-sm text-muted-foreground">У вас пока нет заявок</p></div>
+          <EmptyState icon={Inbox} title="Пока нет заявок" description="Опишите параметры — владельцы пришлют варианты." actionLabel="Создать заявку" actionTo="/create-request" />
         )}
 
         {data.map((r) => (

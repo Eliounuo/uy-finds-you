@@ -5,6 +5,7 @@ import { AppHeader } from "@/components/app-header";
 import { useAuth } from "@/lib/use-auth";
 import { myChatsQuery } from "@/lib/queries";
 import { formatDateTime } from "@/lib/mock-data";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/chat/")({ component: ChatList });
 
@@ -19,7 +20,7 @@ function ChatList() {
         {!user && <div className="rounded-2xl bg-card p-6 text-center ring-1 ring-border"><p className="text-sm text-muted-foreground">Войдите, чтобы переписываться</p></div>}
         {user && isLoading && <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground"/></div>}
         {user && !isLoading && data.length === 0 && (
-          <div className="rounded-2xl bg-card p-6 text-center ring-1 ring-border"><MessageCircle className="mx-auto h-10 w-10 text-muted-foreground"/><p className="mt-2 text-sm text-muted-foreground">Пока нет диалогов</p></div>
+          <EmptyState icon={MessageCircle} title="Пока нет диалогов" description="После принятия предложения здесь появится чат с владельцем." />
         )}
         {data.map((c) => (
           <Link key={c.id} to="/chat/$id" params={{ id: c.id }} className="flex items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border">
