@@ -145,6 +145,31 @@
     font-family: var(--font-display);
     letter-spacing: -0.02em;
   }
+
+  /* Native-feeling tap feedback on buttons/links */
+  button:not(:disabled),
+  a[role="button"],
+  [data-tap] {
+    transition: transform 120ms ease, opacity 120ms ease;
+  }
+  button:not(:disabled):active,
+  a[role="button"]:active,
+  [data-tap]:active {
+    transform: scale(0.97);
+  }
+
+  /* Smooth fade between routes */
+  main, [data-route-fade] {
+    animation: route-fade 180ms ease-out both;
+  }
+  @keyframes route-fade {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
 }
 
 @utility scrollbar-hide {
@@ -162,6 +187,26 @@
   padding-top: max(env(safe-area-inset-top), 0.5rem);
 }
 
+@utility bg-gradient-primary {
+  background-image: var(--gradient-primary);
+}
+
+@utility shimmer {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--foreground) 6%, transparent), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 1.4s infinite;
+  }
+}
+@keyframes shimmer {
+  to { transform: translateX(100%); }
+}
+
 /* Leaflet dark mode adjustments */
 .dark .leaflet-tile {
   filter: brightness(0.7) invert(1) contrast(0.9) hue-rotate(180deg) saturate(0.6);
@@ -170,3 +215,4 @@
   background: var(--color-muted);
   font-family: var(--font-sans);
 }
+
