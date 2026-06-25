@@ -108,7 +108,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "UY — посуточная аренда жилья в Казахстане. Создайте заявку — и квартиры найдут вас сами.",
       },
-      { name: "theme-color", content: "#ffffff" },
+      { name: "theme-color", content: "#9B1C1C" },
       { name: "application-name", content: "UY" },
       // iOS standalone PWA
       { name: "mobile-web-app-capable", content: "yes" },
