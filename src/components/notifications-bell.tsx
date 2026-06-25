@@ -81,7 +81,7 @@ export function NotificationsBell() {
     }
   }, []);
 
-  if (!user) return null;
+  
 
   return (
     <div ref={ref} className="relative">
@@ -101,7 +101,7 @@ export function NotificationsBell() {
         <div className="absolute right-0 top-11 z-50 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl bg-card shadow-xl ring-1 ring-border">
           <div className="flex items-center justify-between border-b border-border px-3 py-2">
             <span className="font-display text-sm font-bold">Уведомления</span>
-            {unread > 0 && (
+            {user && unread > 0 && (
               <button
                 onClick={async () => {
                   await markAllNotificationsRead(user.id);
@@ -114,8 +114,13 @@ export function NotificationsBell() {
             )}
           </div>
 
-          {/* Push permission CTA */}
-          {perm === "default" && (
+          {!user && (
+            <div className="px-3 py-6 text-center text-xs text-muted-foreground">
+              Войдите, чтобы получать уведомления
+            </div>
+          )}
+
+          {user && perm === "default" && (
             <button
               onClick={enablePush}
               className="flex w-full items-center gap-2 border-b border-border bg-primary/5 px-3 py-2.5 text-left text-xs hover:bg-primary/10"
@@ -127,42 +132,45 @@ export function NotificationsBell() {
               </div>
             </button>
           )}
-          {perm === "denied" && (
+          {user && perm === "denied" && (
             <div className="flex items-center gap-2 border-b border-border bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
               <BellOff className="h-3.5 w-3.5 shrink-0" />
               <span>Пуши заблокированы. Разрешите их в настройках браузера.</span>
             </div>
           )}
 
-          <div className="max-h-96 overflow-y-auto">
-            {data.length === 0 && (
-              <div className="px-3 py-6 text-center text-xs text-muted-foreground">Пусто</div>
-            )}
-            {data.map((n) => (
-              <button
-                key={n.id}
-                onClick={async () => {
-                  if (!n.read_at) {
-                    await markNotificationRead(n.id);
-                    qc.invalidateQueries({ queryKey: ["notifications", user.id] });
-                  }
-                  setOpen(false);
-                  navigate({ to: notificationHref(n) });
-                }}
-                className={`block w-full border-b border-border/50 px-3 py-2 text-left text-xs last:border-0 ${
-                  n.read_at ? "" : "bg-primary/5"
-                }`}
-              >
-                <div className="font-semibold">{n.title}</div>
-                {n.body && <div className="mt-0.5 line-clamp-2 text-muted-foreground">{n.body}</div>}
-                <div className="mt-1 text-[10px] text-muted-foreground">
-                  {formatDateTime(n.created_at)}
-                </div>
-              </button>
-            ))}
-          </div>
+          {user && (
+            <div className="max-h-96 overflow-y-auto">
+              {data.length === 0 && (
+                <div className="px-3 py-6 text-center text-xs text-muted-foreground">Пусто</div>
+              )}
+              {data.map((n) => (
+                <button
+                  key={n.id}
+                  onClick={async () => {
+                    if (!n.read_at) {
+                      await markNotificationRead(n.id);
+                      qc.invalidateQueries({ queryKey: ["notifications", user.id] });
+                    }
+                    setOpen(false);
+                    navigate({ to: notificationHref(n) });
+                  }}
+                  className={`block w-full border-b border-border/50 px-3 py-2 text-left text-xs last:border-0 ${
+                    n.read_at ? "" : "bg-primary/5"
+                  }`}
+                >
+                  <div className="font-semibold">{n.title}</div>
+                  {n.body && <div className="mt-0.5 line-clamp-2 text-muted-foreground">{n.body}</div>}
+                  <div className="mt-1 text-[10px] text-muted-foreground">
+                    {formatDateTime(n.created_at)}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
+
     </div>
   );
 }
