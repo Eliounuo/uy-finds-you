@@ -46,6 +46,9 @@
   --shadow-card: 0 1px 2px oklch(0 0 0 / 0.04), 0 4px 16px oklch(0 0 0 / 0.06);
   --shadow-pop: 0 8px 32px oklch(0 0 0 / 0.12);
   --shadow-glow: 0 8px 24px color-mix(in oklab, var(--primary) 35%, transparent);
+
+  --gradient-primary: linear-gradient(135deg, color-mix(in oklab, var(--primary) 92%, white), var(--primary));
+  --gradient-surface: linear-gradient(180deg, var(--background), var(--surface));
 }
 
 :root {
