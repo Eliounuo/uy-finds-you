@@ -45,12 +45,12 @@ function Home() {
           <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
         </Link>
 
-        <div className="flex items-center gap-2 rounded-2xl bg-card px-3.5 py-3 shadow-card ring-1 ring-border">
-          <Search className="h-4 w-4 text-muted-foreground" />
+        <div className="flex items-center gap-2 rounded-2xl bg-card px-4 py-3.5 shadow-pop ring-1 ring-border">
+          <Search className="h-4 w-4 text-primary" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Название, район…"
+            placeholder="🔍 Район, улица или название..."
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
         </div>
