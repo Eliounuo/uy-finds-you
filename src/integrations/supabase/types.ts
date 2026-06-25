@@ -217,7 +217,7 @@ export type Database = {
           created_at: string
           id: string
           last_message_at: string
-          offer_id: string
+          offer_id: string | null
           owner_id: string
           property_id: string
         }
@@ -226,7 +226,7 @@ export type Database = {
           created_at?: string
           id?: string
           last_message_at?: string
-          offer_id: string
+          offer_id?: string | null
           owner_id: string
           property_id: string
         }
@@ -235,7 +235,7 @@ export type Database = {
           created_at?: string
           id?: string
           last_message_at?: string
-          offer_id?: string
+          offer_id?: string | null
           owner_id?: string
           property_id?: string
         }
@@ -243,7 +243,7 @@ export type Database = {
           {
             foreignKeyName: "chats_offer_id_fkey"
             columns: ["offer_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "offers"
             referencedColumns: ["id"]
           },
@@ -962,6 +962,19 @@ export type Database = {
       get_contact_info: {
         Args: { _user_id: string }
         Returns: {
+          phone: string
+          telegram: string
+          whatsapp: string
+        }[]
+      }
+      get_or_create_direct_chat: {
+        Args: { _property_id: string }
+        Returns: string
+      }
+      get_property_contact: {
+        Args: { _property_id: string }
+        Returns: {
+          full_name: string
           phone: string
           telegram: string
           whatsapp: string
