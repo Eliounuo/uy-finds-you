@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppModeProvider } from "@/lib/app-mode";
 import { BottomNav } from "@/components/bottom-nav";
 import { ProfileGate } from "@/components/profile-gate";
+import { Onboarding } from "@/components/onboarding";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { installGlobalErrorHandlers, logError } from "@/lib/analytics";
