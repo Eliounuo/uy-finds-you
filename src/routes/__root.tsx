@@ -157,10 +157,15 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function PushNotificationsMount() {
+  usePushNotifications();
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
-  usePushNotifications();
+
 
 
   useEffect(() => {
@@ -188,6 +193,8 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppModeProvider>
+        <PushNotificationsMount />
+
         <ProfileGate />
         <Onboarding />
         <div className="flex min-h-screen flex-col bg-background text-foreground">
