@@ -54,76 +54,79 @@
 :root {
   --radius: 1.25rem;
 
-  /* Светлая тема — чистый белый с насыщенно-красным акцентом (как в референсе) */
-  --background: oklch(0.995 0.002 20);
-  --foreground: oklch(0.16 0.01 20);
-  --surface: oklch(0.975 0.004 20);
-  --surface-foreground: oklch(0.16 0.01 20);
+  /* Светлая тема — тёплый кремовый фон с благородным тёмно-красным (Crimson Dark #9B1C1C) */
+  --background: oklch(0.995 0.003 25);
+  --foreground: oklch(0.18 0.012 25);
+  --surface: oklch(0.975 0.006 25);
+  --surface-foreground: oklch(0.18 0.012 25);
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.16 0.01 20);
+  --card-foreground: oklch(0.18 0.012 25);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.16 0.01 20);
+  --popover-foreground: oklch(0.18 0.012 25);
 
-  /* Красный бренд (≈ #E63946) */
-  --primary: oklch(0.60 0.22 25);
+  /* #9B1C1C — Crimson Dark */
+  --primary: oklch(0.42 0.16 25);
   --primary-foreground: oklch(0.99 0 0);
 
-  --secondary: oklch(0.97 0.006 20);
-  --secondary-foreground: oklch(0.20 0.01 20);
+  --secondary: oklch(0.97 0.006 25);
+  --secondary-foreground: oklch(0.22 0.012 25);
 
-  --muted: oklch(0.96 0.005 20);
-  --muted-foreground: oklch(0.50 0.012 20);
+  --muted: oklch(0.96 0.005 25);
+  --muted-foreground: oklch(0.50 0.012 25);
 
-  --accent: oklch(0.95 0.04 25);
-  --accent-foreground: oklch(0.40 0.18 25);
+  /* #FEF2F2 — светлый фон для тегов */
+  --accent: oklch(0.975 0.012 25);
+  --accent-foreground: oklch(0.35 0.14 25);
 
-  --success: oklch(0.65 0.16 155);
+  --success: oklch(0.62 0.14 155);
   --success-foreground: oklch(0.99 0 0);
-  --warning: oklch(0.78 0.16 75);
+  --warning: oklch(0.76 0.14 75);
   --warning-foreground: oklch(0.18 0.02 60);
-  --destructive: oklch(0.58 0.22 25);
+  --destructive: oklch(0.42 0.16 25);
   --destructive-foreground: oklch(0.99 0 0);
 
-  --border: oklch(0.92 0.005 20);
-  --input: oklch(0.94 0.005 20);
-  --ring: oklch(0.60 0.22 25);
+  --border: oklch(0.92 0.006 25);
+  --input: oklch(0.94 0.006 25);
+  --ring: oklch(0.42 0.16 25);
 }
 
 .dark {
-  /* Тёмная тема — глубокий графит с красными акцентами */
-  --background: oklch(0.14 0.005 20);
-  --foreground: oklch(0.98 0.003 20);
-  --surface: oklch(0.18 0.006 20);
-  --surface-foreground: oklch(0.98 0.003 20);
+  /* Тёмная тема — почти чёрный с красным подтоном (#0F0A0A / #1A1010) */
+  --background: oklch(0.125 0.008 25);   /* #0F0A0A */
+  --foreground: oklch(0.96 0.005 25);    /* #F5F0F0 */
+  --surface: oklch(0.17 0.012 25);       /* #1A1010 */
+  --surface-foreground: oklch(0.96 0.005 25);
 
-  --card: oklch(0.18 0.006 20);
-  --card-foreground: oklch(0.98 0.003 20);
-  --popover: oklch(0.18 0.006 20);
-  --popover-foreground: oklch(0.98 0.003 20);
+  --card: oklch(0.17 0.012 25);          /* #1A1010 */
+  --card-foreground: oklch(0.96 0.005 25);
+  --popover: oklch(0.17 0.012 25);
+  --popover-foreground: oklch(0.96 0.005 25);
 
-  --primary: oklch(0.63 0.23 25);
+  /* #9B1C1C, чуть светлее для контраста на тёмном */
+  --primary: oklch(0.48 0.17 25);
   --primary-foreground: oklch(0.99 0 0);
 
-  --secondary: oklch(0.22 0.008 20);
-  --secondary-foreground: oklch(0.98 0.003 20);
+  --secondary: oklch(0.20 0.012 25);
+  --secondary-foreground: oklch(0.96 0.005 25);
 
-  --muted: oklch(0.22 0.008 20);
-  --muted-foreground: oklch(0.68 0.012 20);
+  --muted: oklch(0.21 0.012 25);
+  --muted-foreground: oklch(0.66 0.012 25); /* #A89090 */
 
-  --accent: oklch(0.30 0.10 25);
-  --accent-foreground: oklch(0.95 0.04 25);
+  /* #2D1010 — тёмный акцент */
+  --accent: oklch(0.24 0.045 25);
+  --accent-foreground: oklch(0.92 0.04 25);
 
-  --success: oklch(0.70 0.16 155);
+  --success: oklch(0.68 0.14 155);
   --success-foreground: oklch(0.12 0.01 50);
-  --warning: oklch(0.80 0.16 75);
+  --warning: oklch(0.78 0.14 75);
   --warning-foreground: oklch(0.12 0.02 50);
-  --destructive: oklch(0.63 0.23 25);
+  --destructive: oklch(0.48 0.17 25);
   --destructive-foreground: oklch(0.99 0 0);
 
-  --border: oklch(0.28 0.008 20);
-  --input: oklch(0.24 0.008 20);
-  --ring: oklch(0.63 0.23 25);
+  --border: oklch(0.26 0.014 25);        /* #2E1515 */
+  --input: oklch(0.22 0.012 25);
+  --ring: oklch(0.48 0.17 25);
 }
 
 @layer base {
