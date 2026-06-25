@@ -1037,6 +1037,7 @@ export type Database = {
         | "booking_created"
         | "booking_cancelled"
         | "verification_update"
+        | "alert"
       payment_method: "card" | "kaspi" | "jasyn_wallet" | "manual"
       payment_status: "pending" | "succeeded" | "failed" | "refunded"
       payout_status: "pending" | "paid" | "failed"
@@ -1180,6 +1181,7 @@ export const Constants = {
         "booking_created",
         "booking_cancelled",
         "verification_update",
+        "alert",
       ],
       payment_method: ["card", "kaspi", "jasyn_wallet", "manual"],
       payment_status: ["pending", "succeeded", "failed", "refunded"],
