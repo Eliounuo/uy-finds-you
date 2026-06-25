@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.notify_landlords_on_request() FROM PUBLIC, anon, authenticated;

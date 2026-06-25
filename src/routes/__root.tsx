@@ -18,6 +18,7 @@ import { Onboarding } from "@/components/onboarding";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { installGlobalErrorHandlers, logError } from "@/lib/analytics";
+import { usePushNotifications } from "@/lib/use-push-notifications";
 
 
 function NotFoundComponent() {
@@ -159,6 +160,8 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+  usePushNotifications();
+
 
   useEffect(() => {
     // Clear any stale chunk-reload flag from a previous session.
