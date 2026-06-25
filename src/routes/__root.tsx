@@ -193,6 +193,8 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppModeProvider>
+        <PushNotificationsMount />
+
         <ProfileGate />
         <Onboarding />
         <div className="flex min-h-screen flex-col bg-background text-foreground">
