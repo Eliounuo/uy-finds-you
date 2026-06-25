@@ -8,7 +8,7 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
   notificationHref,
-  type AppNotification,
+  type Notification as AppNotification,
 } from "@/lib/notifications";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDateTime } from "@/lib/mock-data";
