@@ -25,7 +25,7 @@ function Home() {
       <div className="space-y-4 px-4 pt-2">
         <Link
           to="/create-request"
-          className="relative block overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-[oklch(0.55_0.22_22)] p-5 text-primary-foreground shadow-glow"
+          className="relative block overflow-hidden rounded-3xl bg-gradient-to-br from-[#7F1D1D] to-[#450A0A] p-5 text-white shadow-glow"
         >
           <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest opacity-90">
             <Sparkles className="h-3.5 w-3.5" /> Новая идея
