@@ -157,10 +157,15 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function PushNotificationsMount() {
+  usePushNotifications();
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
-  usePushNotifications();
+
 
 
   useEffect(() => {
