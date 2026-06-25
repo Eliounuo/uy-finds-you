@@ -52,27 +52,8 @@ export function NotificationsBell() {
   const { data = [] } = useQuery(notificationsQuery(user?.id ?? null));
   const unread = data.filter((n) => !n.read_at).length;
 
-  // Realtime: refresh on new notification + native push when tab hidden
-  useEffect(() => {
-    if (!user) return;
-    const ch = supabase
-      .channel(`notifications:${user.id}`)
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
-        (payload) => {
-          qc.invalidateQueries({ queryKey: ["notifications", user.id] });
-          const n = payload.new as AppNotification;
-          if (typeof document !== "undefined" && document.hidden) {
-            showSystemNotification(n, notificationHref(n));
-          }
-        },
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(ch);
-    };
-  }, [user, qc]);
+  // Realtime updates handled globally by usePushNotifications (root).
+
 
   // close on outside click
   useEffect(() => {
