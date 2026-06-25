@@ -112,7 +112,7 @@ function Profile() {
           ) : (
             <Link
               to="/auth"
-              className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-background px-3 py-1.5 text-xs font-bold text-primary"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-glow ring-2 ring-white/20"
             >
               <LogIn className="h-3.5 w-3.5" /> Войти или зарегистрироваться
             </Link>
