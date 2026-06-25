@@ -1,27 +1,58 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell } from "lucide-react";
+import { Bell, BellOff, BellRing } from "lucide-react";
 import { useAuth } from "@/lib/use-auth";
 import {
   notificationsQuery,
   markNotificationRead,
   markAllNotificationsRead,
   notificationHref,
+  type AppNotification,
 } from "@/lib/notifications";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDateTime } from "@/lib/mock-data";
+
+type PushPermission = "default" | "granted" | "denied" | "unsupported";
+
+function getPermission(): PushPermission {
+  if (typeof window === "undefined" || !("Notification" in window)) return "unsupported";
+  return Notification.permission as PushPermission;
+}
+
+function showSystemNotification(n: AppNotification, href: string) {
+  if (typeof window === "undefined" || !("Notification" in window)) return;
+  if (Notification.permission !== "granted") return;
+  try {
+    const note = new Notification(n.title, {
+      body: n.body ?? undefined,
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      tag: `uy-${n.id}`,
+      data: { href },
+    });
+    note.onclick = () => {
+      window.focus();
+      window.location.assign(href);
+      note.close();
+    };
+    setTimeout(() => note.close(), 8000);
+  } catch {
+    /* noop */
+  }
+}
 
 export function NotificationsBell() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [perm, setPerm] = useState<PushPermission>(getPermission);
   const ref = useRef<HTMLDivElement>(null);
   const { data = [] } = useQuery(notificationsQuery(user?.id ?? null));
   const unread = data.filter((n) => !n.read_at).length;
 
-  // Realtime: refresh on new notification
+  // Realtime: refresh on new notification + native push when tab hidden
   useEffect(() => {
     if (!user) return;
     const ch = supabase
@@ -29,7 +60,13 @@ export function NotificationsBell() {
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
-        () => qc.invalidateQueries({ queryKey: ["notifications", user.id] }),
+        (payload) => {
+          qc.invalidateQueries({ queryKey: ["notifications", user.id] });
+          const n = payload.new as AppNotification;
+          if (typeof document !== "undefined" && document.hidden) {
+            showSystemNotification(n, notificationHref(n));
+          }
+        },
       )
       .subscribe();
     return () => {
@@ -47,13 +84,29 @@ export function NotificationsBell() {
     return () => document.removeEventListener("mousedown", h);
   }, [open]);
 
+  const enablePush = useCallback(async () => {
+    if (!("Notification" in window)) return;
+    try {
+      const res = await Notification.requestPermission();
+      setPerm(res as PushPermission);
+      if (res === "granted") {
+        new Notification("Уведомления включены", {
+          body: "Вы будете получать пуш-уведомления от UY",
+          icon: "/icons/icon-192.png",
+        });
+      }
+    } catch {
+      /* noop */
+    }
+  }, []);
+
   if (!user) return null;
 
   return (
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="relative flex h-9 w-9 items-center justify-center rounded-full bg-card ring-1 ring-border"
+        className="relative flex h-9 w-9 items-center justify-center rounded-full bg-card ring-1 ring-border active:scale-95 transition-transform"
         aria-label="Уведомления"
       >
         <Bell className="h-4 w-4" />
@@ -79,6 +132,27 @@ export function NotificationsBell() {
               </button>
             )}
           </div>
+
+          {/* Push permission CTA */}
+          {perm === "default" && (
+            <button
+              onClick={enablePush}
+              className="flex w-full items-center gap-2 border-b border-border bg-primary/5 px-3 py-2.5 text-left text-xs hover:bg-primary/10"
+            >
+              <BellRing className="h-4 w-4 shrink-0 text-primary" />
+              <div className="flex-1">
+                <div className="font-semibold">Включить пуш-уведомления</div>
+                <div className="text-muted-foreground">Узнавай о новых офферах и сообщениях мгновенно</div>
+              </div>
+            </button>
+          )}
+          {perm === "denied" && (
+            <div className="flex items-center gap-2 border-b border-border bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
+              <BellOff className="h-3.5 w-3.5 shrink-0" />
+              <span>Пуши заблокированы. Разрешите их в настройках браузера.</span>
+            </div>
+          )}
+
           <div className="max-h-96 overflow-y-auto">
             {data.length === 0 && (
               <div className="px-3 py-6 text-center text-xs text-muted-foreground">Пусто</div>
@@ -111,3 +185,4 @@ export function NotificationsBell() {
     </div>
   );
 }
+
