@@ -25,7 +25,7 @@ function Home() {
       <div className="space-y-4 px-4 pt-2">
         <Link
           to="/create-request"
-          className="relative block overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-[oklch(0.55_0.22_22)] p-5 text-primary-foreground shadow-glow"
+          className="relative block overflow-hidden rounded-3xl bg-gradient-to-br from-[#7F1D1D] to-[#450A0A] p-5 text-white shadow-glow"
         >
           <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest opacity-90">
             <Sparkles className="h-3.5 w-3.5" /> Новая идея
@@ -45,12 +45,12 @@ function Home() {
           <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
         </Link>
 
-        <div className="flex items-center gap-2 rounded-2xl bg-card px-3.5 py-3 shadow-card ring-1 ring-border">
-          <Search className="h-4 w-4 text-muted-foreground" />
+        <div className="flex items-center gap-2 rounded-2xl bg-card px-4 py-3.5 shadow-pop ring-1 ring-border">
+          <Search className="h-4 w-4 text-primary" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Название, район…"
+            placeholder="🔍 Район, улица или название..."
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
         </div>
