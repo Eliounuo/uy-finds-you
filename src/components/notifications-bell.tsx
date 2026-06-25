@@ -81,7 +81,7 @@ export function NotificationsBell() {
     }
   }, []);
 
-  if (!user) return null;
+  
 
   return (
     <div ref={ref} className="relative">
