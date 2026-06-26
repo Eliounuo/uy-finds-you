@@ -1,18 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Camera, CheckCircle2, AlertCircle, Loader2, Trash2, X } from "lucide-react";
+import { ArrowLeft, CheckCircle2, AlertCircle, Loader2, Trash2, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { propertyQuery } from "@/lib/queries";
 import { ALL_AMENITIES, CITIES, amenityLabels } from "@/lib/mock-data";
 import { MapPicker } from "@/components/map-picker";
-import {
-  uploadPropertyPhoto,
-  deletePropertyPhoto,
-  resolvePhotoUrls,
-} from "@/lib/use-property-photos";
+import { ImageUpload } from "@/components/ui/image-upload";
+import { geocodeAddress } from "@/lib/geocoding";
+import { deletePropertyPhoto } from "@/lib/use-property-photos";
 
 type Mode = "create" | "edit";
 

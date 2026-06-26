@@ -163,3 +163,24 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return arr;
 }
 
+/**
+ * Trigger a server-side push via the `send-push` Edge Function.
+ * Only callable from privileged contexts (the function verifies service-role auth).
+ */
+export async function triggerServerPush(
+  userId: string,
+  title: string,
+  body?: string,
+  url?: string,
+): Promise<{ sent: number; failed: number } | null> {
+  try {
+    const { data, error } = await supabase.functions.invoke("send-push", {
+      body: { userId, title, body, url },
+    });
+    if (error) return null;
+    return data as { sent: number; failed: number };
+  } catch {
+    return null;
+  }
+}
+
