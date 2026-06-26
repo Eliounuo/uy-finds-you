@@ -152,18 +152,6 @@ function CreateRequest() {
 
 
 
-        <Section icon={CalendarDays} title="Даты">
-          <div className="grid grid-cols-2 gap-3">
-            <label className="rounded-xl bg-card p-3 ring-1 ring-border">
-              <div className="text-[11px] uppercase text-muted-foreground">Заезд</div>
-              <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="mt-1 w-full bg-transparent text-sm outline-none"/>
-            </label>
-            <label className="rounded-xl bg-card p-3 ring-1 ring-border">
-              <div className="text-[11px] uppercase text-muted-foreground">Выезд</div>
-              <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="mt-1 w-full bg-transparent text-sm outline-none"/>
-            </label>
-          </div>
-        </Section>
 
         <Section icon={Users} title="Гостей">
           <div className="flex flex-wrap gap-2">
