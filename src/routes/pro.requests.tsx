@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/use-auth";
 import { openRequestsQuery, myPropertiesQuery, type RequestRow } from "@/lib/queries";
 import { supabase } from "@/integrations/supabase/client";
 import { formatKZT, formatDate, nightsBetween } from "@/lib/mock-data";
+import { track } from "@/lib/analytics/posthog";
 
 export const Route = createFileRoute("/pro/requests")({ component: ProRequests });
 
@@ -74,7 +75,7 @@ function OfferSheet({ request, onClose }: { request: RequestRow; onClose: () => 
       });
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Предложение отправлено"); qc.invalidateQueries({ queryKey: ["open-requests"] }); onClose(); },
+    onSuccess: () => { track("offer_sent", { request_id: request.id, property_id: propertyId, price_per_night: price, nights }); toast.success("Предложение отправлено"); qc.invalidateQueries({ queryKey: ["open-requests"] }); onClose(); },
     onError: (e: Error) => toast.error(e.message),
   });
 

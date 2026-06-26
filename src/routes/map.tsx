@@ -8,6 +8,13 @@ import { formatKZT } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/map")({ component: MapPage });
 
+// Price tier colors (KZT per sutki)
+function tierColor(price: number): string {
+  if (price <= 50000) return "#22c55e";
+  if (price <= 150000) return "#f59e0b";
+  return "#ef4444";
+}
+
 function MapPage() {
   const { t } = useTranslation();
   const { data = [], isLoading } = useQuery(propertiesQuery());
@@ -45,10 +52,19 @@ function MapPage() {
         maxClusterRadius: 50,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         iconCreateFunction: (c: any) => {
-          const count = c.getChildCount();
+          const children = c.getAllChildMarkers();
+          const count = children.length;
+          let sum = 0;
+          let n = 0;
+          for (const m of children) {
+            const p = Number(m.options?.__price ?? 0);
+            if (p > 0) { sum += p; n++; }
+          }
+          const avg = n > 0 ? sum / n : 0;
+          const color = tierColor(avg);
           const size = count < 10 ? 36 : count < 100 ? 44 : 52;
           return (L as any).divIcon({
-            html: `<div style="display:grid;place-items:center;width:${size}px;height:${size}px;border-radius:999px;background:#9B1C1C;color:#fff;font-weight:800;font-size:13px;box-shadow:0 4px 12px rgba(155,28,28,.45);border:3px solid #fff">${count}</div>`,
+            html: `<div style="display:grid;place-items:center;width:${size}px;height:${size}px;border-radius:999px;background:${color};color:#fff;font-weight:800;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.35);border:3px solid #fff">${count}</div>`,
             className: "uy-cluster",
             iconSize: [size, size],
           });
@@ -81,15 +97,20 @@ function MapPage() {
       const markers: any[] = [];
       data.forEach((p) => {
         if (!p.lat || !p.lng) return;
+        const price = Number(p.price_per_night) || 0;
+        const color = tierColor(price);
+        const label = formatKZT(price);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const icon = (L as any).divIcon({
           className: "uy-price",
-          html: `<div style="background:#9B1C1C;color:#fff;padding:4px 10px;border-radius:999px;font-weight:700;font-size:12px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)">${formatKZT(p.price_per_night)}</div>`,
+          iconSize: [36, 36],
+          iconAnchor: [18, 18],
+          html: `<div style="display:grid;place-items:center;width:36px;height:36px;border-radius:999px;background:${color};color:#fff;font-weight:800;font-size:10px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);white-space:nowrap">${label}</div>`,
         });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const m = (L as any)
-          .marker([Number(p.lat), Number(p.lng)], { icon })
-          .bindPopup(`<b>${p.title}</b><br>${p.city}`);
+          .marker([Number(p.lat), Number(p.lng)], { icon, __price: price })
+          .bindPopup(`<b>${p.title}</b><br>${p.city}<br>${label}`);
         markers.push(m);
       });
       cluster.addLayers(markers);
@@ -106,6 +127,12 @@ function MapPage() {
             {t("map.loading")}
           </div>
         )}
+        <div className="absolute bottom-3 right-3 z-[400] rounded-xl bg-card/95 px-3 py-2 text-[11px] shadow ring-1 ring-border backdrop-blur">
+          <div className="mb-1 font-semibold text-foreground">Цена / сутки</div>
+          <div className="flex items-center gap-1.5"><span className="inline-block size-2.5 rounded-full" style={{ background: "#22c55e" }} /> до 50K</div>
+          <div className="flex items-center gap-1.5"><span className="inline-block size-2.5 rounded-full" style={{ background: "#f59e0b" }} /> 50–150K</div>
+          <div className="flex items-center gap-1.5"><span className="inline-block size-2.5 rounded-full" style={{ background: "#ef4444" }} /> 150K+</div>
+        </div>
       </div>
     </>
   );

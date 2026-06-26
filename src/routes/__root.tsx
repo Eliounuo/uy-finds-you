@@ -19,6 +19,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { installGlobalErrorHandlers, logError } from "@/lib/analytics";
 import { usePushNotifications } from "@/lib/use-push-notifications";
+import { initSentry } from "@/lib/monitoring/sentry";
+import { initPostHog } from "@/lib/analytics/posthog";
 import "@/lib/i18n";
 
 
@@ -174,6 +176,8 @@ function RootComponent() {
     // Clear any stale chunk-reload flag from a previous session.
     try { sessionStorage.removeItem(RELOAD_FLAG); } catch {}
     installGlobalErrorHandlers();
+    void initSentry();
+    void initPostHog();
 
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       // Ignore TOKEN_REFRESHED / INITIAL_SESSION — they fire frequently and

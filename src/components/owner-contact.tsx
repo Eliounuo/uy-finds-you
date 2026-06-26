@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { useState } from "react";
+import { track } from "@/lib/analytics/posthog";
 
 type Contact = { phone: string | null; whatsapp: string | null; telegram: string | null; full_name: string | null };
 
@@ -26,6 +27,7 @@ export function OwnerContactBar({ propertyId, price }: { propertyId: string; pri
   const phone = data?.phone ?? null;
 
   const openChat = async () => {
+    track("booking_started", { property_id: propertyId, channel: "chat" });
     if (!user) {
       navigate({ to: "/auth" });
       return;

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { ArrowLeft, Heart, MapPin, Users, BedDouble, Maximize, Loader2, ShieldCheck } from "lucide-react";
 import { propertyQuery, publicProfileQuery } from "@/lib/queries";
 import { formatKZT, amenityLabels } from "@/lib/mock-data";
@@ -9,6 +10,7 @@ import { SignedImg } from "@/components/signed-img";
 import { PropertyReviews, RatingBadge } from "@/components/reviews";
 import { ReportButton } from "@/components/report-button";
 import { OwnerContactBar } from "@/components/owner-contact";
+import { track } from "@/lib/analytics/posthog";
 
 export const Route = createFileRoute("/property/$id")({ component: PropertyPage });
 
@@ -18,6 +20,10 @@ function PropertyPage() {
   const { data: ownerProfile } = useQuery(publicProfileQuery(p?.owner_id ?? null));
   const favs = useFavorites();
   const toggle = useToggleFavorite();
+
+  useEffect(() => {
+    if (p?.id) track("listing_viewed", { property_id: p.id, city: p.city, price: p.price_per_night });
+  }, [p?.id, p?.city, p?.price_per_night]);
 
   if (isLoading) return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground"/></div>;
   if (!p) return <div className="p-6 text-center text-sm text-muted-foreground">Объект не найден</div>;
