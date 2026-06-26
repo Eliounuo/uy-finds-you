@@ -4,7 +4,6 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/lib/use-auth";
 
 export const Route = createFileRoute("/auth")({
@@ -93,16 +92,14 @@ function AuthPage() {
   const handleApple = async () => {
     setLoading(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("apple", {
-        redirect_uri: window.location.origin,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "apple",
+        options: { redirectTo: window.location.origin },
       });
-      if (result.error) {
+      if (error) {
         toast.error("Не удалось войти через Apple");
         setLoading(false);
-        return;
       }
-      if (result.redirected) return;
-      navigate({ to: "/" });
     } catch {
       toast.error("Ошибка входа через Apple");
       setLoading(false);
@@ -111,7 +108,10 @@ function AuthPage() {
 
   return (
     <div className="min-h-screen bg-background px-5 pb-10 pt-6">
-      <Link to="/" className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border">
+      <Link
+        to="/"
+        className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border"
+      >
         <ArrowLeft className="h-5 w-5" />
       </Link>
 
@@ -176,7 +176,13 @@ function AuthPage() {
           disabled={loading}
           className="flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 disabled:opacity-60"
         >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : mode === "signin" ? "Войти" : "Создать аккаунт"}
+          {loading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : mode === "signin" ? (
+            "Войти"
+          ) : (
+            "Создать аккаунт"
+          )}
         </button>
       </form>
 
@@ -207,11 +213,21 @@ function AuthPage() {
                   disabled={resetLoading || resetSent}
                   className="flex h-10 flex-1 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground disabled:opacity-60"
                 >
-                  {resetLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : resetSent ? "Отправлено" : "Отправить ссылку"}
+                  {resetLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : resetSent ? (
+                    "Отправлено"
+                  ) : (
+                    "Отправить ссылку"
+                  )}
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setShowReset(false); setResetSent(false); setResetEmail(""); }}
+                  onClick={() => {
+                    setShowReset(false);
+                    setResetSent(false);
+                    setResetEmail("");
+                  }}
                   className="h-10 rounded-full px-4 text-xs font-semibold text-muted-foreground"
                 >
                   Отмена

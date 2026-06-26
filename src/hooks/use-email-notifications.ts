@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { emailService } from "@/lib/email";
+import { sendEmail } from "@/lib/email.functions";
 import { welcomeTemplate } from "@/lib/email/templates/welcome";
 import { newOfferTemplate } from "@/lib/email/templates/new_offer";
 import { bookingConfirmedTemplate } from "@/lib/email/templates/booking_confirmed";
@@ -14,7 +14,7 @@ export function useEmailNotifications() {
   const sendWelcomeEmail = useCallback(
     (to: string, name?: string) => {
       const t = welcomeTemplate({ name, appUrl });
-      return emailService.send({ to, subject: t.subject, html: t.html });
+      return sendEmail({ data: { to, subject: t.subject, html: t.html } });
     },
     [],
   );
@@ -22,7 +22,7 @@ export function useEmailNotifications() {
   const sendNewOfferEmail = useCallback(
     (to: string, args: { tenantName?: string; propertyTitle: string; price: number }) => {
       const t = newOfferTemplate({ ...args, appUrl });
-      return emailService.send({ to, subject: t.subject, html: t.html });
+      return sendEmail({ data: { to, subject: t.subject, html: t.html } });
     },
     [],
   );
@@ -33,7 +33,7 @@ export function useEmailNotifications() {
       args: { propertyTitle: string; checkIn: string; checkOut: string; total: number },
     ) => {
       const t = bookingConfirmedTemplate({ ...args, appUrl });
-      return emailService.send({ to, subject: t.subject, html: t.html });
+      return sendEmail({ data: { to, subject: t.subject, html: t.html } });
     },
     [],
   );
@@ -44,7 +44,7 @@ export function useEmailNotifications() {
       args: { propertyTitle: string; address?: string; checkIn: string; hostPhone?: string },
     ) => {
       const t = checkInReminderTemplate({ ...args, appUrl });
-      return emailService.send({ to, subject: t.subject, html: t.html });
+      return sendEmail({ data: { to, subject: t.subject, html: t.html } });
     },
     [],
   );
@@ -52,7 +52,7 @@ export function useEmailNotifications() {
   const sendReviewRequestEmail = useCallback(
     (to: string, args: { propertyTitle: string; bookingId: string }) => {
       const t = reviewRequestTemplate({ ...args, appUrl });
-      return emailService.send({ to, subject: t.subject, html: t.html });
+      return sendEmail({ data: { to, subject: t.subject, html: t.html } });
     },
     [],
   );
@@ -60,7 +60,7 @@ export function useEmailNotifications() {
   const sendVerificationStatusEmail = useCallback(
     (to: string, args: { approved: boolean; reason?: string }) => {
       const t = verificationStatusTemplate({ ...args, appUrl });
-      return emailService.send({ to, subject: t.subject, html: t.html });
+      return sendEmail({ data: { to, subject: t.subject, html: t.html } });
     },
     [],
   );

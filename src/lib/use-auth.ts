@@ -10,10 +10,9 @@ export function useAuth() {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
-    supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null);
-      setLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(({ data }) => { setUser(data.session?.user ?? null); })
+      .finally(() => { setLoading(false); });
     return () => sub.subscription.unsubscribe();
   }, []);
 

@@ -13,11 +13,7 @@ function isPreviewOrDev(): boolean {
     return true;
   }
   const h = window.location.hostname;
-  return (
-    /^(id-preview--|preview--)/.test(h) ||
-    /\.lovableproject(-dev)?\.com$/.test(h) ||
-    /\.beta\.lovable\.dev$/.test(h)
-  );
+  return /^(id-preview--|preview--)/.test(h);
 }
 
 async function registerSW(): Promise<ServiceWorkerRegistration | null> {

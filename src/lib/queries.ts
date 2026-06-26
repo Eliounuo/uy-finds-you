@@ -25,7 +25,8 @@ export const propertiesQuery = (filters: PropertyFilters = {}) =>
         .from("properties")
         .select("*")
         .eq("status", "active")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .range(0, 49);
       if (filters.city && filters.city !== "Все") q = q.eq("city", filters.city);
       if (filters.search) q = q.ilike("title", `%${filters.search}%`);
       const { data, error } = await q;
