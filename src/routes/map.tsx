@@ -8,12 +8,12 @@ import { formatKZT } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/map")({ component: MapPage });
 
-// Price tier colors (KZT per sutki)
-function tierColor(price: number): string {
-  if (price <= 50000) return "#22c55e";
-  if (price <= 150000) return "#f59e0b";
-  return "#ef4444";
+// Brand color for all markers and clusters (YURTA)
+const BRAND_COLOR = "#8B1A2B";
+function tierColor(_price: number): string {
+  return BRAND_COLOR;
 }
+
 
 function MapPage() {
   const { t } = useTranslation();
@@ -127,13 +127,8 @@ function MapPage() {
             {t("map.loading")}
           </div>
         )}
-        <div className="absolute bottom-3 right-3 z-[400] rounded-xl bg-card/95 px-3 py-2 text-[11px] shadow ring-1 ring-border backdrop-blur">
-          <div className="mb-1 font-semibold text-foreground">Цена / сутки</div>
-          <div className="flex items-center gap-1.5"><span className="inline-block size-2.5 rounded-full" style={{ background: "#22c55e" }} /> до 50K</div>
-          <div className="flex items-center gap-1.5"><span className="inline-block size-2.5 rounded-full" style={{ background: "#f59e0b" }} /> 50–150K</div>
-          <div className="flex items-center gap-1.5"><span className="inline-block size-2.5 rounded-full" style={{ background: "#ef4444" }} /> 150K+</div>
-        </div>
       </div>
+
     </>
   );
 }
