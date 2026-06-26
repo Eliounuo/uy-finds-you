@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Users, CalendarDays, Wallet, Inbox, Loader2, Send } from "lucide-react";
+import { Users, CalendarDays, Wallet, Inbox, Loader2, Send, Zap, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/app-header";
 import { useAuth } from "@/lib/use-auth";
@@ -9,6 +9,9 @@ import { openRequestsQuery, myPropertiesQuery, type RequestRow } from "@/lib/que
 import { supabase } from "@/integrations/supabase/client";
 import { formatKZT, formatDate, nightsBetween } from "@/lib/mock-data";
 import { track } from "@/lib/analytics/posthog";
+import { formatCheckinDisplay } from "@/lib/checkin-slots";
+import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/pro/requests")({ component: ProRequests });
 
