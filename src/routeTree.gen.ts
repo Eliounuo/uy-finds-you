@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RequestsRouteImport } from './routes/requests'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProRouteImport } from './routes/pro'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as OwnerRouteImport } from './routes/owner'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as FavoritesRouteImport } from './routes/favorites'
@@ -38,6 +39,7 @@ import { Route as ChatIdRouteImport } from './routes/chat.$id'
 import { Route as AuthResetRouteImport } from './routes/auth.reset'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminPropertiesRouteImport } from './routes/admin.properties'
+import { Route as AdminPricingRouteImport } from './routes/admin.pricing'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminHealthRouteImport } from './routes/admin.health'
 import { Route as AdminComplaintsRouteImport } from './routes/admin.complaints'
@@ -59,6 +61,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const ProRoute = ProRouteImport.update({
   id: '/pro',
   path: '/pro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OwnerRoute = OwnerRouteImport.update({
@@ -191,6 +198,11 @@ const AdminPropertiesRoute = AdminPropertiesRouteImport.update({
   path: '/properties',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPricingRoute = AdminPricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
   id: '/payments',
   path: '/payments',
@@ -238,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/favorites': typeof FavoritesRoute
   '/map': typeof MapRoute
   '/owner': typeof OwnerRoute
+  '/pricing': typeof PricingRoute
   '/pro': typeof ProRouteWithChildren
   '/profile': typeof ProfileRouteWithChildren
   '/requests': typeof RequestsRoute
@@ -246,6 +259,7 @@ export interface FileRoutesByFullPath {
   '/admin/complaints': typeof AdminComplaintsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/pricing': typeof AdminPricingRoute
   '/admin/properties': typeof AdminPropertiesRoute
   '/admin/users': typeof AdminUsersRoute
   '/auth/reset': typeof AuthResetRoute
@@ -275,12 +289,14 @@ export interface FileRoutesByTo {
   '/favorites': typeof FavoritesRoute
   '/map': typeof MapRoute
   '/owner': typeof OwnerRoute
+  '/pricing': typeof PricingRoute
   '/requests': typeof RequestsRoute
   '/admin/alerts': typeof AdminAlertsRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/complaints': typeof AdminComplaintsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/pricing': typeof AdminPricingRoute
   '/admin/properties': typeof AdminPropertiesRoute
   '/admin/users': typeof AdminUsersRoute
   '/auth/reset': typeof AuthResetRoute
@@ -312,6 +328,7 @@ export interface FileRoutesById {
   '/favorites': typeof FavoritesRoute
   '/map': typeof MapRoute
   '/owner': typeof OwnerRoute
+  '/pricing': typeof PricingRoute
   '/pro': typeof ProRouteWithChildren
   '/profile': typeof ProfileRouteWithChildren
   '/requests': typeof RequestsRoute
@@ -320,6 +337,7 @@ export interface FileRoutesById {
   '/admin/complaints': typeof AdminComplaintsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/pricing': typeof AdminPricingRoute
   '/admin/properties': typeof AdminPropertiesRoute
   '/admin/users': typeof AdminUsersRoute
   '/auth/reset': typeof AuthResetRoute
@@ -352,6 +370,7 @@ export interface FileRouteTypes {
     | '/favorites'
     | '/map'
     | '/owner'
+    | '/pricing'
     | '/pro'
     | '/profile'
     | '/requests'
@@ -360,6 +379,7 @@ export interface FileRouteTypes {
     | '/admin/complaints'
     | '/admin/health'
     | '/admin/payments'
+    | '/admin/pricing'
     | '/admin/properties'
     | '/admin/users'
     | '/auth/reset'
@@ -389,12 +409,14 @@ export interface FileRouteTypes {
     | '/favorites'
     | '/map'
     | '/owner'
+    | '/pricing'
     | '/requests'
     | '/admin/alerts'
     | '/admin/bookings'
     | '/admin/complaints'
     | '/admin/health'
     | '/admin/payments'
+    | '/admin/pricing'
     | '/admin/properties'
     | '/admin/users'
     | '/auth/reset'
@@ -425,6 +447,7 @@ export interface FileRouteTypes {
     | '/favorites'
     | '/map'
     | '/owner'
+    | '/pricing'
     | '/pro'
     | '/profile'
     | '/requests'
@@ -433,6 +456,7 @@ export interface FileRouteTypes {
     | '/admin/complaints'
     | '/admin/health'
     | '/admin/payments'
+    | '/admin/pricing'
     | '/admin/properties'
     | '/admin/users'
     | '/auth/reset'
@@ -464,6 +488,7 @@ export interface RootRouteChildren {
   FavoritesRoute: typeof FavoritesRoute
   MapRoute: typeof MapRoute
   OwnerRoute: typeof OwnerRoute
+  PricingRoute: typeof PricingRoute
   ProRoute: typeof ProRouteWithChildren
   ProfileRoute: typeof ProfileRouteWithChildren
   RequestsRoute: typeof RequestsRoute
@@ -493,6 +518,13 @@ declare module '@tanstack/react-router' {
       path: '/pro'
       fullPath: '/pro'
       preLoaderRoute: typeof ProRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/owner': {
@@ -677,6 +709,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPropertiesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/pricing': {
+      id: '/admin/pricing'
+      path: '/pricing'
+      fullPath: '/admin/pricing'
+      preLoaderRoute: typeof AdminPricingRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/payments': {
       id: '/admin/payments'
       path: '/payments'
@@ -735,6 +774,7 @@ interface AdminRouteChildren {
   AdminComplaintsRoute: typeof AdminComplaintsRoute
   AdminHealthRoute: typeof AdminHealthRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
+  AdminPricingRoute: typeof AdminPricingRoute
   AdminPropertiesRoute: typeof AdminPropertiesRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -746,6 +786,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminComplaintsRoute: AdminComplaintsRoute,
   AdminHealthRoute: AdminHealthRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
+  AdminPricingRoute: AdminPricingRoute,
   AdminPropertiesRoute: AdminPropertiesRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
@@ -813,6 +854,7 @@ const rootRouteChildren: RootRouteChildren = {
   FavoritesRoute: FavoritesRoute,
   MapRoute: MapRoute,
   OwnerRoute: OwnerRoute,
+  PricingRoute: PricingRoute,
   ProRoute: ProRouteWithChildren,
   ProfileRoute: ProfileRouteWithChildren,
   RequestsRoute: RequestsRoute,
