@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Upload, X, Loader2, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/use-auth";
@@ -48,13 +48,15 @@ export function ImageUpload({ value, onChange, maxFiles = 10 }: Props) {
   const dragIndex = useRef<number | null>(null);
 
   // resolve preview URLs whenever value changes
-  useState(() => {
-    void resolvePhotoUrls(value).then(setPreviews);
-  });
-  // re-resolve on every render when length differs (cheap)
-  if (previews.length !== value.length) {
-    void resolvePhotoUrls(value).then(setPreviews);
-  }
+  useEffect(() => {
+    let alive = true;
+    void resolvePhotoUrls(value).then((urls) => {
+      if (alive) setPreviews(urls);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [value]);
 
   const handleFiles = useCallback(
     async (files: FileList | File[]) => {
