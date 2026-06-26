@@ -597,6 +597,57 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing_items: {
+        Row: {
+          code: string
+          created_at: string
+          currency: string
+          description: string | null
+          features: Json
+          id: string
+          is_active: boolean
+          kind: Database["public"]["Enums"]["pricing_kind"]
+          metadata: Json
+          name: string
+          period: Database["public"]["Enums"]["pricing_period"]
+          price: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          features?: Json
+          id?: string
+          is_active?: boolean
+          kind: Database["public"]["Enums"]["pricing_kind"]
+          metadata?: Json
+          name: string
+          period?: Database["public"]["Enums"]["pricing_period"]
+          price: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          features?: Json
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["pricing_kind"]
+          metadata?: Json
+          name?: string
+          period?: Database["public"]["Enums"]["pricing_period"]
+          price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1054,6 +1105,8 @@ export type Database = {
       payment_method: "card" | "kaspi" | "jasyn_wallet" | "manual"
       payment_status: "pending" | "succeeded" | "failed" | "refunded"
       payout_status: "pending" | "paid" | "failed"
+      pricing_kind: "package" | "service" | "subscription"
+      pricing_period: "one_time" | "month" | "year" | "week"
       verification_status: "unverified" | "pending" | "verified" | "rejected"
     }
     CompositeTypes: {
@@ -1199,6 +1252,8 @@ export const Constants = {
       payment_method: ["card", "kaspi", "jasyn_wallet", "manual"],
       payment_status: ["pending", "succeeded", "failed", "refunded"],
       payout_status: ["pending", "paid", "failed"],
+      pricing_kind: ["package", "service", "subscription"],
+      pricing_period: ["one_time", "month", "year", "week"],
       verification_status: ["unverified", "pending", "verified", "rejected"],
     },
   },
