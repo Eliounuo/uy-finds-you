@@ -9,6 +9,7 @@ import { formatKZT, CITIES, ACTIVE_CITIES } from "@/lib/mock-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { cn } from "@/lib/utils";
+import { track } from "@/lib/analytics/posthog";
 
 export const Route = createFileRoute("/create-request")({ component: CreateRequest });
 
@@ -44,7 +45,7 @@ function CreateRequest() {
       });
       if (error) throw error;
     },
-    onSuccess: () => { setDone(true); setTimeout(() => navigate({ to: "/requests" }), 1200); },
+    onSuccess: () => { track("request_created", { city, guests, budget_max: budget }); setDone(true); setTimeout(() => navigate({ to: "/requests" }), 1200); },
     onError: (e: Error) => {
       if (e.message === "AUTH_REQUIRED") {
         toast.info("Войдите, чтобы отправить заявку");
