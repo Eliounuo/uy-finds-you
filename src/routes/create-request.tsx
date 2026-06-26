@@ -38,13 +38,17 @@ function CreateRequest() {
   const submit = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("AUTH_REQUIRED");
-      if (!checkIn || !checkOut) throw new Error("Выберите даты");
       const customISO =
         checkinSlot === "custom" && customDate && customTime
           ? new Date(`${customDate}T${customTime}:00`).toISOString()
           : null;
       if (checkinSlot === "custom" && !customISO) throw new Error("Укажите дату и время заезда");
       const preferred = slotToDateTime(checkinSlot, customISO);
+      const baseDate = preferred ? new Date(preferred) : new Date();
+      const checkIn = baseDate.toISOString().slice(0, 10);
+      const checkOutDate = new Date(baseDate);
+      checkOutDate.setDate(checkOutDate.getDate() + 1);
+      const checkOut = checkOutDate.toISOString().slice(0, 10);
       const { error } = await supabase.from("requests").insert({
         client_id: user.id, city,
         district: district.trim() || null,
