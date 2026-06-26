@@ -1,18 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Camera, CheckCircle2, AlertCircle, Loader2, Trash2, X } from "lucide-react";
+import { ArrowLeft, CheckCircle2, AlertCircle, Loader2, Trash2, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { propertyQuery } from "@/lib/queries";
 import { ALL_AMENITIES, CITIES, amenityLabels } from "@/lib/mock-data";
 import { MapPicker } from "@/components/map-picker";
-import {
-  uploadPropertyPhoto,
-  deletePropertyPhoto,
-  resolvePhotoUrls,
-} from "@/lib/use-property-photos";
+import { ImageUpload } from "@/components/ui/image-upload";
+import { geocodeAddress } from "@/lib/geocoding";
+import { deletePropertyPhoto } from "@/lib/use-property-photos";
 
 type Mode = "create" | "edit";
 
@@ -61,10 +59,9 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
   });
 
   const [form, setForm] = useState<FormState>(empty);
-  const [previews, setPreviews] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
 
   useEffect(() => {
     if (mode === "edit" && existing) {
@@ -87,16 +84,6 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
       });
     }
   }, [mode, existing]);
-
-  useEffect(() => {
-    let alive = true;
-    resolvePhotoUrls(form.photos).then((urls) => {
-      if (alive) setPreviews(urls);
-    });
-    return () => {
-      alive = false;
-    };
-  }, [form.photos]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((s) => ({ ...s, [key]: value }));
@@ -124,32 +111,25 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
     return { items, missing, ready: missing.length === 0 };
   }, [form]);
 
-
-  async function handleFiles(files: FileList | null) {
-    if (!files || !user) return;
-    setUploading(true);
+  async function handleGeocode() {
+    if (!form.address.trim()) {
+      toast.error("Сначала введите адрес");
+      return;
+    }
+    setGeocoding(true);
     try {
-      const paths: string[] = [];
-      for (const file of Array.from(files)) {
-        if (file.size > 8 * 1024 * 1024) {
-          toast.error(`${file.name}: больше 8 МБ`);
-          continue;
-        }
-        const path = await uploadPropertyPhoto(file, user.id);
-        paths.push(path);
+      const coords = await geocodeAddress(form.address, form.city);
+      if (!coords) {
+        toast.error("Не удалось найти координаты по адресу");
+        return;
       }
-      if (paths.length) setForm((s) => ({ ...s, photos: [...s.photos, ...paths] }));
-    } catch (e: any) {
-      toast.error(e.message || "Не удалось загрузить фото");
+      setForm((s) => ({ ...s, lat: String(coords.lat), lng: String(coords.lng) }));
+      toast.success("Координаты определены");
     } finally {
-      setUploading(false);
+      setGeocoding(false);
     }
   }
 
-  async function removePhoto(path: string) {
-    setForm((s) => ({ ...s, photos: s.photos.filter((p) => p !== path) }));
-    deletePropertyPhoto(path).catch(() => {});
-  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -273,39 +253,14 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
         {/* Photos */}
         <section className="space-y-2">
           <Label>Фотографии</Label>
-          <div className="grid grid-cols-3 gap-2">
-            {previews.map((url, i) => (
-              <div key={form.photos[i]} className="relative aspect-square overflow-hidden rounded-xl bg-muted ring-1 ring-border">
-                {url && <img src={url} alt="" className="h-full w-full object-cover" />}
-                <button
-                  type="button"
-                  onClick={() => removePhoto(form.photos[i])}
-                  className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white"
-                  aria-label="Удалить фото"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))}
-            <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border bg-card text-muted-foreground">
-              {uploading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <>
-                  <Camera className="h-5 w-5" />
-                  <span className="text-[10px]">Добавить</span>
-                </>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={(e) => handleFiles(e.target.files)}
-              />
-            </label>
-          </div>
-          <p className="text-[11px] text-muted-foreground">До 8 МБ на фото. Первое фото — обложка.</p>
+          <ImageUpload
+            value={form.photos}
+            onChange={(photos) => setForm((s) => ({ ...s, photos }))}
+            maxFiles={10}
+          />
+          <p className="text-[11px] text-muted-foreground">
+            Первое фото — обложка. Перетащите, чтобы изменить порядок.
+          </p>
         </section>
 
         <Field label="Название">
@@ -351,12 +306,28 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
         </div>
 
         <Field label="Адрес">
-          <input
-            value={form.address}
-            onChange={(e) => update("address", e.target.value)}
-            placeholder="ул. Абая, 10"
-            className={inputCls}
-          />
+          <div className="flex gap-2">
+            <input
+              value={form.address}
+              onChange={(e) => update("address", e.target.value)}
+              placeholder="ул. Абая, 10"
+              className={inputCls}
+            />
+            <button
+              type="button"
+              onClick={handleGeocode}
+              disabled={geocoding || !form.address.trim()}
+              className="flex shrink-0 items-center gap-1 rounded-xl bg-card px-3 text-xs font-semibold ring-1 ring-border disabled:opacity-50"
+              title="Определить координаты по адресу"
+            >
+              {geocoding ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <MapPin className="h-4 w-4" />
+              )}
+              Координаты
+            </button>
+          </div>
         </Field>
 
         <section className="space-y-2">
