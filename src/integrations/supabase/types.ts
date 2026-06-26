@@ -503,6 +503,13 @@ export type Database = {
             foreignKeyName: "offers_request_id_fkey"
             columns: ["request_id"]
             isOneToOne: false
+            referencedRelation: "open_requests_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
             referencedRelation: "requests"
             referencedColumns: ["id"]
           },
@@ -819,6 +826,36 @@ export type Database = {
           },
         ]
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       requests: {
         Row: {
           amenities: string[]
@@ -977,6 +1014,48 @@ export type Database = {
       }
     }
     Views: {
+      open_requests_public: {
+        Row: {
+          amenities: string[] | null
+          budget_max: number | null
+          check_in: string | null
+          check_out: string | null
+          city: string | null
+          client_id: string | null
+          created_at: string | null
+          district: string | null
+          guests: number | null
+          id: string | null
+          status: string | null
+        }
+        Insert: {
+          amenities?: string[] | null
+          budget_max?: number | null
+          check_in?: string | null
+          check_out?: string | null
+          city?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          district?: string | null
+          guests?: number | null
+          id?: string | null
+          status?: string | null
+        }
+        Update: {
+          amenities?: string[] | null
+          budget_max?: number | null
+          check_in?: string | null
+          check_out?: string | null
+          city?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          district?: string | null
+          guests?: number | null
+          id?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       owner_ratings: {
         Row: {
           avg_rating: number | null
