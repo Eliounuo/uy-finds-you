@@ -108,14 +108,17 @@ export const openRequestsQuery = (userId: string | null) =>
       // SECURITY: lat/lng/notes are revoked on the base table for non-owners.
       const { data, error } = await supabase
         .from("requests")
-        .select("id, client_id, city, district, check_in, check_out, guests, rooms, budget_max, amenities, status, created_at, expires_at")
+        .select("id, client_id, city, district, check_in, check_out, guests, rooms, budget_max, amenities, status, created_at, expires_at, preferred_checkin_time, checkin_slot, is_urgent")
         .eq("status", "open")
         .neq("client_id", userId)
+        .order("is_urgent", { ascending: false })
+        .order("preferred_checkin_time", { ascending: true, nullsFirst: false })
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as RequestRow[];
     },
   });
+
 
 // ---------- Bookings ----------
 export const myBookingsQuery = (userId: string | null) =>
