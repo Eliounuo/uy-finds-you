@@ -168,9 +168,45 @@ function CreateRequest() {
           </div>
         </Section>
 
+        <Section icon={Clock} title="Время заезда">
+          <div className="grid grid-cols-2 gap-2">
+            {(Object.keys(CHECKIN_SLOT_LABELS) as CheckinSlot[]).map((s) => {
+              const active = s === checkinSlot;
+              const urgent = s === "urgent";
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setCheckinSlot(s)}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold ring-1 transition",
+                    active
+                      ? urgent
+                        ? "bg-primary text-primary-foreground ring-primary"
+                        : "bg-foreground text-background ring-foreground"
+                      : "bg-card text-muted-foreground ring-border",
+                  )}
+                >
+                  {urgent && <Zap className="h-3.5 w-3.5 shrink-0" />}
+                  <span className="truncate">{CHECKIN_SLOT_LABELS[s]}</span>
+                </button>
+              );
+            })}
+          </div>
+          {checkinSlot === "custom" && (
+            <input
+              type="datetime-local"
+              value={customCheckin}
+              onChange={(e) => setCustomCheckin(e.target.value)}
+              className="mt-2 w-full rounded-xl bg-card p-3 text-sm ring-1 ring-border outline-none"
+            />
+          )}
+        </Section>
+
         <Section icon={Wallet} title={`Бюджет до ${formatKZT(budget)} / сутки`}>
           <input type="range" min={5000} max={100000} step={1000} value={budget} onChange={(e) => setBudget(Number(e.target.value))} className="w-full accent-[var(--color-primary)]"/>
         </Section>
+
 
         <Section title="Пожелания">
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Тихий двор, рядом метро…" rows={3} maxLength={500}
