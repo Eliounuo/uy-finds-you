@@ -1,0 +1,76 @@
+{
+  "common": {
+    "back": "Артқа",
+    "save": "Сақтау",
+    "cancel": "Болдырмау",
+    "loading": "Жүктелуде…",
+    "search": "Іздеу",
+    "edit": "Өңдеу",
+    "delete": "Жою",
+    "confirm": "Растау",
+    "close": "Жабу",
+    "yes": "Иә",
+    "no": "Жоқ",
+    "signIn": "Кіру",
+    "signOut": "Шығу",
+    "signUp": "Тіркелу",
+    "guest": "Қонақ",
+    "language": "Тіл"
+  },
+  "nav": {
+    "home": "Басты бет",
+    "map": "Карта",
+    "requests": "Өтінімдер",
+    "chat": "Чат",
+    "profile": "Профиль",
+    "properties": "Нысандар",
+    "calendar": "Күнтізбе",
+    "analytics": "Аналитика",
+    "favorites": "Таңдаулылар"
+  },
+  "profile": {
+    "title": "Профиль",
+    "loginPrompt": "Өтінім жасау үшін кіріңіз",
+    "editProfile": "Профильді өңдеу",
+    "tenantBadge": "Жалға алушы",
+    "landlordActivated": "Жалға беруші белсенді",
+    "loginCta": "Кіру немесе тіркелу",
+    "sections": {
+      "profile": "Профиль",
+      "renting": "Жылжымайтын мүлікті жалға беру",
+      "activity": "Белсенділік",
+      "account": "Аккаунт",
+      "admin": "Әкімші"
+    },
+    "becomeHost": "Жылжымайтын мүлікті жалға беру",
+    "becomeHostHint": "Өз пәтеріңізден табыс табыңыз",
+    "modeTitle": "Қолдану режимі",
+    "modeHint": "Рөлдер арасында ауысыңыз",
+    "modeClient": "Клиент",
+    "modeOwner": "Иесі",
+    "ownerCabinet": "Иесінің кабинеті",
+    "ownerCabinetHint": "Нысандар, өтінімдер, баланс",
+    "favorites": "Таңдаулылар",
+    "bookings": "Брондар",
+    "myReviews": "Менің пікірлерім",
+    "verification": "Верификация",
+    "settings": "Баптаулар",
+    "theme": "Тақырып",
+    "languageRow": "Интерфейс тілі",
+    "support": "Қолдау",
+    "adminPanel": "Әкімші панелі",
+    "adminAlerts": "Хабарламалар мен шектер",
+    "signOutBtn": "Шығу"
+  },
+  "language": {
+    "title": "Интерфейс тілі",
+    "subtitle": "Қолданба тілін таңдаңыз",
+    "ru": "Русский",
+    "kz": "Қазақша",
+    "en": "English"
+  },
+  "map": {
+    "title": "Карта",
+    "loading": "Карта жүктелуде…"
+  }
+}

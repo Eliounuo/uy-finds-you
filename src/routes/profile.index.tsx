@@ -16,15 +16,18 @@ import {
   Pencil,
   UserCircle2,
   Moon,
+  Languages,
   AlertTriangle,
 } from "lucide-react";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { AppHeader } from "@/components/app-header";
 import { useApp } from "@/lib/app-mode";
 import { useAuth } from "@/lib/use-auth";
 import { useAvatarUrl, useProfile } from "@/lib/use-profile";
 import { supabase } from "@/integrations/supabase/client";
+
 
 export const Route = createFileRoute("/profile/")({
   component: Profile,
@@ -35,6 +38,7 @@ function Profile() {
   const { user } = useAuth();
   const { profile } = useProfile();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data: isAdmin } = useQuery(
     queryOptions({
       queryKey: ["is-admin", user?.id ?? null],
@@ -48,19 +52,21 @@ function Profile() {
     }),
   );
 
-  const displayName = profile?.full_name?.trim() || "Гость";
+  const displayName = profile?.full_name?.trim() || t("common.guest");
   const initial = displayName.charAt(0).toUpperCase();
   const avatarUrl = useAvatarUrl(profile?.avatar_url);
 
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    toast.success("Вы вышли из аккаунта");
+    toast.success(t("common.signOut"));
     navigate({ to: "/auth" });
   };
 
   return (
     <>
-      <AppHeader title="Профиль" />
+      <AppHeader title={t("profile.title")} />
+
       <div className="space-y-4 px-4 pt-2 pb-32">
         <div className="rounded-2xl bg-gradient-to-br from-[#7F1D1D] to-[#450A0A] p-4 text-white">
           <div className="flex items-center gap-3">
@@ -80,7 +86,7 @@ function Profile() {
             <div className="min-w-0 flex-1">
               <div className="truncate font-display text-lg font-bold">{displayName}</div>
               <div className="truncate text-xs opacity-85">
-                {profile?.phone || user?.email || "Войдите, чтобы создавать заявки"}
+                {profile?.phone || user?.email || t("profile.loginPrompt")}
               </div>
               {profile?.public_id && (
                 <div className="mt-0.5 font-mono text-[10px] tracking-wider opacity-70">
@@ -114,19 +120,18 @@ function Profile() {
               to="/auth"
               className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-glow ring-2 ring-white/20"
             >
-              <LogIn className="h-3.5 w-3.5" /> Войти или зарегистрироваться
+              <LogIn className="h-3.5 w-3.5" /> {t("profile.loginCta")}
             </Link>
           )}
         </div>
 
         {user && (
-          <Section title="Профиль">
-            <Row icon={Pencil} label="Редактировать профиль" to="/profile/edit" />
+          <Section title={t("profile.sections.profile")}>
+            <Row icon={Pencil} label={t("profile.editProfile")} to="/profile/edit" />
           </Section>
         )}
 
-        {/* Сдача недвижимости */}
-        <Section title="Сдача недвижимости">
+        <Section title={t("profile.sections.renting")}>
           {!isLandlord ? (
             <Link
               to="/become-host"
@@ -136,22 +141,21 @@ function Profile() {
                 🏠
               </div>
               <div className="flex-1">
-                <div className="font-display font-bold">Сдача недвижимости</div>
+                <div className="font-display font-bold">{t("profile.becomeHost")}</div>
                 <div className="text-xs text-muted-foreground">
-                  Зарабатывайте на своей квартире
+                  {t("profile.becomeHostHint")}
                 </div>
               </div>
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </Link>
           ) : (
             <>
-              {/* Переключатель режима */}
               <div className="border-b border-border px-4 py-3.5">
                 <div className="mb-2 flex items-center justify-between">
                   <div>
-                    <div className="font-display text-sm font-bold">Режим использования</div>
+                    <div className="font-display text-sm font-bold">{t("profile.modeTitle")}</div>
                     <div className="text-[11px] text-muted-foreground">
-                      Переключайтесь между ролями
+                      {t("profile.modeHint")}
                     </div>
                   </div>
                 </div>
@@ -166,7 +170,7 @@ function Profile() {
                       mode === "lite" ? "text-primary" : "text-muted-foreground"
                     }`}
                   >
-                    <HomeIcon className="h-3.5 w-3.5" /> Клиент
+                    <HomeIcon className="h-3.5 w-3.5" /> {t("profile.modeClient")}
                   </button>
                   <button
                     onClick={() => setMode("pro")}
@@ -174,7 +178,7 @@ function Profile() {
                       mode === "pro" ? "text-primary" : "text-muted-foreground"
                     }`}
                   >
-                    <Building2 className="h-3.5 w-3.5" /> Владелец
+                    <Building2 className="h-3.5 w-3.5" /> {t("profile.modeOwner")}
                   </button>
                 </div>
               </div>
@@ -189,9 +193,9 @@ function Profile() {
                   <Building2 className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
-                  <div className="font-display font-bold">🏢 Кабинет владельца</div>
+                  <div className="font-display font-bold">🏢 {t("profile.ownerCabinet")}</div>
                   <div className="text-xs text-muted-foreground">
-                    Объекты, заявки, баланс
+                    {t("profile.ownerCabinetHint")}
                   </div>
                 </div>
                 <ArrowRight className="h-5 w-5 text-muted-foreground" />
@@ -200,23 +204,24 @@ function Profile() {
           )}
         </Section>
 
-        <Section title="Активность">
-          <Row icon={Heart} label="Избранное" to="/favorites" />
-          <Row icon={CalendarRange} label="Бронирования" to="/bookings" />
-          <Row icon={Star} label="Мои отзывы" />
+        <Section title={t("profile.sections.activity")}>
+          <Row icon={Heart} label={t("profile.favorites")} to="/favorites" />
+          <Row icon={CalendarRange} label={t("profile.bookings")} to="/bookings" />
+          <Row icon={Star} label={t("profile.myReviews")} />
         </Section>
 
-        <Section title="Аккаунт">
-          <Row icon={Shield} label="Верификация" to="/profile/verification" />
-          <Row icon={Settings} label="Настройки" />
-          <Row icon={Moon} label="Тема" to="/profile/theme" />
-          <Row icon={HelpCircle} label="Поддержка" />
+        <Section title={t("profile.sections.account")}>
+          <Row icon={Shield} label={t("profile.verification")} to="/profile/verification" />
+          <Row icon={Settings} label={t("profile.settings")} />
+          <Row icon={Languages} label={t("profile.languageRow")} to="/profile/language" />
+          <Row icon={Moon} label={t("profile.theme")} to="/profile/theme" />
+          <Row icon={HelpCircle} label={t("profile.support")} />
         </Section>
 
         {isAdmin && (
-          <Section title="Администратор">
-            <Row icon={Shield} label="Админ-панель" to="/admin" />
-            <Row icon={AlertTriangle} label="Алерты и пороги" to="/admin/alerts" />
+          <Section title={t("profile.sections.admin")}>
+            <Row icon={Shield} label={t("profile.adminPanel")} to="/admin" />
+            <Row icon={AlertTriangle} label={t("profile.adminAlerts")} to="/admin/alerts" />
           </Section>
         )}
 
@@ -225,9 +230,10 @@ function Profile() {
             onClick={handleSignOut}
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-card p-4 text-sm font-semibold text-destructive ring-1 ring-border"
           >
-            <LogOut className="h-4 w-4" /> Выйти
+            <LogOut className="h-4 w-4" /> {t("profile.signOutBtn")}
           </button>
         )}
+
 
         <p className="pt-2 text-center text-[11px] text-muted-foreground">YURTA · v0.1 MVP</p>
       </div>

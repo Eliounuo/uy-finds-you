@@ -30,6 +30,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as PropertyIdRouteImport } from './routes/property.$id'
 import { Route as ProfileVerificationRouteImport } from './routes/profile.verification'
 import { Route as ProfileThemeRouteImport } from './routes/profile.theme'
+import { Route as ProfileLanguageRouteImport } from './routes/profile.language'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as ProStatsRouteImport } from './routes/pro.stats'
 import { Route as ProRequestsRouteImport } from './routes/pro.requests'
@@ -153,6 +154,11 @@ const ProfileThemeRoute = ProfileThemeRouteImport.update({
   path: '/theme',
   getParentRoute: () => ProfileRoute,
 } as any)
+const ProfileLanguageRoute = ProfileLanguageRouteImport.update({
+  id: '/language',
+  path: '/language',
+  getParentRoute: () => ProfileRoute,
+} as any)
 const ProfileEditRoute = ProfileEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -269,6 +275,7 @@ export interface FileRoutesByFullPath {
   '/pro/requests': typeof ProRequestsRoute
   '/pro/stats': typeof ProStatsRoute
   '/profile/edit': typeof ProfileEditRoute
+  '/profile/language': typeof ProfileLanguageRoute
   '/profile/theme': typeof ProfileThemeRoute
   '/profile/verification': typeof ProfileVerificationRoute
   '/property/$id': typeof PropertyIdRoute
@@ -306,6 +313,7 @@ export interface FileRoutesByTo {
   '/pro/requests': typeof ProRequestsRoute
   '/pro/stats': typeof ProStatsRoute
   '/profile/edit': typeof ProfileEditRoute
+  '/profile/language': typeof ProfileLanguageRoute
   '/profile/theme': typeof ProfileThemeRoute
   '/profile/verification': typeof ProfileVerificationRoute
   '/property/$id': typeof PropertyIdRoute
@@ -347,6 +355,7 @@ export interface FileRoutesById {
   '/pro/requests': typeof ProRequestsRoute
   '/pro/stats': typeof ProStatsRoute
   '/profile/edit': typeof ProfileEditRoute
+  '/profile/language': typeof ProfileLanguageRoute
   '/profile/theme': typeof ProfileThemeRoute
   '/profile/verification': typeof ProfileVerificationRoute
   '/property/$id': typeof PropertyIdRoute
@@ -389,6 +398,7 @@ export interface FileRouteTypes {
     | '/pro/requests'
     | '/pro/stats'
     | '/profile/edit'
+    | '/profile/language'
     | '/profile/theme'
     | '/profile/verification'
     | '/property/$id'
@@ -426,6 +436,7 @@ export interface FileRouteTypes {
     | '/pro/requests'
     | '/pro/stats'
     | '/profile/edit'
+    | '/profile/language'
     | '/profile/theme'
     | '/profile/verification'
     | '/property/$id'
@@ -466,6 +477,7 @@ export interface FileRouteTypes {
     | '/pro/requests'
     | '/pro/stats'
     | '/profile/edit'
+    | '/profile/language'
     | '/profile/theme'
     | '/profile/verification'
     | '/property/$id'
@@ -644,6 +656,13 @@ declare module '@tanstack/react-router' {
       path: '/theme'
       fullPath: '/profile/theme'
       preLoaderRoute: typeof ProfileThemeRouteImport
+      parentRoute: typeof ProfileRoute
+    }
+    '/profile/language': {
+      id: '/profile/language'
+      path: '/language'
+      fullPath: '/profile/language'
+      preLoaderRoute: typeof ProfileLanguageRouteImport
       parentRoute: typeof ProfileRoute
     }
     '/profile/edit': {
@@ -828,6 +847,7 @@ const ProRouteWithChildren = ProRoute._addFileChildren(ProRouteChildren)
 
 interface ProfileRouteChildren {
   ProfileEditRoute: typeof ProfileEditRoute
+  ProfileLanguageRoute: typeof ProfileLanguageRoute
   ProfileThemeRoute: typeof ProfileThemeRoute
   ProfileVerificationRoute: typeof ProfileVerificationRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
@@ -835,6 +855,7 @@ interface ProfileRouteChildren {
 
 const ProfileRouteChildren: ProfileRouteChildren = {
   ProfileEditRoute: ProfileEditRoute,
+  ProfileLanguageRoute: ProfileLanguageRoute,
   ProfileThemeRoute: ProfileThemeRoute,
   ProfileVerificationRoute: ProfileVerificationRoute,
   ProfileIndexRoute: ProfileIndexRoute,

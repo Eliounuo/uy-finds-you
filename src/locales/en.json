@@ -1,0 +1,76 @@
+{
+  "common": {
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading…",
+    "search": "Search",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "signUp": "Sign up",
+    "guest": "Guest",
+    "language": "Language"
+  },
+  "nav": {
+    "home": "Home",
+    "map": "Map",
+    "requests": "Requests",
+    "chat": "Chat",
+    "profile": "Profile",
+    "properties": "Properties",
+    "calendar": "Calendar",
+    "analytics": "Analytics",
+    "favorites": "Favorites"
+  },
+  "profile": {
+    "title": "Profile",
+    "loginPrompt": "Sign in to create requests",
+    "editProfile": "Edit profile",
+    "tenantBadge": "Tenant",
+    "landlordActivated": "Landlord activated",
+    "loginCta": "Sign in or register",
+    "sections": {
+      "profile": "Profile",
+      "renting": "Rent out property",
+      "activity": "Activity",
+      "account": "Account",
+      "admin": "Administrator"
+    },
+    "becomeHost": "Rent out property",
+    "becomeHostHint": "Earn from your apartment",
+    "modeTitle": "Usage mode",
+    "modeHint": "Switch between roles",
+    "modeClient": "Client",
+    "modeOwner": "Owner",
+    "ownerCabinet": "Owner cabinet",
+    "ownerCabinetHint": "Listings, requests, balance",
+    "favorites": "Favorites",
+    "bookings": "Bookings",
+    "myReviews": "My reviews",
+    "verification": "Verification",
+    "settings": "Settings",
+    "theme": "Theme",
+    "languageRow": "Interface language",
+    "support": "Support",
+    "adminPanel": "Admin panel",
+    "adminAlerts": "Alerts and thresholds",
+    "signOutBtn": "Sign out"
+  },
+  "language": {
+    "title": "Interface language",
+    "subtitle": "Choose the app language",
+    "ru": "Русский",
+    "kz": "Қазақша",
+    "en": "English"
+  },
+  "map": {
+    "title": "Map",
+    "loading": "Loading map…"
+  }
+}
