@@ -13,6 +13,7 @@ export async function initSentry(): Promise<void> {
     return;
   }
   try {
+    // @ts-expect-error optional peer dep
     const mod = await import(/* @vite-ignore */ "@sentry/react");
     mod.init({
       dsn,
