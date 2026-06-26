@@ -26,8 +26,6 @@ function CreateRequest() {
   const [lng, setLng] = useState("");
   const [guests, setGuests] = useState(2);
   const [budget, setBudget] = useState(25000);
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
   const [notes, setNotes] = useState("");
   const [checkinSlot, setCheckinSlot] = useState<CheckinSlot>("urgent");
   const [customDate, setCustomDate] = useState("");
@@ -40,13 +38,17 @@ function CreateRequest() {
   const submit = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("AUTH_REQUIRED");
-      if (!checkIn || !checkOut) throw new Error("Выберите даты");
       const customISO =
         checkinSlot === "custom" && customDate && customTime
           ? new Date(`${customDate}T${customTime}:00`).toISOString()
           : null;
       if (checkinSlot === "custom" && !customISO) throw new Error("Укажите дату и время заезда");
       const preferred = slotToDateTime(checkinSlot, customISO);
+      const baseDate = preferred ? new Date(preferred) : new Date();
+      const checkIn = baseDate.toISOString().slice(0, 10);
+      const checkOutDate = new Date(baseDate);
+      checkOutDate.setDate(checkOutDate.getDate() + 1);
+      const checkOut = checkOutDate.toISOString().slice(0, 10);
       const { error } = await supabase.from("requests").insert({
         client_id: user.id, city,
         district: district.trim() || null,
@@ -150,18 +152,6 @@ function CreateRequest() {
 
 
 
-        <Section icon={CalendarDays} title="Даты">
-          <div className="grid grid-cols-2 gap-3">
-            <label className="rounded-xl bg-card p-3 ring-1 ring-border">
-              <div className="text-[11px] uppercase text-muted-foreground">Заезд</div>
-              <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="mt-1 w-full bg-transparent text-sm outline-none"/>
-            </label>
-            <label className="rounded-xl bg-card p-3 ring-1 ring-border">
-              <div className="text-[11px] uppercase text-muted-foreground">Выезд</div>
-              <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="mt-1 w-full bg-transparent text-sm outline-none"/>
-            </label>
-          </div>
-        </Section>
 
         <Section icon={Users} title="Гостей">
           <div className="flex flex-wrap gap-2">
