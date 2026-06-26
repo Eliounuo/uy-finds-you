@@ -59,10 +59,9 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
   });
 
   const [form, setForm] = useState<FormState>(empty);
-  const [previews, setPreviews] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
 
   useEffect(() => {
     if (mode === "edit" && existing) {
@@ -85,16 +84,6 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
       });
     }
   }, [mode, existing]);
-
-  useEffect(() => {
-    let alive = true;
-    resolvePhotoUrls(form.photos).then((urls) => {
-      if (alive) setPreviews(urls);
-    });
-    return () => {
-      alive = false;
-    };
-  }, [form.photos]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((s) => ({ ...s, [key]: value }));
@@ -122,32 +111,25 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
     return { items, missing, ready: missing.length === 0 };
   }, [form]);
 
-
-  async function handleFiles(files: FileList | null) {
-    if (!files || !user) return;
-    setUploading(true);
+  async function handleGeocode() {
+    if (!form.address.trim()) {
+      toast.error("Сначала введите адрес");
+      return;
+    }
+    setGeocoding(true);
     try {
-      const paths: string[] = [];
-      for (const file of Array.from(files)) {
-        if (file.size > 8 * 1024 * 1024) {
-          toast.error(`${file.name}: больше 8 МБ`);
-          continue;
-        }
-        const path = await uploadPropertyPhoto(file, user.id);
-        paths.push(path);
+      const coords = await geocodeAddress(form.address, form.city);
+      if (!coords) {
+        toast.error("Не удалось найти координаты по адресу");
+        return;
       }
-      if (paths.length) setForm((s) => ({ ...s, photos: [...s.photos, ...paths] }));
-    } catch (e: any) {
-      toast.error(e.message || "Не удалось загрузить фото");
+      setForm((s) => ({ ...s, lat: String(coords.lat), lng: String(coords.lng) }));
+      toast.success("Координаты определены");
     } finally {
-      setUploading(false);
+      setGeocoding(false);
     }
   }
 
-  async function removePhoto(path: string) {
-    setForm((s) => ({ ...s, photos: s.photos.filter((p) => p !== path) }));
-    deletePropertyPhoto(path).catch(() => {});
-  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
