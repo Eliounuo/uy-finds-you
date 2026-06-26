@@ -21,6 +21,16 @@ export const CHECKIN_SLOT_LABELS: Record<CheckinSlot, string> = {
   custom: "Выбрать дату и время",
 };
 
+// Time options for custom check-in: 06:00 → 23:00 every 30 min.
+export const CHECKIN_TIME_OPTIONS: string[] = (() => {
+  const out: string[] = [];
+  for (let h = 6; h <= 23; h++) {
+    out.push(`${String(h).padStart(2, "0")}:00`);
+    if (h < 23) out.push(`${String(h).padStart(2, "0")}:30`);
+  }
+  return out;
+})();
+
 // Hour at which we materialise each slot (local time).
 const SLOT_HOURS: Record<Exclude<CheckinSlot, "urgent" | "custom">, { day: 0 | 1; hour: number }> = {
   today_morning: { day: 0, hour: 9 },
