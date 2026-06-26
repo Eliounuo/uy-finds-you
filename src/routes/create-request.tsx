@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { MapPin, CalendarDays, Users, Wallet, Sparkles, Check, Loader2 } from "lucide-react";
+import { MapPin, CalendarDays, Users, Wallet, Sparkles, Check, Loader2, Clock, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/app-header";
 import { MapPicker } from "@/components/map-picker";
@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { cn } from "@/lib/utils";
 import { track } from "@/lib/analytics/posthog";
+import { CHECKIN_SLOT_LABELS, slotToDateTime, type CheckinSlot } from "@/lib/checkin-slots";
+
 
 export const Route = createFileRoute("/create-request")({ component: CreateRequest });
 
