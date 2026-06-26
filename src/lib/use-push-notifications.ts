@@ -89,6 +89,45 @@ export function usePushNotifications() {
     };
   }, []);
 
+  // Subscribe to native Web Push using VAPID and persist on the server.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        if (typeof window === "undefined" || !("Notification" in window)) return;
+        if (Notification.permission !== "granted") return;
+        const reg = swReg.current ?? (await navigator.serviceWorker.getRegistration());
+        if (!reg || cancelled) return;
+        const { getVapidPublicKey, savePushSubscription } = await import("@/lib/push.functions");
+        const { publicKey } = await getVapidPublicKey();
+        if (!publicKey || cancelled) return;
+        let sub = await reg.pushManager.getSubscription();
+        if (!sub) {
+          sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(publicKey),
+          });
+        }
+        const json = sub.toJSON();
+        if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) return;
+        await savePushSubscription({
+          data: {
+            endpoint: json.endpoint,
+            p256dh: json.keys.p256dh,
+            auth: json.keys.auth,
+            userAgent: navigator.userAgent,
+          },
+        });
+      } catch {
+        /* noop */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
   useEffect(() => {
     if (!user) return;
     const channel = supabase
@@ -114,3 +153,13 @@ export function usePushNotifications() {
     };
   }, [user, qc]);
 }
+
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(base64);
+  const arr = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+  return arr;
+}
+
