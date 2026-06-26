@@ -77,14 +77,13 @@ export function AppModeProvider({ children }: { children: ReactNode }) {
     if (!user || isLandlord) return;
     setActivatingLandlord(true);
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ is_landlord: true, mode: "pro" })
-        .eq("id", user.id);
+      const { error } = await supabase.rpc("become_landlord");
       if (error) throw error;
       setIsLandlord(true);
       setModeState("pro");
       localStorage.setItem("uy:mode", "pro");
+    } catch (err) {
+      console.error("become_landlord failed:", err);
     } finally {
       setActivatingLandlord(false);
     }
