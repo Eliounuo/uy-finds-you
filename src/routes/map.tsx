@@ -129,7 +129,6 @@ function MapPage() {
         )}
       </div>
 
-      </div>
     </>
   );
 }
