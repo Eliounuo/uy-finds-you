@@ -127,12 +127,8 @@ function MapPage() {
             {t("map.loading")}
           </div>
         )}
-        <div className="absolute bottom-3 right-3 z-[400] rounded-xl bg-card/95 px-3 py-2 text-[11px] shadow ring-1 ring-border backdrop-blur">
-          <div className="mb-1 font-semibold text-foreground">Цена / сутки</div>
-          <div className="flex items-center gap-1.5"><span className="inline-block size-2.5 rounded-full" style={{ background: "#22c55e" }} /> до 50K</div>
-          <div className="flex items-center gap-1.5"><span className="inline-block size-2.5 rounded-full" style={{ background: "#f59e0b" }} /> 50–150K</div>
-          <div className="flex items-center gap-1.5"><span className="inline-block size-2.5 rounded-full" style={{ background: "#ef4444" }} /> 150K+</div>
-        </div>
+      </div>
+
       </div>
     </>
   );
