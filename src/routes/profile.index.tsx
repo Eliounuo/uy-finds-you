@@ -229,7 +229,7 @@ function Profile() {
           </button>
         )}
 
-        <p className="pt-2 text-center text-[11px] text-muted-foreground">UY · v0.1 MVP</p>
+        <p className="pt-2 text-center text-[11px] text-muted-foreground">YURTA · v0.1 MVP</p>
       </div>
     </>
   );

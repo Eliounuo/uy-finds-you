@@ -245,7 +245,7 @@ function AuthPage() {
       </button>
 
       <p className="mt-6 text-center text-[11px] text-muted-foreground">
-        Продолжая, вы соглашаетесь с условиями использования и политикой UY.
+        Продолжая, вы соглашаетесь с условиями использования и политикой YURTA.
       </p>
     </div>
   );
