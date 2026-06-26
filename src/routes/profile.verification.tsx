@@ -48,13 +48,10 @@ function VerificationPage() {
         .from("verification-docs")
         .upload(path, file, { upsert: false });
       if (upErr) throw upErr;
-      const { error: insErr } = await supabase.from("verification_requests").insert({
-        user_id: user.id,
-        doc_url: path,
+      const { error } = await supabase.rpc("submit_verification_request", {
+        _doc_url: path,
       });
-      if (insErr) throw insErr;
-      // Move profile to pending
-      await supabase.from("profiles").update({ verification_status: "pending" }).eq("id", user.id);
+      if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Документ отправлен на проверку");
