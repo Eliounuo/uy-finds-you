@@ -48,10 +48,10 @@ function VerificationPage() {
         .from("verification-docs")
         .upload(path, file, { upsert: false });
       if (upErr) throw upErr;
-      const { error } = await supabase.rpc("submit_verification_request", {
+      const { error } = await (supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<{ error: unknown }>)("submit_verification_request", {
         _doc_url: path,
       });
-      if (error) throw error;
+      if (error) throw error as Error;
     },
     onSuccess: () => {
       toast.success("Документ отправлен на проверку");
