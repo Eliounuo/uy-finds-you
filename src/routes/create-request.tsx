@@ -175,36 +175,76 @@ function CreateRequest() {
 
         <Section icon={Clock} title="Время заезда">
           <div className="grid grid-cols-2 gap-2">
-            {(Object.keys(CHECKIN_SLOT_LABELS) as CheckinSlot[]).map((s) => {
-              const active = s === checkinSlot;
-              const urgent = s === "urgent";
-              return (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => setCheckinSlot(s)}
-                  className={cn(
-                    "flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold ring-1 transition",
-                    active
-                      ? urgent
-                        ? "bg-primary text-primary-foreground ring-primary"
-                        : "bg-foreground text-background ring-foreground"
-                      : "bg-card text-muted-foreground ring-border",
-                  )}
-                >
-                  {urgent && <Zap className="h-3.5 w-3.5 shrink-0" />}
-                  <span className="truncate">{CHECKIN_SLOT_LABELS[s]}</span>
-                </button>
-              );
-            })}
+            <button
+              type="button"
+              onClick={() => setCheckinSlot("urgent")}
+              className={cn(
+                "flex flex-col items-start gap-1 rounded-2xl p-4 ring-1 transition",
+                checkinSlot === "urgent"
+                  ? "bg-primary text-primary-foreground ring-primary shadow-glow"
+                  : "bg-card text-foreground ring-border",
+              )}
+            >
+              <Zap className="h-5 w-5" />
+              <span className="text-sm font-bold">Ближайшее время</span>
+              <span className={cn("text-[11px]", checkinSlot === "urgent" ? "text-primary-foreground/80" : "text-muted-foreground")}>Как можно скорее</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCheckinSlot("custom")}
+              className={cn(
+                "flex flex-col items-start gap-1 rounded-2xl p-4 ring-1 transition",
+                checkinSlot === "custom"
+                  ? "bg-foreground text-background ring-foreground"
+                  : "bg-card text-foreground ring-border",
+              )}
+            >
+              <CalendarDays className="h-5 w-5" />
+              <span className="text-sm font-bold">Выбрать дату и время</span>
+              <span className={cn("text-[11px]", checkinSlot === "custom" ? "text-background/70" : "text-muted-foreground")}>Конкретный слот</span>
+            </button>
           </div>
+
           {checkinSlot === "custom" && (
-            <input
-              type="datetime-local"
-              value={customCheckin}
-              onChange={(e) => setCustomCheckin(e.target.value)}
-              className="mt-2 w-full rounded-xl bg-card p-3 text-sm ring-1 ring-border outline-none"
-            />
+            <div className="mt-3 space-y-3 rounded-2xl bg-card p-3 ring-1 ring-border animate-fade-in">
+              <div>
+                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Шаг 1 — Дата</div>
+                <input
+                  type="date"
+                  value={customDate}
+                  min={new Date().toISOString().slice(0, 10)}
+                  onChange={(e) => setCustomDate(e.target.value)}
+                  className="w-full rounded-xl bg-background px-3 py-2.5 text-sm ring-1 ring-border outline-none"
+                />
+              </div>
+              {customDate && (
+                <div className="animate-fade-in">
+                  <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Шаг 2 — Время</div>
+                  <div className="grid grid-cols-4 gap-1.5 max-h-56 overflow-y-auto pr-1">
+                    {CHECKIN_TIME_OPTIONS.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setCustomTime(t)}
+                        className={cn(
+                          "rounded-lg py-2 text-xs font-semibold ring-1 transition",
+                          t === customTime
+                            ? "bg-primary text-primary-foreground ring-primary"
+                            : "bg-background text-foreground ring-border",
+                        )}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {customDate && customTime && (
+                <div className="rounded-xl bg-primary/10 px-3 py-2 text-xs font-semibold text-primary ring-1 ring-primary/20">
+                  Заезд: {new Date(`${customDate}T${customTime}:00`).toLocaleDateString("ru-RU", { day: "numeric", month: "short" })}, {customTime}
+                </div>
+              )}
+            </div>
           )}
         </Section>
 
