@@ -14,9 +14,15 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppModeProvider } from "@/lib/app-mode";
 import { BottomNav } from "@/components/bottom-nav";
 import { ProfileGate } from "@/components/profile-gate";
+import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { installGlobalErrorHandlers, logError } from "@/lib/analytics";
+import { usePushNotifications } from "@/lib/use-push-notifications";
+import { initSentry } from "@/lib/monitoring/sentry";
+import { initPostHog } from "@/lib/analytics/posthog";
+import "@/lib/i18n";
+
 
 
 function NotFoundComponent() {
@@ -101,23 +107,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover",
       },
-      { title: "UY — посуточная аренда в Казахстане" },
+      { title: "YURTA — посуточная аренда в Казахстане" },
       {
         name: "description",
         content:
-          "UY — посуточная аренда жилья в Казахстане. Создайте заявку — и квартиры найдут вас сами.",
+          "YURTA — посуточная аренда жилья в Казахстане. Создайте заявку — и квартиры найдут вас сами.",
       },
-      { name: "theme-color", content: "#ffffff" },
-      { name: "application-name", content: "UY" },
+      { name: "theme-color", content: "#9B1C1C" },
+      { name: "application-name", content: "YURTA" },
       // iOS standalone PWA
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-title", content: "UY" },
+      { name: "apple-mobile-web-app-title", content: "YURTA" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "format-detection", content: "telephone=no" },
       { name: "apple-touch-fullscreen", content: "yes" },
       { name: "msapplication-TileColor", content: "#ffffff" },
-      { property: "og:title", content: "UY — посуточная аренда в Казахстане" },
+      { property: "og:title", content: "YURTA — посуточная аренда в Казахстане" },
       { property: "og:description", content: "Квартиры ищут клиента, а не наоборот." },
       { property: "og:type", content: "website" },
     ],
@@ -155,14 +161,23 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function PushNotificationsMount() {
+  usePushNotifications();
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+
+
 
   useEffect(() => {
     // Clear any stale chunk-reload flag from a previous session.
     try { sessionStorage.removeItem(RELOAD_FLAG); } catch {}
     installGlobalErrorHandlers();
+    void initSentry();
+    void initPostHog();
 
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       // Ignore TOKEN_REFRESHED / INITIAL_SESSION — they fire frequently and
@@ -184,7 +199,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppModeProvider>
+        <PushNotificationsMount />
+
         <ProfileGate />
+        <OnboardingTour />
         <div className="flex min-h-screen flex-col bg-background text-foreground">
           <main className="flex flex-1 flex-col pb-2">
             <Outlet />

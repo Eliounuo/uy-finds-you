@@ -1,7 +1,7 @@
 {
-  "name": "UY",
-  "short_name": "UY",
-  "description": "UY — посуточная аренда жилья в Казахстане",
+  "name": "YURTA",
+  "short_name": "YURTA",
+  "description": "YURTA — посуточная аренда жилья в Казахстане",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

@@ -217,7 +217,7 @@ export type Database = {
           created_at: string
           id: string
           last_message_at: string
-          offer_id: string
+          offer_id: string | null
           owner_id: string
           property_id: string
         }
@@ -226,7 +226,7 @@ export type Database = {
           created_at?: string
           id?: string
           last_message_at?: string
-          offer_id: string
+          offer_id?: string | null
           owner_id: string
           property_id: string
         }
@@ -235,7 +235,7 @@ export type Database = {
           created_at?: string
           id?: string
           last_message_at?: string
-          offer_id?: string
+          offer_id?: string | null
           owner_id?: string
           property_id?: string
         }
@@ -243,7 +243,7 @@ export type Database = {
           {
             foreignKeyName: "chats_offer_id_fkey"
             columns: ["offer_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "offers"
             referencedColumns: ["id"]
           },
@@ -597,6 +597,57 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing_items: {
+        Row: {
+          code: string
+          created_at: string
+          currency: string
+          description: string | null
+          features: Json
+          id: string
+          is_active: boolean
+          kind: Database["public"]["Enums"]["pricing_kind"]
+          metadata: Json
+          name: string
+          period: Database["public"]["Enums"]["pricing_period"]
+          price: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          features?: Json
+          id?: string
+          is_active?: boolean
+          kind: Database["public"]["Enums"]["pricing_kind"]
+          metadata?: Json
+          name: string
+          period?: Database["public"]["Enums"]["pricing_period"]
+          price: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          features?: Json
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["pricing_kind"]
+          metadata?: Json
+          name?: string
+          period?: Database["public"]["Enums"]["pricing_period"]
+          price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -768,12 +819,43 @@ export type Database = {
           },
         ]
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       requests: {
         Row: {
           amenities: string[]
           budget_max: number
           check_in: string
           check_out: string
+          checkin_slot: string | null
           city: string
           client_id: string
           created_at: string
@@ -781,9 +863,11 @@ export type Database = {
           expires_at: string
           guests: number
           id: string
+          is_urgent: boolean
           lat: number | null
           lng: number | null
           notes: string | null
+          preferred_checkin_time: string | null
           rooms: number | null
           status: string
         }
@@ -792,6 +876,7 @@ export type Database = {
           budget_max: number
           check_in: string
           check_out: string
+          checkin_slot?: string | null
           city: string
           client_id: string
           created_at?: string
@@ -799,9 +884,11 @@ export type Database = {
           expires_at?: string
           guests?: number
           id?: string
+          is_urgent?: boolean
           lat?: number | null
           lng?: number | null
           notes?: string | null
+          preferred_checkin_time?: string | null
           rooms?: number | null
           status?: string
         }
@@ -810,6 +897,7 @@ export type Database = {
           budget_max?: number
           check_in?: string
           check_out?: string
+          checkin_slot?: string | null
           city?: string
           client_id?: string
           created_at?: string
@@ -817,9 +905,11 @@ export type Database = {
           expires_at?: string
           guests?: number
           id?: string
+          is_urgent?: boolean
           lat?: number | null
           lng?: number | null
           notes?: string | null
+          preferred_checkin_time?: string | null
           rooms?: number | null
           status?: string
         }
@@ -967,6 +1057,79 @@ export type Database = {
           whatsapp: string
         }[]
       }
+      get_my_requests: {
+        Args: never
+        Returns: {
+          amenities: string[]
+          budget_max: number
+          check_in: string
+          check_out: string
+          checkin_slot: string | null
+          city: string
+          client_id: string
+          created_at: string
+          district: string | null
+          expires_at: string
+          guests: number
+          id: string
+          is_urgent: boolean
+          lat: number | null
+          lng: number | null
+          notes: string | null
+          preferred_checkin_time: string | null
+          rooms: number | null
+          status: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "requests"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_or_create_direct_chat: {
+        Args: { _property_id: string }
+        Returns: string
+      }
+      get_own_request: {
+        Args: { _id: string }
+        Returns: {
+          amenities: string[]
+          budget_max: number
+          check_in: string
+          check_out: string
+          checkin_slot: string | null
+          city: string
+          client_id: string
+          created_at: string
+          district: string | null
+          expires_at: string
+          guests: number
+          id: string
+          is_urgent: boolean
+          lat: number | null
+          lng: number | null
+          notes: string | null
+          preferred_checkin_time: string | null
+          rooms: number | null
+          status: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "requests"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_property_contact: {
+        Args: { _property_id: string }
+        Returns: {
+          full_name: string
+          phone: string
+          telegram: string
+          whatsapp: string
+        }[]
+      }
       get_public_profile: {
         Args: { _user_id: string }
         Returns: {
@@ -1037,9 +1200,12 @@ export type Database = {
         | "booking_created"
         | "booking_cancelled"
         | "verification_update"
+        | "alert"
       payment_method: "card" | "kaspi" | "jasyn_wallet" | "manual"
       payment_status: "pending" | "succeeded" | "failed" | "refunded"
       payout_status: "pending" | "paid" | "failed"
+      pricing_kind: "package" | "service" | "subscription"
+      pricing_period: "one_time" | "month" | "year" | "week"
       verification_status: "unverified" | "pending" | "verified" | "rejected"
     }
     CompositeTypes: {
@@ -1180,10 +1346,13 @@ export const Constants = {
         "booking_created",
         "booking_cancelled",
         "verification_update",
+        "alert",
       ],
       payment_method: ["card", "kaspi", "jasyn_wallet", "manual"],
       payment_status: ["pending", "succeeded", "failed", "refunded"],
       payout_status: ["pending", "paid", "failed"],
+      pricing_kind: ["package", "service", "subscription"],
+      pricing_period: ["one_time", "month", "year", "week"],
       verification_status: ["unverified", "pending", "verified", "rejected"],
     },
   },

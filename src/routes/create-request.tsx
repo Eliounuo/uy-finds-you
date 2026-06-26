@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { MapPin, CalendarDays, Users, Wallet, Sparkles, Check, Loader2 } from "lucide-react";
+import { MapPin, CalendarDays, Users, Wallet, Sparkles, Check, Loader2, Clock, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/app-header";
 import { MapPicker } from "@/components/map-picker";
@@ -9,6 +9,9 @@ import { formatKZT, CITIES, ACTIVE_CITIES } from "@/lib/mock-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { cn } from "@/lib/utils";
+import { track } from "@/lib/analytics/posthog";
+import { CHECKIN_TIME_OPTIONS, slotToDateTime, type CheckinSlot } from "@/lib/checkin-slots";
+
 
 export const Route = createFileRoute("/create-request")({ component: CreateRequest });
 
@@ -23,17 +26,29 @@ function CreateRequest() {
   const [lng, setLng] = useState("");
   const [guests, setGuests] = useState(2);
   const [budget, setBudget] = useState(25000);
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
   const [notes, setNotes] = useState("");
+  const [checkinSlot, setCheckinSlot] = useState<CheckinSlot>("urgent");
+  const [customDate, setCustomDate] = useState("");
+  const [customTime, setCustomTime] = useState("");
   const [done, setDone] = useState(false);
+
 
 
 
   const submit = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("AUTH_REQUIRED");
-      if (!checkIn || !checkOut) throw new Error("Выберите даты");
+      const customISO =
+        checkinSlot === "custom" && customDate && customTime
+          ? new Date(`${customDate}T${customTime}:00`).toISOString()
+          : null;
+      if (checkinSlot === "custom" && !customISO) throw new Error("Укажите дату и время заезда");
+      const preferred = slotToDateTime(checkinSlot, customISO);
+      const baseDate = preferred ? new Date(preferred) : new Date();
+      const checkIn = baseDate.toISOString().slice(0, 10);
+      const checkOutDate = new Date(baseDate);
+      checkOutDate.setDate(checkOutDate.getDate() + 1);
+      const checkOut = checkOutDate.toISOString().slice(0, 10);
       const { error } = await supabase.from("requests").insert({
         client_id: user.id, city,
         district: district.trim() || null,
@@ -41,10 +56,14 @@ function CreateRequest() {
         lng: lng ? Number(lng) : null,
         check_in: checkIn, check_out: checkOut,
         guests, budget_max: budget, notes: notes || null,
+        is_urgent: checkinSlot === "urgent",
+        checkin_slot: checkinSlot,
+        preferred_checkin_time: preferred,
       });
       if (error) throw error;
+
     },
-    onSuccess: () => { setDone(true); setTimeout(() => navigate({ to: "/requests" }), 1200); },
+    onSuccess: () => { track("request_created", { city, guests, budget_max: budget }); setDone(true); setTimeout(() => navigate({ to: "/requests" }), 1200); },
     onError: (e: Error) => {
       if (e.message === "AUTH_REQUIRED") {
         toast.info("Войдите, чтобы отправить заявку");
@@ -133,18 +152,6 @@ function CreateRequest() {
 
 
 
-        <Section icon={CalendarDays} title="Даты">
-          <div className="grid grid-cols-2 gap-3">
-            <label className="rounded-xl bg-card p-3 ring-1 ring-border">
-              <div className="text-[11px] uppercase text-muted-foreground">Заезд</div>
-              <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="mt-1 w-full bg-transparent text-sm outline-none"/>
-            </label>
-            <label className="rounded-xl bg-card p-3 ring-1 ring-border">
-              <div className="text-[11px] uppercase text-muted-foreground">Выезд</div>
-              <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="mt-1 w-full bg-transparent text-sm outline-none"/>
-            </label>
-          </div>
-        </Section>
 
         <Section icon={Users} title="Гостей">
           <div className="flex flex-wrap gap-2">
@@ -156,9 +163,85 @@ function CreateRequest() {
           </div>
         </Section>
 
+        <Section icon={Clock} title="Время заезда">
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setCheckinSlot("urgent")}
+              className={cn(
+                "flex flex-col items-start gap-1 rounded-2xl p-4 ring-1 transition",
+                checkinSlot === "urgent"
+                  ? "bg-primary text-primary-foreground ring-primary shadow-glow"
+                  : "bg-card text-foreground ring-border",
+              )}
+            >
+              <Zap className="h-5 w-5" />
+              <span className="text-sm font-bold">Ближайшее время</span>
+              <span className={cn("text-[11px]", checkinSlot === "urgent" ? "text-primary-foreground/80" : "text-muted-foreground")}>Как можно скорее</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCheckinSlot("custom")}
+              className={cn(
+                "flex flex-col items-start gap-1 rounded-2xl p-4 ring-1 transition",
+                checkinSlot === "custom"
+                  ? "bg-foreground text-background ring-foreground"
+                  : "bg-card text-foreground ring-border",
+              )}
+            >
+              <CalendarDays className="h-5 w-5" />
+              <span className="text-sm font-bold">Выбрать дату и время</span>
+              <span className={cn("text-[11px]", checkinSlot === "custom" ? "text-background/70" : "text-muted-foreground")}>Конкретный слот</span>
+            </button>
+          </div>
+
+          {checkinSlot === "custom" && (
+            <div className="mt-3 space-y-3 rounded-2xl bg-card p-3 ring-1 ring-border animate-fade-in">
+              <div>
+                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Шаг 1 — Дата</div>
+                <input
+                  type="date"
+                  value={customDate}
+                  min={new Date().toISOString().slice(0, 10)}
+                  onChange={(e) => setCustomDate(e.target.value)}
+                  className="w-full rounded-xl bg-background px-3 py-2.5 text-sm ring-1 ring-border outline-none"
+                />
+              </div>
+              {customDate && (
+                <div className="animate-fade-in">
+                  <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Шаг 2 — Время</div>
+                  <div className="grid grid-cols-4 gap-1.5 max-h-56 overflow-y-auto pr-1">
+                    {CHECKIN_TIME_OPTIONS.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setCustomTime(t)}
+                        className={cn(
+                          "rounded-lg py-2 text-xs font-semibold ring-1 transition",
+                          t === customTime
+                            ? "bg-primary text-primary-foreground ring-primary"
+                            : "bg-background text-foreground ring-border",
+                        )}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {customDate && customTime && (
+                <div className="rounded-xl bg-primary/10 px-3 py-2 text-xs font-semibold text-primary ring-1 ring-primary/20">
+                  Заезд: {new Date(`${customDate}T${customTime}:00`).toLocaleDateString("ru-RU", { day: "numeric", month: "short" })}, {customTime}
+                </div>
+              )}
+            </div>
+          )}
+        </Section>
+
         <Section icon={Wallet} title={`Бюджет до ${formatKZT(budget)} / сутки`}>
           <input type="range" min={5000} max={100000} step={1000} value={budget} onChange={(e) => setBudget(Number(e.target.value))} className="w-full accent-[var(--color-primary)]"/>
         </Section>
+
 
         <Section title="Пожелания">
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Тихий двор, рядом метро…" rows={3} maxLength={500}

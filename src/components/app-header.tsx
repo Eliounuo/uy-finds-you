@@ -34,10 +34,10 @@ export function AppHeader({ title, back, right, transparent }: Props) {
       ) : (
         <Link to={mode === "pro" ? "/pro" : "/"} className="flex items-center gap-1.5">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground font-display font-bold">
-            U
+            Y
           </span>
           <div className="flex flex-col leading-none">
-            <span className="font-display text-lg font-bold tracking-tight">UY</span>
+            <span className="font-display text-lg font-bold tracking-tight">YURTA</span>
             {mode === "pro" && (
               <span className="text-[9px] font-semibold uppercase tracking-wider text-primary">
                 Кабинет

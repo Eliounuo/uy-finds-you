@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { ArrowLeft, Heart, MapPin, Users, BedDouble, Maximize, Loader2, ShieldCheck } from "lucide-react";
 import { propertyQuery, publicProfileQuery } from "@/lib/queries";
 import { formatKZT, amenityLabels } from "@/lib/mock-data";
@@ -8,7 +9,8 @@ import { cn } from "@/lib/utils";
 import { SignedImg } from "@/components/signed-img";
 import { PropertyReviews, RatingBadge } from "@/components/reviews";
 import { ReportButton } from "@/components/report-button";
-import { ContactReveal } from "@/components/contact-reveal";
+import { OwnerContactBar } from "@/components/owner-contact";
+import { track } from "@/lib/analytics/posthog";
 
 export const Route = createFileRoute("/property/$id")({ component: PropertyPage });
 
@@ -18,6 +20,10 @@ function PropertyPage() {
   const { data: ownerProfile } = useQuery(publicProfileQuery(p?.owner_id ?? null));
   const favs = useFavorites();
   const toggle = useToggleFavorite();
+
+  useEffect(() => {
+    if (p?.id) track("listing_viewed", { property_id: p.id, city: p.city, price: p.price_per_night });
+  }, [p?.id, p?.city, p?.price_per_night]);
 
   if (isLoading) return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground"/></div>;
   if (!p) return <div className="p-6 text-center text-sm text-muted-foreground">Объект не найден</div>;
@@ -79,26 +85,13 @@ function PropertyPage() {
         )}
 
         <div>
-          <h2 className="mb-2 font-display text-sm font-bold uppercase tracking-wider">Связь с владельцем</h2>
-          <ContactReveal userId={p.owner_id} />
-        </div>
-
-        <div>
           <h2 className="mb-2 font-display text-sm font-bold uppercase tracking-wider">Отзывы</h2>
           <PropertyReviews propertyId={p.id} />
         </div>
       </div>
 
+      <OwnerContactBar propertyId={p.id} price={formatKZT(p.price_per_night)} />
 
-      <div className="safe-bottom fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/95 px-4 pt-3 pb-3 backdrop-blur-lg">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="font-display text-xl font-bold">{formatKZT(p.price_per_night)}</div>
-            <div className="text-[11px] text-muted-foreground">за сутки</div>
-          </div>
-          <Link to="/create-request" className="rounded-full bg-primary px-6 py-3 font-display text-sm font-bold text-primary-foreground shadow-glow">Создать заявку</Link>
-        </div>
-      </div>
     </div>
   );
 }

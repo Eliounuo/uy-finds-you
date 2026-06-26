@@ -11,12 +11,12 @@ VALUES (
   crypt('uy-demo-disabled', gen_salt('bf')),
   now(), now(), now(),
   '{"provider":"email","providers":["email"]}'::jsonb,
-  '{"full_name":"UY Demo"}'::jsonb,
+  '{"full_name":"YURTA Demo"}'::jsonb,
   false, '', '', '', ''
 ) ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.profiles (id, full_name, mode)
-VALUES ('00000000-0000-0000-0000-00000000d3e0', 'UY Demo', 'pro')
+VALUES ('00000000-0000-0000-0000-00000000d3e0', 'YURTA Demo', 'pro')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.properties (id, owner_id, title, description, city, district, address, lat, lng, price_per_night, rooms, beds, guests, area, amenities, photos, rating, reviews_count) VALUES

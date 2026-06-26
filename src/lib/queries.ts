@@ -74,13 +74,25 @@ export const myRequestsQuery = (userId: string | null) =>
     staleTime: 30_000,
     queryFn: async () => {
       if (!userId) return [];
-      const { data, error } = await supabase
-        .from("requests")
-        .select("*, offers(*, properties(*))")
-        .eq("client_id", userId)
-        .order("created_at", { ascending: false });
+      // Use SECURITY DEFINER RPC so the owner can read their own lat/lng/notes,
+      // which are revoked from the `authenticated` role on the base table.
+      const { data: rows, error } = await supabase.rpc("get_my_requests");
       if (error) throw error;
-      return (data ?? []) as (RequestRow & {
+      const requests = (rows ?? []) as RequestRow[];
+      if (requests.length === 0) return [];
+      const ids = requests.map((r) => r.id);
+      const { data: offers, error: e2 } = await supabase
+        .from("offers")
+        .select("*, properties(*)")
+        .in("request_id", ids);
+      if (e2) throw e2;
+      const grouped = new Map<string, (Offer & { properties: Property | null })[]>();
+      for (const o of (offers ?? []) as (Offer & { properties: Property | null })[]) {
+        const list = grouped.get(o.request_id) ?? [];
+        list.push(o);
+        grouped.set(o.request_id, list);
+      }
+      return requests.map((r) => ({ ...r, offers: grouped.get(r.id) ?? [] })) as (RequestRow & {
         offers: (Offer & { properties: Property | null })[];
       })[];
     },
@@ -93,17 +105,20 @@ export const openRequestsQuery = (userId: string | null) =>
     staleTime: 30_000,
     queryFn: async () => {
       if (!userId) return [];
-      // SECURITY: exclude lat/lng — coordinates are only revealed after offer accepted
+      // SECURITY: lat/lng/notes are revoked on the base table for non-owners.
       const { data, error } = await supabase
         .from("requests")
-        .select("id, client_id, city, district, check_in, check_out, guests, rooms, budget_max, amenities, notes, status, created_at, expires_at")
+        .select("id, client_id, city, district, check_in, check_out, guests, rooms, budget_max, amenities, status, created_at, expires_at, preferred_checkin_time, checkin_slot, is_urgent")
         .eq("status", "open")
         .neq("client_id", userId)
+        .order("is_urgent", { ascending: false })
+        .order("preferred_checkin_time", { ascending: true, nullsFirst: false })
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as RequestRow[];
     },
   });
+
 
 // ---------- Bookings ----------
 export const myBookingsQuery = (userId: string | null) =>

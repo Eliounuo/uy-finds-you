@@ -17,7 +17,7 @@ function ProHome() {
 
   return (
     <>
-      <AppHeader title="UY Pro" showModeSwitcher />
+      <AppHeader title="YURTA Pro" showModeSwitcher />
       <div className="space-y-4 px-4 pt-2 pb-32">
         <div className="grid grid-cols-2 gap-3">
           <Stat label="Объектов" value={String(props.length)} />

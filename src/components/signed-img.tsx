@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { Home as HomeIcon } from "lucide-react";
 import { resolvePhotoUrl } from "@/lib/use-property-photos";
+import { cn } from "@/lib/utils";
 
 function optimizeUrl(url: string, width?: number): string {
   if (!url) return url;
@@ -19,24 +21,41 @@ function optimizeUrl(url: string, width?: number): string {
   return url;
 }
 
+function Placeholder({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        "flex h-full w-full flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-muted to-accent text-muted-foreground",
+        className,
+      )}
+    >
+      <HomeIcon className="h-8 w-8 opacity-60" />
+      <span className="text-[11px] font-medium">Фото скоро</span>
+    </div>
+  );
+}
+
 export function SignedImg({
   path,
   alt = "",
   className,
   loading = "lazy",
   width,
+  fallback,
 }: {
   path: string | undefined | null;
   alt?: string;
   className?: string;
   loading?: "lazy" | "eager";
   width?: number;
+  fallback?: ReactNode;
 }) {
-  // For http(s) URLs we can render synchronously without an effect round-trip
   const isHttp = !!path && /^https?:\/\//.test(path);
   const [url, setUrl] = useState<string>(isHttp ? optimizeUrl(path!, width) : "");
+  const [errored, setErrored] = useState(false);
 
   useEffect(() => {
+    setErrored(false);
     if (!path) {
       setUrl("");
       return;
@@ -46,15 +65,19 @@ export function SignedImg({
       return;
     }
     let alive = true;
-    resolvePhotoUrl(path).then((u) => {
-      if (alive) setUrl(u);
-    });
+    resolvePhotoUrl(path)
+      .then((u) => {
+        if (alive) setUrl(u);
+      })
+      .catch(() => alive && setErrored(true));
     return () => {
       alive = false;
     };
   }, [path, width]);
 
-  if (!url) return null;
+  if (!path || errored || !url) {
+    return <>{fallback ?? <Placeholder className={className} />}</>;
+  }
   return (
     <img
       src={url}
@@ -62,6 +85,8 @@ export function SignedImg({
       className={className}
       loading={loading}
       decoding="async"
+      onError={() => setErrored(true)}
     />
   );
 }
+

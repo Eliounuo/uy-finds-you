@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RequestsRouteImport } from './routes/requests'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProRouteImport } from './routes/pro'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as OwnerRouteImport } from './routes/owner'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as FavoritesRouteImport } from './routes/favorites'
@@ -29,14 +30,17 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as PropertyIdRouteImport } from './routes/property.$id'
 import { Route as ProfileVerificationRouteImport } from './routes/profile.verification'
 import { Route as ProfileThemeRouteImport } from './routes/profile.theme'
+import { Route as ProfileLanguageRouteImport } from './routes/profile.language'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as ProStatsRouteImport } from './routes/pro.stats'
 import { Route as ProRequestsRouteImport } from './routes/pro.requests'
 import { Route as ProChatRouteImport } from './routes/pro.chat'
 import { Route as ProCalendarRouteImport } from './routes/pro.calendar'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
+import { Route as AuthResetRouteImport } from './routes/auth.reset'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminPropertiesRouteImport } from './routes/admin.properties'
+import { Route as AdminPricingRouteImport } from './routes/admin.pricing'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminHealthRouteImport } from './routes/admin.health'
 import { Route as AdminComplaintsRouteImport } from './routes/admin.complaints'
@@ -58,6 +62,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const ProRoute = ProRouteImport.update({
   id: '/pro',
   path: '/pro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OwnerRoute = OwnerRouteImport.update({
@@ -145,6 +154,11 @@ const ProfileThemeRoute = ProfileThemeRouteImport.update({
   path: '/theme',
   getParentRoute: () => ProfileRoute,
 } as any)
+const ProfileLanguageRoute = ProfileLanguageRouteImport.update({
+  id: '/language',
+  path: '/language',
+  getParentRoute: () => ProfileRoute,
+} as any)
 const ProfileEditRoute = ProfileEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -175,6 +189,11 @@ const ChatIdRoute = ChatIdRouteImport.update({
   path: '/chat/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthResetRoute = AuthResetRouteImport.update({
+  id: '/reset',
+  path: '/reset',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -183,6 +202,11 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
 const AdminPropertiesRoute = AdminPropertiesRouteImport.update({
   id: '/properties',
   path: '/properties',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPricingRoute = AdminPricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
@@ -224,7 +248,7 @@ const ProPropertiesIdEditRoute = ProPropertiesIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/become-host': typeof BecomeHostRoute
   '/bookings': typeof BookingsRoute
   '/complete-profile': typeof CompleteProfileRoute
@@ -232,6 +256,7 @@ export interface FileRoutesByFullPath {
   '/favorites': typeof FavoritesRoute
   '/map': typeof MapRoute
   '/owner': typeof OwnerRoute
+  '/pricing': typeof PricingRoute
   '/pro': typeof ProRouteWithChildren
   '/profile': typeof ProfileRouteWithChildren
   '/requests': typeof RequestsRoute
@@ -240,14 +265,17 @@ export interface FileRoutesByFullPath {
   '/admin/complaints': typeof AdminComplaintsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/pricing': typeof AdminPricingRoute
   '/admin/properties': typeof AdminPropertiesRoute
   '/admin/users': typeof AdminUsersRoute
+  '/auth/reset': typeof AuthResetRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
   '/pro/chat': typeof ProChatRoute
   '/pro/requests': typeof ProRequestsRoute
   '/pro/stats': typeof ProStatsRoute
   '/profile/edit': typeof ProfileEditRoute
+  '/profile/language': typeof ProfileLanguageRoute
   '/profile/theme': typeof ProfileThemeRoute
   '/profile/verification': typeof ProfileVerificationRoute
   '/property/$id': typeof PropertyIdRoute
@@ -260,7 +288,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/become-host': typeof BecomeHostRoute
   '/bookings': typeof BookingsRoute
   '/complete-profile': typeof CompleteProfileRoute
@@ -268,20 +296,24 @@ export interface FileRoutesByTo {
   '/favorites': typeof FavoritesRoute
   '/map': typeof MapRoute
   '/owner': typeof OwnerRoute
+  '/pricing': typeof PricingRoute
   '/requests': typeof RequestsRoute
   '/admin/alerts': typeof AdminAlertsRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/complaints': typeof AdminComplaintsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/pricing': typeof AdminPricingRoute
   '/admin/properties': typeof AdminPropertiesRoute
   '/admin/users': typeof AdminUsersRoute
+  '/auth/reset': typeof AuthResetRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
   '/pro/chat': typeof ProChatRoute
   '/pro/requests': typeof ProRequestsRoute
   '/pro/stats': typeof ProStatsRoute
   '/profile/edit': typeof ProfileEditRoute
+  '/profile/language': typeof ProfileLanguageRoute
   '/profile/theme': typeof ProfileThemeRoute
   '/profile/verification': typeof ProfileVerificationRoute
   '/property/$id': typeof PropertyIdRoute
@@ -296,7 +328,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/become-host': typeof BecomeHostRoute
   '/bookings': typeof BookingsRoute
   '/complete-profile': typeof CompleteProfileRoute
@@ -304,6 +336,7 @@ export interface FileRoutesById {
   '/favorites': typeof FavoritesRoute
   '/map': typeof MapRoute
   '/owner': typeof OwnerRoute
+  '/pricing': typeof PricingRoute
   '/pro': typeof ProRouteWithChildren
   '/profile': typeof ProfileRouteWithChildren
   '/requests': typeof RequestsRoute
@@ -312,14 +345,17 @@ export interface FileRoutesById {
   '/admin/complaints': typeof AdminComplaintsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/pricing': typeof AdminPricingRoute
   '/admin/properties': typeof AdminPropertiesRoute
   '/admin/users': typeof AdminUsersRoute
+  '/auth/reset': typeof AuthResetRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
   '/pro/chat': typeof ProChatRoute
   '/pro/requests': typeof ProRequestsRoute
   '/pro/stats': typeof ProStatsRoute
   '/profile/edit': typeof ProfileEditRoute
+  '/profile/language': typeof ProfileLanguageRoute
   '/profile/theme': typeof ProfileThemeRoute
   '/profile/verification': typeof ProfileVerificationRoute
   '/property/$id': typeof PropertyIdRoute
@@ -343,6 +379,7 @@ export interface FileRouteTypes {
     | '/favorites'
     | '/map'
     | '/owner'
+    | '/pricing'
     | '/pro'
     | '/profile'
     | '/requests'
@@ -351,14 +388,17 @@ export interface FileRouteTypes {
     | '/admin/complaints'
     | '/admin/health'
     | '/admin/payments'
+    | '/admin/pricing'
     | '/admin/properties'
     | '/admin/users'
+    | '/auth/reset'
     | '/chat/$id'
     | '/pro/calendar'
     | '/pro/chat'
     | '/pro/requests'
     | '/pro/stats'
     | '/profile/edit'
+    | '/profile/language'
     | '/profile/theme'
     | '/profile/verification'
     | '/property/$id'
@@ -379,20 +419,24 @@ export interface FileRouteTypes {
     | '/favorites'
     | '/map'
     | '/owner'
+    | '/pricing'
     | '/requests'
     | '/admin/alerts'
     | '/admin/bookings'
     | '/admin/complaints'
     | '/admin/health'
     | '/admin/payments'
+    | '/admin/pricing'
     | '/admin/properties'
     | '/admin/users'
+    | '/auth/reset'
     | '/chat/$id'
     | '/pro/calendar'
     | '/pro/chat'
     | '/pro/requests'
     | '/pro/stats'
     | '/profile/edit'
+    | '/profile/language'
     | '/profile/theme'
     | '/profile/verification'
     | '/property/$id'
@@ -414,6 +458,7 @@ export interface FileRouteTypes {
     | '/favorites'
     | '/map'
     | '/owner'
+    | '/pricing'
     | '/pro'
     | '/profile'
     | '/requests'
@@ -422,14 +467,17 @@ export interface FileRouteTypes {
     | '/admin/complaints'
     | '/admin/health'
     | '/admin/payments'
+    | '/admin/pricing'
     | '/admin/properties'
     | '/admin/users'
+    | '/auth/reset'
     | '/chat/$id'
     | '/pro/calendar'
     | '/pro/chat'
     | '/pro/requests'
     | '/pro/stats'
     | '/profile/edit'
+    | '/profile/language'
     | '/profile/theme'
     | '/profile/verification'
     | '/property/$id'
@@ -444,7 +492,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
-  AuthRoute: typeof AuthRoute
+  AuthRoute: typeof AuthRouteWithChildren
   BecomeHostRoute: typeof BecomeHostRoute
   BookingsRoute: typeof BookingsRoute
   CompleteProfileRoute: typeof CompleteProfileRoute
@@ -452,6 +500,7 @@ export interface RootRouteChildren {
   FavoritesRoute: typeof FavoritesRoute
   MapRoute: typeof MapRoute
   OwnerRoute: typeof OwnerRoute
+  PricingRoute: typeof PricingRoute
   ProRoute: typeof ProRouteWithChildren
   ProfileRoute: typeof ProfileRouteWithChildren
   RequestsRoute: typeof RequestsRoute
@@ -481,6 +530,13 @@ declare module '@tanstack/react-router' {
       path: '/pro'
       fullPath: '/pro'
       preLoaderRoute: typeof ProRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/owner': {
@@ -602,6 +658,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileThemeRouteImport
       parentRoute: typeof ProfileRoute
     }
+    '/profile/language': {
+      id: '/profile/language'
+      path: '/language'
+      fullPath: '/profile/language'
+      preLoaderRoute: typeof ProfileLanguageRouteImport
+      parentRoute: typeof ProfileRoute
+    }
     '/profile/edit': {
       id: '/profile/edit'
       path: '/edit'
@@ -644,6 +707,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/reset': {
+      id: '/auth/reset'
+      path: '/reset'
+      fullPath: '/auth/reset'
+      preLoaderRoute: typeof AuthResetRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/admin/users': {
       id: '/admin/users'
       path: '/users'
@@ -656,6 +726,13 @@ declare module '@tanstack/react-router' {
       path: '/properties'
       fullPath: '/admin/properties'
       preLoaderRoute: typeof AdminPropertiesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/pricing': {
+      id: '/admin/pricing'
+      path: '/pricing'
+      fullPath: '/admin/pricing'
+      preLoaderRoute: typeof AdminPricingRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/payments': {
@@ -716,6 +793,7 @@ interface AdminRouteChildren {
   AdminComplaintsRoute: typeof AdminComplaintsRoute
   AdminHealthRoute: typeof AdminHealthRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
+  AdminPricingRoute: typeof AdminPricingRoute
   AdminPropertiesRoute: typeof AdminPropertiesRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -727,12 +805,23 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminComplaintsRoute: AdminComplaintsRoute,
   AdminHealthRoute: AdminHealthRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
+  AdminPricingRoute: AdminPricingRoute,
   AdminPropertiesRoute: AdminPropertiesRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface AuthRouteChildren {
+  AuthResetRoute: typeof AuthResetRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthResetRoute: AuthResetRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface ProRouteChildren {
   ProCalendarRoute: typeof ProCalendarRoute
@@ -758,6 +847,7 @@ const ProRouteWithChildren = ProRoute._addFileChildren(ProRouteChildren)
 
 interface ProfileRouteChildren {
   ProfileEditRoute: typeof ProfileEditRoute
+  ProfileLanguageRoute: typeof ProfileLanguageRoute
   ProfileThemeRoute: typeof ProfileThemeRoute
   ProfileVerificationRoute: typeof ProfileVerificationRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
@@ -765,6 +855,7 @@ interface ProfileRouteChildren {
 
 const ProfileRouteChildren: ProfileRouteChildren = {
   ProfileEditRoute: ProfileEditRoute,
+  ProfileLanguageRoute: ProfileLanguageRoute,
   ProfileThemeRoute: ProfileThemeRoute,
   ProfileVerificationRoute: ProfileVerificationRoute,
   ProfileIndexRoute: ProfileIndexRoute,
@@ -776,7 +867,7 @@ const ProfileRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
-  AuthRoute: AuthRoute,
+  AuthRoute: AuthRouteWithChildren,
   BecomeHostRoute: BecomeHostRoute,
   BookingsRoute: BookingsRoute,
   CompleteProfileRoute: CompleteProfileRoute,
@@ -784,6 +875,7 @@ const rootRouteChildren: RootRouteChildren = {
   FavoritesRoute: FavoritesRoute,
   MapRoute: MapRoute,
   OwnerRoute: OwnerRoute,
+  PricingRoute: PricingRoute,
   ProRoute: ProRouteWithChildren,
   ProfileRoute: ProfileRouteWithChildren,
   RequestsRoute: RequestsRoute,

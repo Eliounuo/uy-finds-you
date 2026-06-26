@@ -1,13 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Users, CalendarDays, Wallet, Inbox, Loader2, Send } from "lucide-react";
+import { Users, CalendarDays, Wallet, Inbox, Loader2, Send, Zap, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/app-header";
 import { useAuth } from "@/lib/use-auth";
 import { openRequestsQuery, myPropertiesQuery, type RequestRow } from "@/lib/queries";
 import { supabase } from "@/integrations/supabase/client";
 import { formatKZT, formatDate, nightsBetween } from "@/lib/mock-data";
+import { track } from "@/lib/analytics/posthog";
+import { formatCheckinDisplay } from "@/lib/checkin-slots";
+import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/pro/requests")({ component: ProRequests });
 
@@ -24,24 +28,60 @@ function ProRequests() {
         {!isLoading && data.length === 0 && (
           <div className="rounded-2xl bg-card p-6 text-center ring-1 ring-border"><Inbox className="mx-auto h-10 w-10 text-muted-foreground"/><p className="mt-2 text-sm text-muted-foreground">Пока нет открытых заявок</p></div>
         )}
-        {data.map((r) => (
-          <button key={r.id} onClick={() => setActive(r)} className="block w-full rounded-2xl bg-card p-4 text-left ring-1 ring-border">
-            <div className="flex items-center justify-between">
-              <div className="font-display font-bold">{r.city}{r.district ? `, ${r.district}` : ""}</div>
-              <div className="text-[11px] text-muted-foreground">{formatDate(r.created_at)}</div>
+        {(() => {
+          const urgentCount = data.filter((r) => r.is_urgent).length;
+          if (urgentCount === 0) return null;
+          return (
+            <div className="rounded-xl bg-primary/10 px-3 py-2 text-xs font-bold text-primary ring-1 ring-primary/30">
+              🔴 {urgentCount} срочн{urgentCount === 1 ? "ая заявка" : urgentCount < 5 ? "ые заявки" : "ых заявок"}
             </div>
-            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3"/> {formatDate(r.check_in)} — {formatDate(r.check_out)}</span>
-              <span className="flex items-center gap-1"><Users className="h-3 w-3"/> {r.guests}</span>
-              <span className="flex items-center gap-1"><Wallet className="h-3 w-3"/> до {formatKZT(r.budget_max)}</span>
-            </div>
-            {r.notes && <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{r.notes}</p>}
-            <div className="mt-3 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-primary-foreground">
-              <Send className="h-3 w-3"/> Сделать предложение
-            </div>
-          </button>
-        ))}
+          );
+        })()}
+        {data.map((r) => {
+          const checkin = formatCheckinDisplay(r);
+          return (
+            <button
+              key={r.id}
+              onClick={() => setActive(r)}
+              className={cn(
+                "block w-full rounded-2xl bg-card p-4 text-left ring-1 ring-border",
+                r.is_urgent && "border-l-4 border-l-primary",
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="font-display font-bold">{r.city}{r.district ? `, ${r.district}` : ""}</div>
+                  {r.is_urgent && (
+                    <span className="inline-flex items-center gap-0.5 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                      <Zap className="h-3 w-3"/> СРОЧНО
+                    </span>
+                  )}
+                </div>
+                <div className="text-[11px] text-muted-foreground">{formatDate(r.created_at)}</div>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3"/> {formatDate(r.check_in)} — {formatDate(r.check_out)}</span>
+                <span className="flex items-center gap-1"><Users className="h-3 w-3"/> {r.guests}</span>
+                <span className="flex items-center gap-1"><Wallet className="h-3 w-3"/> до {formatKZT(r.budget_max)}</span>
+              </div>
+              {checkin && (
+                <div className={cn(
+                  "mt-1.5 flex items-center gap-1 text-xs font-semibold",
+                  r.is_urgent ? "text-primary" : "text-foreground/80",
+                )}>
+                  {r.is_urgent ? <Zap className="h-3 w-3"/> : <Clock className="h-3 w-3"/>}
+                  {checkin.replace(/^⚡\s*/, "")}
+                </div>
+              )}
+              {r.notes && <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{r.notes}</p>}
+              <div className="mt-3 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-primary-foreground">
+                <Send className="h-3 w-3"/> Сделать предложение
+              </div>
+            </button>
+          );
+        })}
       </div>
+
       {active && <OfferSheet request={active} onClose={() => setActive(null)} />}
     </>
   );
@@ -74,7 +114,7 @@ function OfferSheet({ request, onClose }: { request: RequestRow; onClose: () => 
       });
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Предложение отправлено"); qc.invalidateQueries({ queryKey: ["open-requests"] }); onClose(); },
+    onSuccess: () => { track("offer_sent", { request_id: request.id, property_id: propertyId, price_per_night: price, nights }); toast.success("Предложение отправлено"); qc.invalidateQueries({ queryKey: ["open-requests"] }); onClose(); },
     onError: (e: Error) => toast.error(e.message),
   });
 
