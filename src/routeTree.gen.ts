@@ -35,6 +35,7 @@ import { Route as ProRequestsRouteImport } from './routes/pro.requests'
 import { Route as ProChatRouteImport } from './routes/pro.chat'
 import { Route as ProCalendarRouteImport } from './routes/pro.calendar'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
+import { Route as AuthResetRouteImport } from './routes/auth.reset'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminPropertiesRouteImport } from './routes/admin.properties'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
@@ -175,6 +176,11 @@ const ChatIdRoute = ChatIdRouteImport.update({
   path: '/chat/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthResetRoute = AuthResetRouteImport.update({
+  id: '/reset',
+  path: '/reset',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -224,7 +230,7 @@ const ProPropertiesIdEditRoute = ProPropertiesIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/become-host': typeof BecomeHostRoute
   '/bookings': typeof BookingsRoute
   '/complete-profile': typeof CompleteProfileRoute
@@ -242,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/properties': typeof AdminPropertiesRoute
   '/admin/users': typeof AdminUsersRoute
+  '/auth/reset': typeof AuthResetRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
   '/pro/chat': typeof ProChatRoute
@@ -260,7 +267,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/become-host': typeof BecomeHostRoute
   '/bookings': typeof BookingsRoute
   '/complete-profile': typeof CompleteProfileRoute
@@ -276,6 +283,7 @@ export interface FileRoutesByTo {
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/properties': typeof AdminPropertiesRoute
   '/admin/users': typeof AdminUsersRoute
+  '/auth/reset': typeof AuthResetRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
   '/pro/chat': typeof ProChatRoute
@@ -296,7 +304,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/become-host': typeof BecomeHostRoute
   '/bookings': typeof BookingsRoute
   '/complete-profile': typeof CompleteProfileRoute
@@ -314,6 +322,7 @@ export interface FileRoutesById {
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/properties': typeof AdminPropertiesRoute
   '/admin/users': typeof AdminUsersRoute
+  '/auth/reset': typeof AuthResetRoute
   '/chat/$id': typeof ChatIdRoute
   '/pro/calendar': typeof ProCalendarRoute
   '/pro/chat': typeof ProChatRoute
@@ -353,6 +362,7 @@ export interface FileRouteTypes {
     | '/admin/payments'
     | '/admin/properties'
     | '/admin/users'
+    | '/auth/reset'
     | '/chat/$id'
     | '/pro/calendar'
     | '/pro/chat'
@@ -387,6 +397,7 @@ export interface FileRouteTypes {
     | '/admin/payments'
     | '/admin/properties'
     | '/admin/users'
+    | '/auth/reset'
     | '/chat/$id'
     | '/pro/calendar'
     | '/pro/chat'
@@ -424,6 +435,7 @@ export interface FileRouteTypes {
     | '/admin/payments'
     | '/admin/properties'
     | '/admin/users'
+    | '/auth/reset'
     | '/chat/$id'
     | '/pro/calendar'
     | '/pro/chat'
@@ -444,7 +456,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
-  AuthRoute: typeof AuthRoute
+  AuthRoute: typeof AuthRouteWithChildren
   BecomeHostRoute: typeof BecomeHostRoute
   BookingsRoute: typeof BookingsRoute
   CompleteProfileRoute: typeof CompleteProfileRoute
@@ -644,6 +656,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/reset': {
+      id: '/auth/reset'
+      path: '/reset'
+      fullPath: '/auth/reset'
+      preLoaderRoute: typeof AuthResetRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/admin/users': {
       id: '/admin/users'
       path: '/users'
@@ -734,6 +753,16 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface AuthRouteChildren {
+  AuthResetRoute: typeof AuthResetRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthResetRoute: AuthResetRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 interface ProRouteChildren {
   ProCalendarRoute: typeof ProCalendarRoute
   ProChatRoute: typeof ProChatRoute
@@ -776,7 +805,7 @@ const ProfileRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
-  AuthRoute: AuthRoute,
+  AuthRoute: AuthRouteWithChildren,
   BecomeHostRoute: BecomeHostRoute,
   BookingsRoute: BookingsRoute,
   CompleteProfileRoute: CompleteProfileRoute,
