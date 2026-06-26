@@ -16,7 +16,7 @@ export function PropertyCard({ p, compact = false }: { p: Property; compact?: bo
     <Link
       to="/property/$id"
       params={{ id: p.id }}
-      className="group block overflow-hidden rounded-2xl bg-card shadow-card ring-1 ring-border transition-transform active:scale-[0.98]"
+      className="group block overflow-hidden rounded-2xl bg-card shadow-card ring-1 ring-border transition-transform animate-fade-in active:scale-[0.98]"
     >
       <div className={cn("relative w-full overflow-hidden bg-muted", compact ? "aspect-square" : "aspect-[4/3]")}>
         {hasPhoto ? (
