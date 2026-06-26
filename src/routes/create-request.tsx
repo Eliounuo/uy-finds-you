@@ -29,7 +29,10 @@ function CreateRequest() {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [notes, setNotes] = useState("");
+  const [checkinSlot, setCheckinSlot] = useState<CheckinSlot>("urgent");
+  const [customCheckin, setCustomCheckin] = useState("");
   const [done, setDone] = useState(false);
+
 
 
 
