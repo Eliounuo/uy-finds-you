@@ -26,8 +26,6 @@ function CreateRequest() {
   const [lng, setLng] = useState("");
   const [guests, setGuests] = useState(2);
   const [budget, setBudget] = useState(25000);
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
   const [notes, setNotes] = useState("");
   const [checkinSlot, setCheckinSlot] = useState<CheckinSlot>("urgent");
   const [customDate, setCustomDate] = useState("");
