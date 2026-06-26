@@ -14,7 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppModeProvider } from "@/lib/app-mode";
 import { BottomNav } from "@/components/bottom-nav";
 import { ProfileGate } from "@/components/profile-gate";
-import { Onboarding } from "@/components/onboarding";
+import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { installGlobalErrorHandlers, logError } from "@/lib/analytics";
@@ -198,7 +198,7 @@ function RootComponent() {
         <PushNotificationsMount />
 
         <ProfileGate />
-        <Onboarding />
+        <OnboardingTour />
         <div className="flex min-h-screen flex-col bg-background text-foreground">
           <main className="flex flex-1 flex-col pb-2">
             <Outlet />
