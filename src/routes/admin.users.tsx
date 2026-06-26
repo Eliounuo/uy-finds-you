@@ -48,6 +48,9 @@ function AdminUsers() {
 
   return (
     <div className="space-y-2">
+      <p className="rounded-xl bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
+        Блокировка через статус верификации — временное решение
+      </p>
       {data.map((u) => {
         const blocked = u.verification_status === "rejected";
         return (
