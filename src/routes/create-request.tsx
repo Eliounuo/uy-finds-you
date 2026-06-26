@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { MapPin, CalendarDays, Users, Wallet, Sparkles, Check, Loader2 } from "lucide-react";
+import { MapPin, CalendarDays, Users, Wallet, Sparkles, Check, Loader2, Clock, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/app-header";
 import { MapPicker } from "@/components/map-picker";
@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { cn } from "@/lib/utils";
 import { track } from "@/lib/analytics/posthog";
+import { CHECKIN_SLOT_LABELS, slotToDateTime, type CheckinSlot } from "@/lib/checkin-slots";
+
 
 export const Route = createFileRoute("/create-request")({ component: CreateRequest });
 
@@ -27,7 +29,10 @@ function CreateRequest() {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [notes, setNotes] = useState("");
+  const [checkinSlot, setCheckinSlot] = useState<CheckinSlot>("urgent");
+  const [customCheckin, setCustomCheckin] = useState("");
   const [done, setDone] = useState(false);
+
 
 
 
@@ -35,6 +40,8 @@ function CreateRequest() {
     mutationFn: async () => {
       if (!user) throw new Error("AUTH_REQUIRED");
       if (!checkIn || !checkOut) throw new Error("Выберите даты");
+      if (checkinSlot === "custom" && !customCheckin) throw new Error("Укажите дату и время заезда");
+      const preferred = slotToDateTime(checkinSlot, customCheckin || null);
       const { error } = await supabase.from("requests").insert({
         client_id: user.id, city,
         district: district.trim() || null,
@@ -42,8 +49,12 @@ function CreateRequest() {
         lng: lng ? Number(lng) : null,
         check_in: checkIn, check_out: checkOut,
         guests, budget_max: budget, notes: notes || null,
+        is_urgent: checkinSlot === "urgent",
+        checkin_slot: checkinSlot,
+        preferred_checkin_time: preferred,
       });
       if (error) throw error;
+
     },
     onSuccess: () => { track("request_created", { city, guests, budget_max: budget }); setDone(true); setTimeout(() => navigate({ to: "/requests" }), 1200); },
     onError: (e: Error) => {
@@ -157,9 +168,45 @@ function CreateRequest() {
           </div>
         </Section>
 
+        <Section icon={Clock} title="Время заезда">
+          <div className="grid grid-cols-2 gap-2">
+            {(Object.keys(CHECKIN_SLOT_LABELS) as CheckinSlot[]).map((s) => {
+              const active = s === checkinSlot;
+              const urgent = s === "urgent";
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setCheckinSlot(s)}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold ring-1 transition",
+                    active
+                      ? urgent
+                        ? "bg-primary text-primary-foreground ring-primary"
+                        : "bg-foreground text-background ring-foreground"
+                      : "bg-card text-muted-foreground ring-border",
+                  )}
+                >
+                  {urgent && <Zap className="h-3.5 w-3.5 shrink-0" />}
+                  <span className="truncate">{CHECKIN_SLOT_LABELS[s]}</span>
+                </button>
+              );
+            })}
+          </div>
+          {checkinSlot === "custom" && (
+            <input
+              type="datetime-local"
+              value={customCheckin}
+              onChange={(e) => setCustomCheckin(e.target.value)}
+              className="mt-2 w-full rounded-xl bg-card p-3 text-sm ring-1 ring-border outline-none"
+            />
+          )}
+        </Section>
+
         <Section icon={Wallet} title={`Бюджет до ${formatKZT(budget)} / сутки`}>
           <input type="range" min={5000} max={100000} step={1000} value={budget} onChange={(e) => setBudget(Number(e.target.value))} className="w-full accent-[var(--color-primary)]"/>
         </Section>
+
 
         <Section title="Пожелания">
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Тихий двор, рядом метро…" rows={3} maxLength={500}
