@@ -819,6 +819,36 @@ export type Database = {
           },
         ]
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       requests: {
         Row: {
           amenities: string[]
@@ -1018,9 +1048,63 @@ export type Database = {
           whatsapp: string
         }[]
       }
+      get_my_requests: {
+        Args: never
+        Returns: {
+          amenities: string[]
+          budget_max: number
+          check_in: string
+          check_out: string
+          city: string
+          client_id: string
+          created_at: string
+          district: string | null
+          expires_at: string
+          guests: number
+          id: string
+          lat: number | null
+          lng: number | null
+          notes: string | null
+          rooms: number | null
+          status: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "requests"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_or_create_direct_chat: {
         Args: { _property_id: string }
         Returns: string
+      }
+      get_own_request: {
+        Args: { _id: string }
+        Returns: {
+          amenities: string[]
+          budget_max: number
+          check_in: string
+          check_out: string
+          city: string
+          client_id: string
+          created_at: string
+          district: string | null
+          expires_at: string
+          guests: number
+          id: string
+          lat: number | null
+          lng: number | null
+          notes: string | null
+          rooms: number | null
+          status: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "requests"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       get_property_contact: {
         Args: { _property_id: string }
