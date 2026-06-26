@@ -16,15 +16,18 @@ import {
   Pencil,
   UserCircle2,
   Moon,
+  Languages,
   AlertTriangle,
 } from "lucide-react";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { AppHeader } from "@/components/app-header";
 import { useApp } from "@/lib/app-mode";
 import { useAuth } from "@/lib/use-auth";
 import { useAvatarUrl, useProfile } from "@/lib/use-profile";
 import { supabase } from "@/integrations/supabase/client";
+
 
 export const Route = createFileRoute("/profile/")({
   component: Profile,
@@ -35,6 +38,7 @@ function Profile() {
   const { user } = useAuth();
   const { profile } = useProfile();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data: isAdmin } = useQuery(
     queryOptions({
       queryKey: ["is-admin", user?.id ?? null],
@@ -48,19 +52,21 @@ function Profile() {
     }),
   );
 
-  const displayName = profile?.full_name?.trim() || "Гость";
+  const displayName = profile?.full_name?.trim() || t("common.guest");
   const initial = displayName.charAt(0).toUpperCase();
   const avatarUrl = useAvatarUrl(profile?.avatar_url);
 
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    toast.success("Вы вышли из аккаунта");
+    toast.success(t("common.signOut"));
     navigate({ to: "/auth" });
   };
 
   return (
     <>
-      <AppHeader title="Профиль" />
+      <AppHeader title={t("profile.title")} />
+
       <div className="space-y-4 px-4 pt-2 pb-32">
         <div className="rounded-2xl bg-gradient-to-br from-[#7F1D1D] to-[#450A0A] p-4 text-white">
           <div className="flex items-center gap-3">
@@ -80,7 +86,7 @@ function Profile() {
             <div className="min-w-0 flex-1">
               <div className="truncate font-display text-lg font-bold">{displayName}</div>
               <div className="truncate text-xs opacity-85">
-                {profile?.phone || user?.email || "Войдите, чтобы создавать заявки"}
+                {profile?.phone || user?.email || t("profile.loginPrompt")}
               </div>
               {profile?.public_id && (
                 <div className="mt-0.5 font-mono text-[10px] tracking-wider opacity-70">
