@@ -1048,6 +1048,33 @@ export type Database = {
           whatsapp: string
         }[]
       }
+      get_my_requests: {
+        Args: never
+        Returns: {
+          amenities: string[]
+          budget_max: number
+          check_in: string
+          check_out: string
+          city: string
+          client_id: string
+          created_at: string
+          district: string | null
+          expires_at: string
+          guests: number
+          id: string
+          lat: number | null
+          lng: number | null
+          notes: string | null
+          rooms: number | null
+          status: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "requests"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_or_create_direct_chat: {
         Args: { _property_id: string }
         Returns: string
