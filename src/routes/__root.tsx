@@ -103,23 +103,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover",
       },
-      { title: "UY — посуточная аренда в Казахстане" },
+      { title: "YURTA — посуточная аренда в Казахстане" },
       {
         name: "description",
         content:
-          "UY — посуточная аренда жилья в Казахстане. Создайте заявку — и квартиры найдут вас сами.",
+          "YURTA — посуточная аренда жилья в Казахстане. Создайте заявку — и квартиры найдут вас сами.",
       },
       { name: "theme-color", content: "#9B1C1C" },
-      { name: "application-name", content: "UY" },
+      { name: "application-name", content: "YURTA" },
       // iOS standalone PWA
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-title", content: "UY" },
+      { name: "apple-mobile-web-app-title", content: "YURTA" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "format-detection", content: "telephone=no" },
       { name: "apple-touch-fullscreen", content: "yes" },
       { name: "msapplication-TileColor", content: "#ffffff" },
-      { property: "og:title", content: "UY — посуточная аренда в Казахстане" },
+      { property: "og:title", content: "YURTA — посуточная аренда в Казахстане" },
       { property: "og:description", content: "Квартиры ищут клиента, а не наоборот." },
       { property: "og:type", content: "website" },
     ],

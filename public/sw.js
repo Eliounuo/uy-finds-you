@@ -1,4 +1,4 @@
-// UY notifications service worker.
+// YURTA notifications service worker.
 // Handles native push events, in-page show-notification messages, and clicks.
 
 self.addEventListener("install", () => {
@@ -10,7 +10,7 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("push", (event) => {
-  let data = { title: "UY", body: "", url: "/" };
+  let data = { title: "YURTA", body: "", url: "/" };
   try {
     if (event.data) data = Object.assign(data, event.data.json());
   } catch (_) {
@@ -32,7 +32,7 @@ self.addEventListener("message", (event) => {
   const msg = event.data;
   if (!msg || msg.type !== "show-notification") return;
   const { title, body, url, tag } = msg;
-  self.registration.showNotification(title || "UY", {
+  self.registration.showNotification(title || "YURTA", {
     body: body || "",
     icon: "/icon-192.png",
     badge: "/icon-192.png",

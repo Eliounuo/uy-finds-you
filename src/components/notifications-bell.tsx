@@ -72,7 +72,7 @@ export function NotificationsBell() {
       setPerm(res as PushPermission);
       if (res === "granted") {
         new Notification("Уведомления включены", {
-          body: "Вы будете получать пуш-уведомления от UY",
+          body: "Вы будете получать пуш-уведомления от YURTA",
           icon: "/icons/icon-192.png",
         });
       }
