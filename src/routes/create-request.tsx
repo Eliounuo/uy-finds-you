@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { cn } from "@/lib/utils";
 import { track } from "@/lib/analytics/posthog";
-import { CHECKIN_SLOT_LABELS, slotToDateTime, type CheckinSlot } from "@/lib/checkin-slots";
+import { CHECKIN_TIME_OPTIONS, slotToDateTime, type CheckinSlot } from "@/lib/checkin-slots";
 
 
 export const Route = createFileRoute("/create-request")({ component: CreateRequest });
