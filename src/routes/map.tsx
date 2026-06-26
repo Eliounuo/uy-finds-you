@@ -8,12 +8,12 @@ import { formatKZT } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/map")({ component: MapPage });
 
-// Price tier colors (KZT per sutki)
-function tierColor(price: number): string {
-  if (price <= 50000) return "#22c55e";
-  if (price <= 150000) return "#f59e0b";
-  return "#ef4444";
+// Brand color for all markers and clusters (YURTA)
+const BRAND_COLOR = "#8B1A2B";
+function tierColor(_price: number): string {
+  return BRAND_COLOR;
 }
+
 
 function MapPage() {
   const { t } = useTranslation();
