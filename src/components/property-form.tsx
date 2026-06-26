@@ -253,39 +253,14 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
         {/* Photos */}
         <section className="space-y-2">
           <Label>Фотографии</Label>
-          <div className="grid grid-cols-3 gap-2">
-            {previews.map((url, i) => (
-              <div key={form.photos[i]} className="relative aspect-square overflow-hidden rounded-xl bg-muted ring-1 ring-border">
-                {url && <img src={url} alt="" className="h-full w-full object-cover" />}
-                <button
-                  type="button"
-                  onClick={() => removePhoto(form.photos[i])}
-                  className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white"
-                  aria-label="Удалить фото"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))}
-            <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border bg-card text-muted-foreground">
-              {uploading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <>
-                  <Camera className="h-5 w-5" />
-                  <span className="text-[10px]">Добавить</span>
-                </>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={(e) => handleFiles(e.target.files)}
-              />
-            </label>
-          </div>
-          <p className="text-[11px] text-muted-foreground">До 8 МБ на фото. Первое фото — обложка.</p>
+          <ImageUpload
+            value={form.photos}
+            onChange={(photos) => setForm((s) => ({ ...s, photos }))}
+            maxFiles={10}
+          />
+          <p className="text-[11px] text-muted-foreground">
+            Первое фото — обложка. Перетащите, чтобы изменить порядок.
+          </p>
         </section>
 
         <Field label="Название">
@@ -331,12 +306,28 @@ export function PropertyForm({ mode, propertyId }: { mode: Mode; propertyId?: st
         </div>
 
         <Field label="Адрес">
-          <input
-            value={form.address}
-            onChange={(e) => update("address", e.target.value)}
-            placeholder="ул. Абая, 10"
-            className={inputCls}
-          />
+          <div className="flex gap-2">
+            <input
+              value={form.address}
+              onChange={(e) => update("address", e.target.value)}
+              placeholder="ул. Абая, 10"
+              className={inputCls}
+            />
+            <button
+              type="button"
+              onClick={handleGeocode}
+              disabled={geocoding || !form.address.trim()}
+              className="flex shrink-0 items-center gap-1 rounded-xl bg-card px-3 text-xs font-semibold ring-1 ring-border disabled:opacity-50"
+              title="Определить координаты по адресу"
+            >
+              {geocoding ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <MapPin className="h-4 w-4" />
+              )}
+              Координаты
+            </button>
+          </div>
         </Field>
 
         <section className="space-y-2">
