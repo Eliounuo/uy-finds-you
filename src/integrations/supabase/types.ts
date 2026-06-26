@@ -855,6 +855,7 @@ export type Database = {
           budget_max: number
           check_in: string
           check_out: string
+          checkin_slot: string | null
           city: string
           client_id: string
           created_at: string
@@ -862,9 +863,11 @@ export type Database = {
           expires_at: string
           guests: number
           id: string
+          is_urgent: boolean
           lat: number | null
           lng: number | null
           notes: string | null
+          preferred_checkin_time: string | null
           rooms: number | null
           status: string
         }
@@ -873,6 +876,7 @@ export type Database = {
           budget_max: number
           check_in: string
           check_out: string
+          checkin_slot?: string | null
           city: string
           client_id: string
           created_at?: string
@@ -880,9 +884,11 @@ export type Database = {
           expires_at?: string
           guests?: number
           id?: string
+          is_urgent?: boolean
           lat?: number | null
           lng?: number | null
           notes?: string | null
+          preferred_checkin_time?: string | null
           rooms?: number | null
           status?: string
         }
@@ -891,6 +897,7 @@ export type Database = {
           budget_max?: number
           check_in?: string
           check_out?: string
+          checkin_slot?: string | null
           city?: string
           client_id?: string
           created_at?: string
@@ -898,9 +905,11 @@ export type Database = {
           expires_at?: string
           guests?: number
           id?: string
+          is_urgent?: boolean
           lat?: number | null
           lng?: number | null
           notes?: string | null
+          preferred_checkin_time?: string | null
           rooms?: number | null
           status?: string
         }
@@ -1055,6 +1064,7 @@ export type Database = {
           budget_max: number
           check_in: string
           check_out: string
+          checkin_slot: string | null
           city: string
           client_id: string
           created_at: string
@@ -1062,9 +1072,11 @@ export type Database = {
           expires_at: string
           guests: number
           id: string
+          is_urgent: boolean
           lat: number | null
           lng: number | null
           notes: string | null
+          preferred_checkin_time: string | null
           rooms: number | null
           status: string
         }[]
@@ -1086,6 +1098,7 @@ export type Database = {
           budget_max: number
           check_in: string
           check_out: string
+          checkin_slot: string | null
           city: string
           client_id: string
           created_at: string
@@ -1093,9 +1106,11 @@ export type Database = {
           expires_at: string
           guests: number
           id: string
+          is_urgent: boolean
           lat: number | null
           lng: number | null
           notes: string | null
+          preferred_checkin_time: string | null
           rooms: number | null
           status: string
         }[]
