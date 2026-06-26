@@ -13,8 +13,9 @@ export async function initSentry(): Promise<void> {
     return;
   }
   try {
-    // @ts-expect-error optional peer dep
-    const mod = await import(/* @vite-ignore */ "@sentry/react");
+    const pkg = "@sentry/react";
+    // @ts-expect-error optional peer dep, resolved at runtime
+    const mod = await import(/* @vite-ignore */ pkg);
     mod.init({
       dsn,
       environment: import.meta.env.MODE,

@@ -14,8 +14,9 @@ export async function initPostHog(): Promise<void> {
     return;
   }
   try {
-    // @ts-expect-error optional peer dep
-    const mod = await import(/* @vite-ignore */ "posthog-js");
+    const pkg = "posthog-js";
+    // @ts-expect-error optional peer dep, resolved at runtime
+    const mod = await import(/* @vite-ignore */ pkg);
     const posthog = (mod as any).default ?? mod;
     posthog.init(key, { api_host: host, autocapture: false });
     ph = posthog;
