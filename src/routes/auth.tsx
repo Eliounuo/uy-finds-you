@@ -22,6 +22,31 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showReset, setShowReset] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetSent, setResetSent] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+
+  const handleReset = async () => {
+    const email = resetEmail.trim();
+    if (!email) {
+      toast.error("Введите email");
+      return;
+    }
+    setResetLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/reset`,
+      });
+      if (error) throw error;
+      setResetSent(true);
+      toast.success(`Ссылка для сброса пароля отправлена на ${email}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Ошибка");
+    } finally {
+      setResetLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (user) navigate({ to: "/" });
