@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, Link, useLocation, redirect } from "@tanstack/react-router";
-import { Users, Home, CalendarCheck, CreditCard, Flag, Bell, LayoutDashboard, Activity } from "lucide-react";
+import { Users, Home, CalendarCheck, CreditCard, Flag, Bell, LayoutDashboard, Activity, Tag } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -25,6 +25,7 @@ const TABS: Tab[] = [
   { to: "/admin/properties", label: "Объекты", icon: Home },
   { to: "/admin/bookings", label: "Брони", icon: CalendarCheck },
   { to: "/admin/payments", label: "Платежи", icon: CreditCard },
+  { to: "/admin/pricing", label: "Цены", icon: Tag },
   { to: "/admin/complaints", label: "Жалобы", icon: Flag },
   { to: "/admin/alerts", label: "Алерты", icon: Bell },
 ];
