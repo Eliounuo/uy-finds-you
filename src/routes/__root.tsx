@@ -19,6 +19,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { installGlobalErrorHandlers, logError } from "@/lib/analytics";
 import { usePushNotifications } from "@/lib/use-push-notifications";
+import "@/lib/i18n";
+
 
 
 function NotFoundComponent() {
