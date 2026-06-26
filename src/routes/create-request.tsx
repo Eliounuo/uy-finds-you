@@ -41,8 +41,12 @@ function CreateRequest() {
     mutationFn: async () => {
       if (!user) throw new Error("AUTH_REQUIRED");
       if (!checkIn || !checkOut) throw new Error("Выберите даты");
-      if (checkinSlot === "custom" && !customCheckin) throw new Error("Укажите дату и время заезда");
-      const preferred = slotToDateTime(checkinSlot, customCheckin || null);
+      const customISO =
+        checkinSlot === "custom" && customDate && customTime
+          ? new Date(`${customDate}T${customTime}:00`).toISOString()
+          : null;
+      if (checkinSlot === "custom" && !customISO) throw new Error("Укажите дату и время заезда");
+      const preferred = slotToDateTime(checkinSlot, customISO);
       const { error } = await supabase.from("requests").insert({
         client_id: user.id, city,
         district: district.trim() || null,
