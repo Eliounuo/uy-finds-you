@@ -1,0 +1,76 @@
+{
+  "common": {
+    "back": "Назад",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "loading": "Загрузка…",
+    "search": "Поиск",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "confirm": "Подтвердить",
+    "close": "Закрыть",
+    "yes": "Да",
+    "no": "Нет",
+    "signIn": "Войти",
+    "signOut": "Выйти",
+    "signUp": "Регистрация",
+    "guest": "Гость",
+    "language": "Язык"
+  },
+  "nav": {
+    "home": "Главная",
+    "map": "Карта",
+    "requests": "Заявки",
+    "chat": "Чат",
+    "profile": "Профиль",
+    "properties": "Объекты",
+    "calendar": "Календарь",
+    "analytics": "Аналитика",
+    "favorites": "Избранное"
+  },
+  "profile": {
+    "title": "Профиль",
+    "loginPrompt": "Войдите, чтобы создавать заявки",
+    "editProfile": "Редактировать профиль",
+    "tenantBadge": "Арендатор",
+    "landlordActivated": "Арендодатель активирован",
+    "loginCta": "Войти или зарегистрироваться",
+    "sections": {
+      "profile": "Профиль",
+      "renting": "Сдача недвижимости",
+      "activity": "Активность",
+      "account": "Аккаунт",
+      "admin": "Администратор"
+    },
+    "becomeHost": "Сдача недвижимости",
+    "becomeHostHint": "Зарабатывайте на своей квартире",
+    "modeTitle": "Режим использования",
+    "modeHint": "Переключайтесь между ролями",
+    "modeClient": "Клиент",
+    "modeOwner": "Владелец",
+    "ownerCabinet": "Кабинет владельца",
+    "ownerCabinetHint": "Объекты, заявки, баланс",
+    "favorites": "Избранное",
+    "bookings": "Бронирования",
+    "myReviews": "Мои отзывы",
+    "verification": "Верификация",
+    "settings": "Настройки",
+    "theme": "Тема",
+    "languageRow": "Язык интерфейса",
+    "support": "Поддержка",
+    "adminPanel": "Админ-панель",
+    "adminAlerts": "Алерты и пороги",
+    "signOutBtn": "Выйти"
+  },
+  "language": {
+    "title": "Язык интерфейса",
+    "subtitle": "Выберите язык приложения",
+    "ru": "Русский",
+    "kz": "Қазақша",
+    "en": "English"
+  },
+  "map": {
+    "title": "Карта",
+    "loading": "Загрузка карты…"
+  }
+}
