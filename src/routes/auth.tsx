@@ -21,6 +21,9 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [otpPending, setOtpPending] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpLoading, setOtpLoading] = useState(false);
   const [showReset, setShowReset] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetSent, setResetSent] = useState(false);
@@ -47,6 +50,36 @@ function AuthPage() {
     }
   };
 
+  const handleOtpVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = otp.trim();
+    if (code.length !== 6) {
+      toast.error("Введите 6-значный код");
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: code,
+        type: "signup",
+      });
+      if (error) throw error;
+      toast.success("Добро пожаловать!");
+      navigate({ to: "/" });
+    } catch (err) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : typeof err === "object" && err !== null && "message" in err
+            ? String((err as { message: unknown }).message)
+            : "Неверный код или срок действия истёк";
+      toast.error(msg);
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (user) navigate({ to: "/" });
   }, [user, navigate]);
@@ -69,7 +102,6 @@ function AuthPage() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`,
             data: { full_name: name || email.split("@")[0] },
           },
         });
@@ -78,10 +110,7 @@ function AuthPage() {
           toast.success("Добро пожаловать!");
           navigate({ to: "/" });
         } else {
-          toast.success(
-            "Аккаунт создан — проверьте почту и перейдите по ссылке для подтверждения.",
-            { duration: 6000 },
-          );
+          setOtpPending(true);
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -104,6 +133,55 @@ function AuthPage() {
       setLoading(false);
     }
   };
+
+  if (otpPending) {
+    return (
+      <div className="min-h-screen bg-background px-5 pb-10 pt-6">
+        <button
+          type="button"
+          onClick={() => {
+            setOtpPending(false);
+            setOtp("");
+          }}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+
+        <div className="mt-6">
+          <h1 className="font-display text-3xl font-bold tracking-tight">Подтвердите email</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Мы отправили 6-значный код на{" "}
+            <span className="font-semibold text-foreground">{email}</span>
+          </p>
+        </div>
+
+        <form onSubmit={handleOtpVerify} className="mt-6 space-y-3">
+          <input
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            placeholder="000000"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+            maxLength={6}
+            className="w-full rounded-2xl bg-card px-4 py-3.5 text-center text-2xl font-bold tracking-widest ring-1 ring-border outline-none focus:ring-primary"
+          />
+          <button
+            type="submit"
+            disabled={otpLoading || otp.length !== 6}
+            className="flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 disabled:opacity-60"
+          >
+            {otpLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Подтвердить"}
+          </button>
+        </form>
+
+        <p className="mt-4 text-center text-[11px] text-muted-foreground">
+          Не получили письмо? Проверьте папку «Спам».
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background px-5 pb-10 pt-6">

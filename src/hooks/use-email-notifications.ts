@@ -11,13 +11,10 @@ const appUrl =
   (typeof window !== "undefined" ? window.location.origin : undefined) || "https://yurta.app";
 
 export function useEmailNotifications() {
-  const sendWelcomeEmail = useCallback(
-    (to: string, name?: string) => {
-      const t = welcomeTemplate({ name, appUrl });
-      return sendEmail({ data: { to, subject: t.subject, html: t.html } });
-    },
-    [],
-  );
+  const sendWelcomeEmail = useCallback((to: string, name?: string) => {
+    const t = welcomeTemplate({ name, appUrl });
+    return sendEmail({ data: { to, subject: t.subject, html: t.html } });
+  }, []);
 
   const sendNewOfferEmail = useCallback(
     (to: string, args: { tenantName?: string; propertyTitle: string; price: number }) => {

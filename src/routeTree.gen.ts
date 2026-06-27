@@ -30,11 +30,11 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as PropertyIdRouteImport } from './routes/property.$id'
 import { Route as ProfileVerificationRouteImport } from './routes/profile.verification'
 import { Route as ProfileThemeRouteImport } from './routes/profile.theme'
+import { Route as ProfileSupportRouteImport } from './routes/profile.support'
+import { Route as ProfileSecurityRouteImport } from './routes/profile.security'
+import { Route as ProfileNotificationsRouteImport } from './routes/profile.notifications'
 import { Route as ProfileLanguageRouteImport } from './routes/profile.language'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
-import { Route as ProfileNotificationsRouteImport } from './routes/profile.notifications'
-import { Route as ProfileSecurityRouteImport } from './routes/profile.security'
-import { Route as ProfileSupportRouteImport } from './routes/profile.support'
 import { Route as ProStatsRouteImport } from './routes/pro.stats'
 import { Route as ProRequestsRouteImport } from './routes/pro.requests'
 import { Route as ProChatRouteImport } from './routes/pro.chat'
@@ -157,6 +157,21 @@ const ProfileThemeRoute = ProfileThemeRouteImport.update({
   path: '/theme',
   getParentRoute: () => ProfileRoute,
 } as any)
+const ProfileSupportRoute = ProfileSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => ProfileRoute,
+} as any)
+const ProfileSecurityRoute = ProfileSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => ProfileRoute,
+} as any)
+const ProfileNotificationsRoute = ProfileNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => ProfileRoute,
+} as any)
 const ProfileLanguageRoute = ProfileLanguageRouteImport.update({
   id: '/language',
   path: '/language',
@@ -165,21 +180,6 @@ const ProfileLanguageRoute = ProfileLanguageRouteImport.update({
 const ProfileEditRoute = ProfileEditRouteImport.update({
   id: '/edit',
   path: '/edit',
-  getParentRoute: () => ProfileRoute,
-} as any)
-const ProfileNotificationsRoute = ProfileNotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => ProfileRoute,
-} as any)
-const ProfileSecurityRoute = ProfileSecurityRouteImport.update({
-  id: '/security',
-  path: '/security',
-  getParentRoute: () => ProfileRoute,
-} as any)
-const ProfileSupportRoute = ProfileSupportRouteImport.update({
-  id: '/support',
-  path: '/support',
   getParentRoute: () => ProfileRoute,
 } as any)
 const ProStatsRoute = ProStatsRouteImport.update({
@@ -694,6 +694,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileThemeRouteImport
       parentRoute: typeof ProfileRoute
     }
+    '/profile/support': {
+      id: '/profile/support'
+      path: '/support'
+      fullPath: '/profile/support'
+      preLoaderRoute: typeof ProfileSupportRouteImport
+      parentRoute: typeof ProfileRoute
+    }
+    '/profile/security': {
+      id: '/profile/security'
+      path: '/security'
+      fullPath: '/profile/security'
+      preLoaderRoute: typeof ProfileSecurityRouteImport
+      parentRoute: typeof ProfileRoute
+    }
+    '/profile/notifications': {
+      id: '/profile/notifications'
+      path: '/notifications'
+      fullPath: '/profile/notifications'
+      preLoaderRoute: typeof ProfileNotificationsRouteImport
+      parentRoute: typeof ProfileRoute
+    }
     '/profile/language': {
       id: '/profile/language'
       path: '/language'
@@ -706,27 +727,6 @@ declare module '@tanstack/react-router' {
       path: '/edit'
       fullPath: '/profile/edit'
       preLoaderRoute: typeof ProfileEditRouteImport
-      parentRoute: typeof ProfileRoute
-    }
-    '/profile/notifications': {
-      id: '/profile/notifications'
-      path: '/notifications'
-      fullPath: '/profile/notifications'
-      preLoaderRoute: typeof ProfileNotificationsRouteImport
-      parentRoute: typeof ProfileRoute
-    }
-    '/profile/security': {
-      id: '/profile/security'
-      path: '/security'
-      fullPath: '/profile/security'
-      preLoaderRoute: typeof ProfileSecurityRouteImport
-      parentRoute: typeof ProfileRoute
-    }
-    '/profile/support': {
-      id: '/profile/support'
-      path: '/support'
-      fullPath: '/profile/support'
-      preLoaderRoute: typeof ProfileSupportRouteImport
       parentRoute: typeof ProfileRoute
     }
     '/pro/stats': {
@@ -949,13 +949,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

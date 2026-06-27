@@ -109,7 +109,9 @@ export const openRequestsQuery = (userId: string | null) =>
       // SECURITY: lat/lng/notes are revoked on the base table for non-owners.
       const { data, error } = await supabase
         .from("requests")
-        .select("id, client_id, city, district, check_in, check_out, guests, rooms, budget_max, amenities, status, created_at, expires_at, preferred_checkin_time, checkin_slot, is_urgent")
+        .select(
+          "id, client_id, city, district, check_in, check_out, guests, rooms, budget_max, amenities, status, created_at, expires_at, preferred_checkin_time, checkin_slot, is_urgent",
+        )
         .eq("status", "open")
         .neq("client_id", userId)
         .order("is_urgent", { ascending: false })
@@ -119,7 +121,6 @@ export const openRequestsQuery = (userId: string | null) =>
       return (data ?? []) as RequestRow[];
     },
   });
-
 
 // ---------- Bookings ----------
 export const myBookingsQuery = (userId: string | null) =>
@@ -196,7 +197,9 @@ export const chatHeaderQuery = (chatId: string) =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("chats")
-        .select("*, properties(*), client:profiles!chats_client_id_fkey(full_name, avatar_url), owner:profiles!chats_owner_id_fkey(full_name, avatar_url)")
+        .select(
+          "*, properties(*), client:profiles!chats_client_id_fkey(full_name, avatar_url), owner:profiles!chats_owner_id_fkey(full_name, avatar_url)",
+        )
         .eq("id", chatId)
         .maybeSingle();
       if (error) throw error;
@@ -266,4 +269,3 @@ export const publicProfileQuery = (userId: string | null) =>
       return (row ?? null) as PublicProfile | null;
     },
   });
-

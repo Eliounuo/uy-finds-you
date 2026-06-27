@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2, UserCircle2 } from "lucide-react";
+import { ArrowLeft, Loader2, UserCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
@@ -42,11 +42,12 @@ function CompleteProfile() {
       (user?.user_metadata?.full_name as string | undefined) ||
       (user?.user_metadata?.name as string | undefined) ||
       "";
-    const candidateName = profile?.full_name && !validateFullName(profile.full_name)
-      ? profile.full_name
-      : metaName && !validateFullName(metaName)
-        ? metaName
-        : "";
+    const candidateName =
+      profile?.full_name && !validateFullName(profile.full_name)
+        ? profile.full_name
+        : metaName && !validateFullName(metaName)
+          ? metaName
+          : "";
     setFullName((prev) => prev || candidateName);
     setPhone((prev) => prev || profile?.phone || "");
   }, [profile, user]);
@@ -74,17 +75,26 @@ function CompleteProfile() {
       const cleanPhone = normalizePhone(phone);
       const { error } = await supabase
         .from("profiles")
-        .upsert(
-          { id: user.id, full_name: cleanName, phone: cleanPhone },
-          { onConflict: "id" }
-        );
-      if (error) throw error;
+        .update({ full_name: cleanName, phone: cleanPhone })
+        .eq("id", user.id);
+      if (error) {
+        console.error("[complete-profile] save error", error);
+        toast.error(error.message || `Ошибка ${error.code}`);
+        return;
+      }
       await reload();
       toast.success("Профиль готов");
       const next = typeof search?.next === "string" ? (search.next as string) : "/";
       navigate({ to: next });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Не удалось сохранить профиль");
+      console.error("[complete-profile] unexpected error", err);
+      const msg =
+        err instanceof Error
+          ? err.message
+          : typeof err === "object" && err !== null && "message" in err
+            ? String((err as { message: unknown }).message)
+            : "Не удалось сохранить профиль";
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -101,6 +111,13 @@ function CompleteProfile() {
   return (
     <div className="min-h-screen bg-background px-5 pb-10 pt-10">
       <div className="mx-auto max-w-md">
+        <button
+          type="button"
+          onClick={() => navigate({ to: "/" })}
+          className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
         <div className="mb-6 flex items-center gap-3">
           <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
             <UserCircle2 className="h-6 w-6" />
@@ -114,8 +131,8 @@ function CompleteProfile() {
         </div>
 
         <p className="mb-5 text-sm text-muted-foreground">
-          Чтобы вы могли получать предложения и общаться с владельцами, заполните имя
-          и номер телефона. Это обязательно.
+          Чтобы вы могли получать предложения и общаться с владельцами, заполните имя и номер
+          телефона. Это обязательно.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -132,9 +149,7 @@ function CompleteProfile() {
               placeholder="Например, Алия Нурланова"
               className="w-full rounded-2xl bg-card px-4 py-3.5 text-sm ring-1 ring-border outline-none focus:ring-primary"
             />
-            {errors.name && (
-              <p className="mt-1.5 text-xs text-destructive">{errors.name}</p>
-            )}
+            {errors.name && <p className="mt-1.5 text-xs text-destructive">{errors.name}</p>}
           </div>
 
           <div>
@@ -165,11 +180,7 @@ function CompleteProfile() {
             disabled={submitting}
             className="flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 disabled:opacity-60"
           >
-            {submitting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              "Сохранить и продолжить"
-            )}
+            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Сохранить и продолжить"}
           </button>
         </form>
 

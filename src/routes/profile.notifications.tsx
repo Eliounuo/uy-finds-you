@@ -20,7 +20,15 @@ const PREF_KEY = "uy:notif-prefs";
 function loadPrefs(): NotifPrefs {
   try {
     const raw = localStorage.getItem(PREF_KEY);
-    if (raw) return { push: true, chat: true, offers: true, bookings: true, reminders: true, ...JSON.parse(raw) };
+    if (raw)
+      return {
+        push: true,
+        chat: true,
+        offers: true,
+        bookings: true,
+        reminders: true,
+        ...JSON.parse(raw),
+      };
   } catch {}
   return { push: true, chat: true, offers: true, bookings: true, reminders: true };
 }
@@ -32,7 +40,15 @@ function getPermState(): PermState {
   return Notification.permission as PermState;
 }
 
-function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: () => void; disabled?: boolean }) {
+function Toggle({
+  checked,
+  onChange,
+  disabled,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  disabled?: boolean;
+}) {
   return (
     <button
       type="button"
@@ -120,24 +136,30 @@ function NotificationsPage() {
           </h3>
           <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-border">
             <div className="flex items-center gap-3 px-4 py-3.5">
-              <div className={cn(
-                "grid h-9 w-9 shrink-0 place-items-center rounded-xl",
-                pushOn ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground",
-              )}>
+              <div
+                className={cn(
+                  "grid h-9 w-9 shrink-0 place-items-center rounded-xl",
+                  pushOn ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground",
+                )}
+              >
                 {pushOn ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-semibold">
-                  {pushDenied ? "Уведомления заблокированы" : pushOn ? "Уведомления включены" : "Push-уведомления"}
+                  {pushDenied
+                    ? "Уведомления заблокированы"
+                    : pushOn
+                      ? "Уведомления включены"
+                      : "Push-уведомления"}
                 </div>
                 <div className="mt-0.5 text-[11px] text-muted-foreground">
                   {pushDenied
                     ? "Разрешите в настройках браузера → Сайты"
                     : perm === "unsupported"
-                    ? "Браузер не поддерживает"
-                    : pushOn
-                    ? "Вы получаете уведомления на это устройство"
-                    : "Включите, чтобы не пропускать важные события"}
+                      ? "Браузер не поддерживает"
+                      : pushOn
+                        ? "Вы получаете уведомления на это устройство"
+                        : "Включите, чтобы не пропускать важные события"}
                 </div>
               </div>
               <Toggle
