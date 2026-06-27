@@ -5,12 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { useProfile } from "@/lib/use-profile";
-import {
-  validateFullName,
-  validatePhone,
-  normalizePhone,
-  isProfileComplete,
-} from "@/lib/profile-validation";
+import { validateFullName, normalizePhone, isProfileComplete } from "@/lib/profile-validation";
 
 export const Route = createFileRoute("/complete-profile")({
   component: CompleteProfile,
@@ -24,39 +19,34 @@ function CompleteProfile() {
   const search = (searchRaw as unknown as Record<string, unknown>) ?? {};
 
   const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
+  const [nameErr, setNameErr] = useState<string | undefined>();
 
-  // Redirect unauthenticated users to /auth
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate({ to: "/auth" });
-    }
+    if (!authLoading && !user) navigate({ to: "/auth" });
   }, [authLoading, user, navigate]);
 
-  // Prefill from existing data (Apple full name, email, etc.)
+  // Prefill name from existing data or auth metadata
   useEffect(() => {
     if (!profile && !user) return;
     const metaName =
       (user?.user_metadata?.full_name as string | undefined) ||
       (user?.user_metadata?.name as string | undefined) ||
       "";
-    const candidateName =
+    const candidate =
       profile?.full_name && !validateFullName(profile.full_name)
         ? profile.full_name
         : metaName && !validateFullName(metaName)
           ? metaName
           : "";
-    setFullName((prev) => prev || candidateName);
-    setPhone((prev) => prev || profile?.phone || "");
+    setFullName((prev) => prev || candidate);
   }, [profile, user]);
 
-  // If profile is already complete, bounce away (unless explicitly editing)
+  // Bounce if already complete
   useEffect(() => {
     if (profileLoading) return;
     if (profile && isProfileComplete(profile)) {
-      const next = typeof search?.next === "string" ? (search.next as string) : "/";
+      const next = typeof search?.next === "string" ? search.next : "/";
       navigate({ to: next });
     }
   }, [profile, profileLoading, navigate, search]);
@@ -64,30 +54,28 @@ function CompleteProfile() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    const nameErr = validateFullName(fullName);
-    const phoneErr = validatePhone(phone);
-    setErrors({ name: nameErr ?? undefined, phone: phoneErr ?? undefined });
-    if (nameErr || phoneErr) return;
+    const err = validateFullName(fullName);
+    setNameErr(err ?? undefined);
+    if (err) return;
 
     setSubmitting(true);
     try {
       const cleanName = fullName.trim().replace(/\s+/g, " ");
-      const cleanPhone = normalizePhone(phone);
+      // Phone comes from phone auth — sync it to the profiles table
+      const phone = user.phone ? normalizePhone(user.phone) : null;
       const { error } = await supabase
         .from("profiles")
-        .update({ full_name: cleanName, phone: cleanPhone })
+        .update({ full_name: cleanName, ...(phone ? { phone } : {}) })
         .eq("id", user.id);
       if (error) {
-        console.error("[complete-profile] save error", error);
         toast.error(error.message || `Ошибка ${error.code}`);
         return;
       }
       await reload();
       toast.success("Профиль готов");
-      const next = typeof search?.next === "string" ? (search.next as string) : "/";
+      const next = typeof search?.next === "string" ? search.next : "/";
       navigate({ to: next });
     } catch (err) {
-      console.error("[complete-profile] unexpected error", err);
       const msg =
         err instanceof Error
           ? err.message
@@ -102,14 +90,14 @@ function CompleteProfile() {
 
   if (authLoading || profileLoading) {
     return (
-      <div className="grid min-h-screen place-items-center">
+      <div className="grid min-h-dvh place-items-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background px-5 pb-10 pt-10">
+    <div className="min-h-dvh bg-background px-5 pb-10 pt-10">
       <div className="mx-auto max-w-md">
         <button
           type="button"
@@ -118,6 +106,7 @@ function CompleteProfile() {
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
+
         <div className="mb-6 flex items-center gap-3">
           <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
             <UserCircle2 className="h-6 w-6" />
@@ -126,14 +115,16 @@ function CompleteProfile() {
             <h1 className="font-display text-2xl font-bold tracking-tight">
               Завершите регистрацию
             </h1>
-            <p className="text-xs text-muted-foreground">Нужно ещё пару данных</p>
+            <p className="text-xs text-muted-foreground">Осталось указать ваше имя</p>
           </div>
         </div>
 
-        <p className="mb-5 text-sm text-muted-foreground">
-          Чтобы вы могли получать предложения и общаться с владельцами, заполните имя и номер
-          телефона. Это обязательно.
-        </p>
+        {user?.phone && (
+          <div className="mb-5 flex items-center gap-2 rounded-2xl bg-muted/60 px-4 py-3 ring-1 ring-border">
+            <span className="text-sm text-muted-foreground">Телефон:</span>
+            <span className="text-sm font-semibold">{user.phone}</span>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -146,33 +137,11 @@ function CompleteProfile() {
               onChange={(e) => setFullName(e.target.value)}
               maxLength={80}
               autoComplete="name"
+              autoFocus
               placeholder="Например, Алия Нурланова"
               className="w-full rounded-2xl bg-card px-4 py-3.5 text-sm ring-1 ring-border outline-none focus:ring-primary"
             />
-            {errors.name && <p className="mt-1.5 text-xs text-destructive">{errors.name}</p>}
-          </div>
-
-          <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Номер телефона
-            </label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              maxLength={20}
-              autoComplete="tel"
-              inputMode="tel"
-              placeholder="+7 700 123 45 67"
-              className="w-full rounded-2xl bg-card px-4 py-3.5 text-sm ring-1 ring-border outline-none focus:ring-primary"
-            />
-            {errors.phone ? (
-              <p className="mt-1.5 text-xs text-destructive">{errors.phone}</p>
-            ) : (
-              <p className="mt-1.5 text-[11px] text-muted-foreground">
-                В международном формате, начиная с «+»
-              </p>
-            )}
+            {nameErr && <p className="mt-1.5 text-xs text-destructive">{nameErr}</p>}
           </div>
 
           <button
@@ -185,7 +154,7 @@ function CompleteProfile() {
         </form>
 
         <p className="mt-6 text-center text-[11px] text-muted-foreground">
-          Данные используются только для связи владельцев с вами по заявкам.
+          Имя отображается владельцам, к которым вы обращаетесь по заявкам.
         </p>
       </div>
     </div>

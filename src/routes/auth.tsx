@@ -1,68 +1,72 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { z } from "zod";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Phone, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
+import { normalizePhone, validatePhone } from "@/lib/profile-validation";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-const emailSchema = z.string().trim().email("Введите корректный email").max(255);
-const passwordSchema = z.string().min(6, "Минимум 6 символов").max(72);
+function formatPhoneDigits(digits: string): string {
+  // digits = up to 10 chars after "+7"
+  let out = "";
+  if (digits.length > 0) out += " (" + digits.slice(0, 3);
+  if (digits.length >= 3) out += ") " + digits.slice(3, 6);
+  if (digits.length >= 6) out += "-" + digits.slice(6, 8);
+  if (digits.length >= 8) out += "-" + digits.slice(8, 10);
+  return out;
+}
 
 function AuthPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [mode, setModeTab] = useState<"signin" | "signup">("signin");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [phoneDigits, setPhoneDigits] = useState(""); // 10 digits after +7
   const [loading, setLoading] = useState(false);
   const [otpPending, setOtpPending] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpLoading, setOtpLoading] = useState(false);
-  const [showReset, setShowReset] = useState(false);
-  const [resetEmail, setResetEmail] = useState("");
-  const [resetSent, setResetSent] = useState(false);
-  const [resetLoading, setResetLoading] = useState(false);
 
-  const handleReset = async () => {
-    const email = resetEmail.trim();
-    if (!email) {
-      toast.error("Введите email");
+  useEffect(() => {
+    if (user) navigate({ to: "/" });
+  }, [user, navigate]);
+
+  const normalizedPhone = normalizePhone("+7" + phoneDigits);
+
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const err = validatePhone(normalizedPhone);
+    if (err || phoneDigits.length < 10) {
+      toast.error("Введите номер телефона в формате +7 700 123 45 67");
       return;
     }
-    setResetLoading(true);
+    setLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset`,
-      });
+      const { error } = await supabase.auth.signInWithOtp({ phone: normalizedPhone });
       if (error) throw error;
-      setResetSent(true);
-      toast.success(`Ссылка для сброса пароля отправлена на ${email}`);
+      setOtpPending(true);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Ошибка");
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(msg.includes("rate limit") ? "Слишком много запросов, подождите немного" : msg);
     } finally {
-      setResetLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleOtpVerify = async (e: React.FormEvent) => {
+  const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    const code = otp.trim();
-    if (code.length !== 6) {
+    if (otp.length !== 6) {
       toast.error("Введите 6-значный код");
       return;
     }
     setOtpLoading(true);
     try {
       const { error } = await supabase.auth.verifyOtp({
-        email,
-        token: code,
-        type: "signup",
+        phone: normalizedPhone,
+        token: otp,
+        type: "sms",
       });
       if (error) throw error;
       toast.success("Добро пожаловать!");
@@ -74,69 +78,23 @@ function AuthPage() {
           : typeof err === "object" && err !== null && "message" in err
             ? String((err as { message: unknown }).message)
             : "Неверный код или срок действия истёк";
-      toast.error(msg);
+      toast.error(msg.includes("invalid") || msg.includes("Invalid") ? "Неверный код" : msg);
     } finally {
       setOtpLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (user) navigate({ to: "/" });
-  }, [user, navigate]);
-
-  const handleEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      emailSchema.parse(email);
-      passwordSchema.parse(password);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        toast.error(err.issues[0]?.message ?? "Проверьте данные");
-        return;
-      }
-    }
-    setLoading(true);
-    try {
-      if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { full_name: name || email.split("@")[0] },
-          },
-        });
-        if (error) throw error;
-        if (data.session) {
-          toast.success("Добро пожаловать!");
-          navigate({ to: "/" });
-        } else {
-          setOtpPending(true);
-        }
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        toast.success("Добро пожаловать!");
-        navigate({ to: "/" });
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes("already registered") || msg.includes("already")) {
-        toast.error("Email уже зарегистрирован — попробуйте войти");
-      } else if (msg.includes("Email not confirmed")) {
-        toast.error("Email не подтверждён — проверьте почту и перейдите по ссылке");
-      } else if (msg.includes("Invalid login credentials")) {
-        toast.error("Неверный email или пароль");
-      } else {
-        toast.error(msg);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  const maskedPhone =
+    "+7 (" +
+    phoneDigits.slice(0, 3) +
+    ") " +
+    phoneDigits.slice(3, 6) +
+    "-**-" +
+    phoneDigits.slice(8, 10);
 
   if (otpPending) {
     return (
-      <div className="min-h-screen bg-background px-5 pb-10 pt-6">
+      <div className="min-h-dvh bg-background px-5 pb-10 pt-6">
         <button
           type="button"
           onClick={() => {
@@ -149,14 +107,17 @@ function AuthPage() {
         </button>
 
         <div className="mt-6">
-          <h1 className="font-display text-3xl font-bold tracking-tight">Подтвердите email</h1>
+          <div className="mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
+            <MessageSquare className="h-6 w-6" />
+          </div>
+          <h1 className="font-display text-3xl font-bold tracking-tight">Введите код</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Мы отправили 6-значный код на{" "}
-            <span className="font-semibold text-foreground">{email}</span>
+            Отправили SMS на{" "}
+            <span className="font-semibold text-foreground">{maskedPhone}</span>
           </p>
         </div>
 
-        <form onSubmit={handleOtpVerify} className="mt-6 space-y-3">
+        <form onSubmit={handleVerifyOtp} className="mt-6 space-y-3">
           <input
             type="text"
             inputMode="numeric"
@@ -165,6 +126,7 @@ function AuthPage() {
             value={otp}
             onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
             maxLength={6}
+            autoFocus
             className="w-full rounded-2xl bg-card px-4 py-3.5 text-center text-2xl font-bold tracking-widest ring-1 ring-border outline-none focus:ring-primary"
           />
           <button
@@ -176,15 +138,24 @@ function AuthPage() {
           </button>
         </form>
 
-        <p className="mt-4 text-center text-[11px] text-muted-foreground">
-          Не получили письмо? Проверьте папку «Спам».
+        <button
+          type="button"
+          onClick={handleSendOtp}
+          disabled={loading}
+          className="mt-4 w-full text-center text-xs font-semibold text-primary disabled:opacity-50"
+        >
+          {loading ? "Отправляем..." : "Отправить код повторно"}
+        </button>
+
+        <p className="mt-3 text-center text-[11px] text-muted-foreground">
+          Код действителен 5 минут
         </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background px-5 pb-10 pt-6">
+    <div className="min-h-dvh bg-background px-5 pb-10 pt-6">
       <Link
         to="/"
         className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border"
@@ -193,132 +164,44 @@ function AuthPage() {
       </Link>
 
       <div className="mt-6">
+        <div className="mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
+          <Phone className="h-6 w-6" />
+        </div>
         <h1 className="font-display text-3xl font-bold tracking-tight">
-          {mode === "signin" ? "С возвращением" : "Создайте аккаунт"}
+          Войти или создать аккаунт
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {mode === "signin" ? "Войдите, чтобы продолжить" : "Зарегистрируйтесь за 30 секунд"}
+          Введите номер — пришлём код подтверждения по SMS
         </p>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 rounded-full bg-card p-1 ring-1 ring-border">
-        {(["signin", "signup"] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setModeTab(t)}
-            className={`rounded-full py-2 text-sm font-semibold transition ${
-              mode === t ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-            }`}
-          >
-            {t === "signin" ? "Вход" : "Регистрация"}
-          </button>
-        ))}
-      </div>
-
-      <form onSubmit={handleEmail} className="mt-6 space-y-3">
-        {mode === "signup" && (
+      <form onSubmit={handleSendOtp} className="mt-6 space-y-3">
+        <div className="flex items-center overflow-hidden rounded-2xl bg-card ring-1 ring-border focus-within:ring-primary">
+          <span className="shrink-0 pl-4 pr-1 text-sm font-semibold text-foreground select-none">
+            +7
+          </span>
           <input
-            type="text"
-            placeholder="Имя"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            maxLength={80}
-            className="w-full rounded-2xl bg-card px-4 py-3.5 text-sm ring-1 ring-border outline-none focus:ring-primary"
+            type="tel"
+            inputMode="numeric"
+            autoComplete="tel-national"
+            placeholder="700 123 45 67"
+            value={formatPhoneDigits(phoneDigits)}
+            onChange={(e) => {
+              const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+              setPhoneDigits(digits);
+            }}
+            className="flex-1 bg-transparent py-3.5 pr-4 text-sm outline-none"
           />
-        )}
-        <input
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          maxLength={255}
-          required
-          className="w-full rounded-2xl bg-card px-4 py-3.5 text-sm ring-1 ring-border outline-none focus:ring-primary"
-        />
-        <input
-          type="password"
-          autoComplete={mode === "signin" ? "current-password" : "new-password"}
-          placeholder="Пароль"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          maxLength={72}
-          required
-          className="w-full rounded-2xl bg-card px-4 py-3.5 text-sm ring-1 ring-border outline-none focus:ring-primary"
-        />
+        </div>
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || phoneDigits.length < 10}
           className="flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 disabled:opacity-60"
         >
-          {loading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : mode === "signin" ? (
-            "Войти"
-          ) : (
-            "Создать аккаунт"
-          )}
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Получить код по SMS"}
         </button>
       </form>
-
-      {mode === "signin" && (
-        <div className="mt-3">
-          {!showReset ? (
-            <button
-              type="button"
-              onClick={() => setShowReset(true)}
-              className="text-xs font-semibold text-primary"
-            >
-              Забыли пароль?
-            </button>
-          ) : (
-            <div className="space-y-2 rounded-2xl bg-card p-3 ring-1 ring-border">
-              <input
-                type="email"
-                inputMode="email"
-                placeholder="Email для сброса"
-                value={resetEmail}
-                onChange={(e) => setResetEmail(e.target.value)}
-                className="w-full rounded-xl bg-background px-3 py-2.5 text-sm ring-1 ring-border outline-none focus:ring-primary"
-              />
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={handleReset}
-                  disabled={resetLoading || resetSent}
-                  className="flex h-10 flex-1 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground disabled:opacity-60"
-                >
-                  {resetLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : resetSent ? (
-                    "Отправлено"
-                  ) : (
-                    "Отправить ссылку"
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowReset(false);
-                    setResetSent(false);
-                    setResetEmail("");
-                  }}
-                  className="h-10 rounded-full px-4 text-xs font-semibold text-muted-foreground"
-                >
-                  Отмена
-                </button>
-              </div>
-              {resetSent && (
-                <p className="text-[11px] text-muted-foreground">
-                  Ссылка для сброса пароля отправлена на {resetEmail}
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      )}
 
       <p className="mt-6 text-center text-[11px] text-muted-foreground">
         Продолжая, вы соглашаетесь с условиями использования и политикой YURTA.

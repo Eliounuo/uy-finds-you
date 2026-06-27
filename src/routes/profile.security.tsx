@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Lock, Loader2, Trash2, Eye, EyeOff, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Lock, Loader2, Trash2, Eye, EyeOff, ShieldAlert, Mail, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +15,7 @@ function SecurityPage() {
   const navigate = useNavigate();
 
   const isEmailUser = user?.identities?.some((i) => i.provider === "email") ?? false;
+  const isPhoneUser = user?.identities?.some((i) => i.provider === "phone") ?? false;
 
   return (
     <div className="flex min-h-dvh flex-col bg-background">
@@ -30,19 +31,117 @@ function SecurityPage() {
       </header>
 
       <main className="space-y-4 px-4 pt-4 pb-24">
+        <ChangeEmailSection currentEmail={user?.email} isPhoneUser={isPhoneUser} />
+
         {isEmailUser ? (
           <ChangePasswordSection />
         ) : (
           <div className="flex items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3.5 ring-1 ring-border">
             <Lock className="h-4 w-4 shrink-0 text-muted-foreground" />
             <p className="text-xs text-muted-foreground">
-              Смена пароля недоступна для аккаунтов через Google / Apple.
+              Пароль не используется — вход по SMS-коду.
             </p>
           </div>
         )}
 
         <DeleteAccountSection onDeleted={() => navigate({ to: "/auth" })} />
       </main>
+    </div>
+  );
+}
+
+function ChangeEmailSection({
+  currentEmail,
+  isPhoneUser,
+}: {
+  currentEmail?: string;
+  isPhoneUser: boolean;
+}) {
+  const [email, setEmail] = useState(currentEmail ?? "");
+  const [submitting, setSubmitting] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = email.trim().toLowerCase();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      toast.error("Введите корректный email");
+      return;
+    }
+    if (trimmed === currentEmail) {
+      toast.error("Это уже ваш текущий email");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ email: trimmed });
+      if (error) throw error;
+      setSent(true);
+      toast.success("Подтвердите email — письмо отправлено");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Не удалось обновить email");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div>
+      <h3 className="mb-2 px-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+        {isPhoneUser && !currentEmail ? "Добавить email" : "Email"}
+      </h3>
+      <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-border">
+        {sent ? (
+          <div className="flex items-center gap-3 px-4 py-3.5">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-green-500" />
+            <p className="text-sm text-muted-foreground">
+              Письмо отправлено на{" "}
+              <span className="font-semibold text-foreground">{email}</span>. Перейдите по ссылке
+              для подтверждения.
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <div className="border-b border-border px-4 py-3.5">
+              <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                {currentEmail ? "Изменить email" : "Email для уведомлений"}
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full rounded-xl bg-muted py-2.5 pl-9 pr-3 text-sm outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              {!currentEmail && (
+                <p className="mt-1.5 text-[11px] text-muted-foreground">
+                  Необязательно — используется для уведомлений и восстановления доступа.
+                </p>
+              )}
+            </div>
+            <div className="px-4 py-3">
+              <button
+                type="submit"
+                disabled={submitting || !email.trim()}
+                className="flex h-10 w-full items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground disabled:opacity-50"
+              >
+                {submitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : currentEmail ? (
+                  "Изменить email"
+                ) : (
+                  "Добавить email"
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
     </div>
   );
 }
