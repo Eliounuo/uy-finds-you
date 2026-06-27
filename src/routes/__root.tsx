@@ -4,13 +4,10 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  HeadContent,
-  Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect } from "react";
 
-import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+import { captureException } from "@/lib/monitoring/sentry";
 import { AppModeProvider } from "@/lib/app-mode";
 import { BottomNav } from "@/components/bottom-nav";
 import { ProfileGate } from "@/components/profile-gate";
@@ -22,8 +19,6 @@ import { usePushNotifications } from "@/lib/use-push-notifications";
 import { initSentry } from "@/lib/monitoring/sentry";
 import { initPostHog } from "@/lib/analytics/posthog";
 import "@/lib/i18n";
-
-
 
 function NotFoundComponent() {
   return (
@@ -54,13 +49,10 @@ function isChunkLoadError(error: unknown): boolean {
 const RELOAD_FLAG = "__uy_chunk_reload_at";
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    captureException(error, { boundary: "root" });
     void logError(error, { boundary: "root" });
-    // Auto-recover from stale chunk errors (after preview rebuilds / deploys).
-    // Throttle: at most one auto-reload per 10s to avoid loops.
     if (typeof window !== "undefined" && isChunkLoadError(error)) {
       try {
         const last = Number(sessionStorage.getItem(RELOAD_FLAG) ?? 0);
@@ -84,7 +76,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
-              try { sessionStorage.removeItem(RELOAD_FLAG); } catch {}
+              try {
+                sessionStorage.removeItem(RELOAD_FLAG);
+              } catch {}
               router.invalidate();
               reset();
             }}
@@ -99,67 +93,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      {
-        name: "viewport",
-        content:
-          "width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover",
-      },
-      { title: "YURTA — посуточная аренда в Казахстане" },
-      {
-        name: "description",
-        content:
-          "YURTA — посуточная аренда жилья в Казахстане. Создайте заявку — и квартиры найдут вас сами.",
-      },
-      { name: "theme-color", content: "#9B1C1C" },
-      { name: "application-name", content: "YURTA" },
-      // iOS standalone PWA
-      { name: "mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-title", content: "YURTA" },
-      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "format-detection", content: "telephone=no" },
-      { name: "apple-touch-fullscreen", content: "yes" },
-      { name: "msapplication-TileColor", content: "#ffffff" },
-      { property: "og:title", content: "YURTA — посуточная аренда в Казахстане" },
-      { property: "og:description", content: "Квартиры ищут клиента, а не наоборот." },
-      { property: "og:type", content: "website" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
-      { rel: "icon", type: "image/png", sizes: "512x512", href: "/icon-512.png" },
-      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Figtree:wght@400;500;600;700&display=swap",
-      },
-    ],
-  }),
-  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
-
-function RootShell({ children }: { children: ReactNode }) {
-  return (
-    <html lang="ru">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
-}
 
 function PushNotificationsMount() {
   usePushNotifications();
@@ -170,18 +107,15 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
-
-
   useEffect(() => {
-    // Clear any stale chunk-reload flag from a previous session.
-    try { sessionStorage.removeItem(RELOAD_FLAG); } catch {}
+    try {
+      sessionStorage.removeItem(RELOAD_FLAG);
+    } catch {}
     installGlobalErrorHandlers();
     void initSentry();
     void initPostHog();
 
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      // Ignore TOKEN_REFRESHED / INITIAL_SESSION — they fire frequently and
-      // would otherwise invalidate every query, causing visible refetch jank.
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
       if (event === "USER_UPDATED") {
@@ -200,7 +134,6 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AppModeProvider>
         <PushNotificationsMount />
-
         <ProfileGate />
         <OnboardingTour />
         <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -214,4 +147,3 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
-

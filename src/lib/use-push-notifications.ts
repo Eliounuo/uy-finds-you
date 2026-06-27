@@ -26,11 +26,7 @@ async function registerSW(): Promise<ServiceWorkerRegistration | null> {
   }
 }
 
-function showNotification(
-  reg: ServiceWorkerRegistration | null,
-  n: AppNotification,
-  href: string,
-) {
+function showNotification(reg: ServiceWorkerRegistration | null, n: AppNotification, href: string) {
   if (typeof window === "undefined" || !("Notification" in window)) return;
   if (Notification.permission !== "granted") return;
   const title = n.title;
@@ -95,8 +91,7 @@ export function usePushNotifications() {
         if (Notification.permission !== "granted") return;
         const reg = swReg.current ?? (await navigator.serviceWorker.getRegistration());
         if (!reg || cancelled) return;
-        const { getVapidPublicKey, savePushSubscription } = await import("@/lib/push.functions");
-        const { publicKey } = await getVapidPublicKey();
+        const publicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined;
         if (!publicKey || cancelled) return;
         let sub = await reg.pushManager.getSubscription();
         if (!sub) {
@@ -107,14 +102,16 @@ export function usePushNotifications() {
         }
         const json = sub.toJSON();
         if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) return;
-        await savePushSubscription({
-          data: {
+        await supabase.from("push_subscriptions").upsert(
+          {
+            user_id: user!.id,
             endpoint: json.endpoint,
             p256dh: json.keys.p256dh,
             auth: json.keys.auth,
-            userAgent: navigator.userAgent,
+            user_agent: navigator.userAgent,
           },
-        });
+          { onConflict: "endpoint" },
+        );
       } catch {
         /* noop */
       }
@@ -179,4 +176,3 @@ export async function triggerServerPush(
     return null;
   }
 }
-
