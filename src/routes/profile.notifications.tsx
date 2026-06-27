@@ -1,14 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  Bell,
-  BellOff,
-  BellRing,
-  MessageCircle,
-  Calendar,
-  Tag,
-  RefreshCw,
-} from "lucide-react";
+import { ArrowLeft, Bell, BellOff, MessageCircle, Calendar, Tag, RefreshCw } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +8,7 @@ export const Route = createFileRoute("/profile/notifications")({
 });
 
 type NotifPrefs = {
+  push: boolean;
   chat: boolean;
   offers: boolean;
   bookings: boolean;
@@ -28,9 +20,9 @@ const PREF_KEY = "uy:notif-prefs";
 function loadPrefs(): NotifPrefs {
   try {
     const raw = localStorage.getItem(PREF_KEY);
-    if (raw) return JSON.parse(raw) as NotifPrefs;
+    if (raw) return { push: true, chat: true, offers: true, bookings: true, reminders: true, ...JSON.parse(raw) };
   } catch {}
-  return { chat: true, offers: true, bookings: true, reminders: true };
+  return { push: true, chat: true, offers: true, bookings: true, reminders: true };
 }
 
 type PermState = "default" | "granted" | "denied" | "unsupported";
@@ -38,6 +30,29 @@ type PermState = "default" | "granted" | "denied" | "unsupported";
 function getPermState(): PermState {
   if (typeof window === "undefined" || !("Notification" in window)) return "unsupported";
   return Notification.permission as PermState;
+}
+
+function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: () => void; disabled?: boolean }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={onChange}
+      disabled={disabled}
+      className={cn(
+        "relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed",
+        checked ? "bg-primary" : "bg-muted",
+      )}
+    >
+      <span
+        className={cn(
+          "pointer-events-none inline-block h-6 w-6 rounded-full bg-white shadow-lg ring-0 transition-transform duration-200 ease-in-out",
+          checked ? "translate-x-5" : "translate-x-0",
+        )}
+      />
+    </button>
+  );
 }
 
 function NotificationsPage() {
@@ -56,19 +71,34 @@ function NotificationsPage() {
     });
   }, []);
 
-  const requestPermission = useCallback(async () => {
-    if (!("Notification" in window)) return;
+  const handlePushToggle = useCallback(async () => {
+    if (perm === "unsupported") return;
+    if (perm === "denied") {
+      // Can't re-enable programmatically — open browser settings hint
+      return;
+    }
+    if (perm === "granted") {
+      // Can't revoke permission via JS, update pref only
+      updatePref("push");
+      return;
+    }
+    // perm === "default"
     try {
       const res = await Notification.requestPermission();
       setPerm(res as PermState);
       if (res === "granted") {
-        new Notification("YURTA", {
-          body: "Уведомления успешно включены",
-          icon: "/icon-192.png",
+        setPrefs((prev) => {
+          const next = { ...prev, push: true };
+          localStorage.setItem(PREF_KEY, JSON.stringify(next));
+          return next;
         });
+        new Notification("YURTA", { body: "Уведомления включены", icon: "/icon-192.png" });
       }
     } catch {}
-  }, []);
+  }, [perm, updatePref]);
+
+  const pushOn = perm === "granted" && prefs.push;
+  const pushDenied = perm === "denied";
 
   return (
     <div className="flex min-h-dvh flex-col bg-background">
@@ -84,52 +114,44 @@ function NotificationsPage() {
       </header>
 
       <main className="space-y-4 px-4 pt-4 pb-24">
-        <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-border">
-          <div className="flex items-center gap-3 px-4 py-3.5">
-            <div
-              className={cn(
-                "grid h-10 w-10 shrink-0 place-items-center rounded-xl",
-                perm === "granted"
-                  ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
-                  : perm === "denied"
-                    ? "bg-red-100 text-red-500 dark:bg-red-900/30 dark:text-red-400"
-                    : "bg-primary/10 text-primary",
-              )}
-            >
-              {perm === "granted" ? (
-                <Bell className="h-5 w-5" />
-              ) : perm === "denied" ? (
-                <BellOff className="h-5 w-5" />
-              ) : (
-                <BellRing className="h-5 w-5" />
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-sm font-semibold">
-                {perm === "granted" && "Push-уведомления включены"}
-                {perm === "denied" && "Уведомления заблокированы"}
-                {perm === "default" && "Push-уведомления отключены"}
-                {perm === "unsupported" && "Браузер не поддерживает"}
+        <div>
+          <h3 className="mb-2 px-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            Push-уведомления
+          </h3>
+          <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-border">
+            <div className="flex items-center gap-3 px-4 py-3.5">
+              <div className={cn(
+                "grid h-9 w-9 shrink-0 place-items-center rounded-xl",
+                pushOn ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground",
+              )}>
+                {pushOn ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
               </div>
-              <div className="mt-0.5 text-[11px] text-muted-foreground">
-                {perm === "granted" && "Получаете уведомления на это устройство"}
-                {perm === "denied" && "Разрешите в настройках браузера → Сайты"}
-                {perm === "default" && "Нажмите, чтобы получать уведомления"}
-                {perm === "unsupported" && "Попробуйте открыть в другом браузере"}
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold">
+                  {pushDenied ? "Уведомления заблокированы" : pushOn ? "Уведомления включены" : "Push-уведомления"}
+                </div>
+                <div className="mt-0.5 text-[11px] text-muted-foreground">
+                  {pushDenied
+                    ? "Разрешите в настройках браузера → Сайты"
+                    : perm === "unsupported"
+                    ? "Браузер не поддерживает"
+                    : pushOn
+                    ? "Вы получаете уведомления на это устройство"
+                    : "Включите, чтобы не пропускать важные события"}
+                </div>
               </div>
+              <Toggle
+                checked={pushOn}
+                onChange={handlePushToggle}
+                disabled={perm === "unsupported" || pushDenied}
+              />
             </div>
-            {perm === "default" && (
-              <button
-                onClick={requestPermission}
-                className="shrink-0 rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground"
-              >
-                Включить
-              </button>
-            )}
-            {perm === "granted" && (
-              <span className="shrink-0 text-xs font-semibold text-green-600 dark:text-green-400">
-                ✓ Активно
-              </span>
+            {pushDenied && (
+              <div className="border-t border-border px-4 py-2.5">
+                <p className="text-[11px] text-muted-foreground">
+                  Настройки браузера → Конфиденциальность → Уведомления → найдите сайт → Разрешить
+                </p>
+              </div>
             )}
           </div>
         </div>
@@ -142,7 +164,7 @@ function NotificationsPage() {
             <PrefRow
               icon={MessageCircle}
               label="Новые сообщения"
-              desc="Сообщения от арендаторов и владельцев"
+              desc="От арендаторов и владельцев"
               checked={prefs.chat}
               onChange={() => updatePref("chat")}
             />
@@ -169,14 +191,6 @@ function NotificationsPage() {
             />
           </div>
         </div>
-
-        {perm === "denied" && (
-          <p className="px-1 text-[11px] text-muted-foreground">
-            Чтобы включить снова: настройки браузера → Сайты →{" "}
-            {typeof window !== "undefined" ? window.location.hostname : "yurta.app"} → Уведомления →
-            Разрешить.
-          </p>
-        )}
       </main>
     </div>
   );
@@ -204,23 +218,7 @@ function PrefRow({
         <div className="text-sm font-semibold">{label}</div>
         <div className="text-[11px] text-muted-foreground">{desc}</div>
       </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={onChange}
-        className={cn(
-          "relative h-6 w-10 shrink-0 rounded-full transition-colors",
-          checked ? "bg-primary" : "bg-muted",
-        )}
-      >
-        <span
-          className={cn(
-            "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform",
-            checked ? "translate-x-[18px]" : "translate-x-0.5",
-          )}
-        />
-      </button>
+      <Toggle checked={checked} onChange={onChange} />
     </div>
   );
 }
