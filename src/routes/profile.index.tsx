@@ -18,6 +18,7 @@ import {
   Moon,
   Languages,
   AlertTriangle,
+  Lock,
 } from "lucide-react";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -27,7 +28,6 @@ import { useApp } from "@/lib/app-mode";
 import { useAuth } from "@/lib/use-auth";
 import { useAvatarUrl, useProfile } from "@/lib/use-profile";
 import { supabase } from "@/integrations/supabase/client";
-
 
 export const Route = createFileRoute("/profile/")({
   component: Profile,
@@ -55,7 +55,6 @@ function Profile() {
   const displayName = profile?.full_name?.trim() || t("common.guest");
   const initial = displayName.charAt(0).toUpperCase();
   const avatarUrl = useAvatarUrl(profile?.avatar_url);
-
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -133,18 +132,13 @@ function Profile() {
 
         <Section title={t("profile.sections.renting")}>
           {!isLandlord ? (
-            <Link
-              to="/become-host"
-              className="flex items-center gap-3 px-4 py-3.5"
-            >
+            <Link to="/become-host" className="flex items-center gap-3 px-4 py-3.5">
               <div className="grid h-10 w-10 place-items-center rounded-xl bg-accent text-primary">
                 🏠
               </div>
               <div className="flex-1">
                 <div className="font-display font-bold">{t("profile.becomeHost")}</div>
-                <div className="text-xs text-muted-foreground">
-                  {t("profile.becomeHostHint")}
-                </div>
+                <div className="text-xs text-muted-foreground">{t("profile.becomeHostHint")}</div>
               </div>
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </Link>
@@ -154,15 +148,15 @@ function Profile() {
                 <div className="mb-2 flex items-center justify-between">
                   <div>
                     <div className="font-display text-sm font-bold">{t("profile.modeTitle")}</div>
-                    <div className="text-[11px] text-muted-foreground">
-                      {t("profile.modeHint")}
-                    </div>
+                    <div className="text-[11px] text-muted-foreground">{t("profile.modeHint")}</div>
                   </div>
                 </div>
                 <div className="relative grid grid-cols-2 rounded-xl bg-muted p-1">
                   <div
                     className="absolute inset-y-1 w-[calc(50%-4px)] rounded-lg bg-background shadow-sm ring-1 ring-border transition-transform duration-300"
-                    style={{ transform: mode === "pro" ? "translateX(calc(100% + 4px))" : "translateX(0)" }}
+                    style={{
+                      transform: mode === "pro" ? "translateX(calc(100% + 4px))" : "translateX(0)",
+                    }}
                   />
                   <button
                     onClick={() => setMode("lite")}
@@ -212,10 +206,11 @@ function Profile() {
 
         <Section title={t("profile.sections.account")}>
           <Row icon={Shield} label={t("profile.verification")} to="/profile/verification" />
-          <Row icon={Settings} label={t("profile.settings")} />
+          <Row icon={Settings} label={t("profile.settings")} to="/profile/notifications" />
+          <Row icon={Lock} label="Безопасность" to="/profile/security" />
           <Row icon={Languages} label={t("profile.languageRow")} to="/profile/language" />
           <Row icon={Moon} label={t("profile.theme")} to="/profile/theme" />
-          <Row icon={HelpCircle} label={t("profile.support")} />
+          <Row icon={HelpCircle} label={t("profile.support")} to="/profile/support" />
         </Section>
 
         {isAdmin && (
@@ -233,7 +228,6 @@ function Profile() {
             <LogOut className="h-4 w-4" /> {t("profile.signOutBtn")}
           </button>
         )}
-
 
         <p className="pt-2 text-center text-[11px] text-muted-foreground">YURTA · v0.1 MVP</p>
       </div>

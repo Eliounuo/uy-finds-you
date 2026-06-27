@@ -32,6 +32,9 @@ import { Route as ProfileVerificationRouteImport } from './routes/profile.verifi
 import { Route as ProfileThemeRouteImport } from './routes/profile.theme'
 import { Route as ProfileLanguageRouteImport } from './routes/profile.language'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
+import { Route as ProfileNotificationsRouteImport } from './routes/profile.notifications'
+import { Route as ProfileSecurityRouteImport } from './routes/profile.security'
+import { Route as ProfileSupportRouteImport } from './routes/profile.support'
 import { Route as ProStatsRouteImport } from './routes/pro.stats'
 import { Route as ProRequestsRouteImport } from './routes/pro.requests'
 import { Route as ProChatRouteImport } from './routes/pro.chat'
@@ -164,6 +167,21 @@ const ProfileEditRoute = ProfileEditRouteImport.update({
   path: '/edit',
   getParentRoute: () => ProfileRoute,
 } as any)
+const ProfileNotificationsRoute = ProfileNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => ProfileRoute,
+} as any)
+const ProfileSecurityRoute = ProfileSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => ProfileRoute,
+} as any)
+const ProfileSupportRoute = ProfileSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => ProfileRoute,
+} as any)
 const ProStatsRoute = ProStatsRouteImport.update({
   id: '/stats',
   path: '/stats',
@@ -276,6 +294,9 @@ export interface FileRoutesByFullPath {
   '/pro/stats': typeof ProStatsRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/language': typeof ProfileLanguageRoute
+  '/profile/notifications': typeof ProfileNotificationsRoute
+  '/profile/security': typeof ProfileSecurityRoute
+  '/profile/support': typeof ProfileSupportRoute
   '/profile/theme': typeof ProfileThemeRoute
   '/profile/verification': typeof ProfileVerificationRoute
   '/property/$id': typeof PropertyIdRoute
@@ -314,6 +335,9 @@ export interface FileRoutesByTo {
   '/pro/stats': typeof ProStatsRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/language': typeof ProfileLanguageRoute
+  '/profile/notifications': typeof ProfileNotificationsRoute
+  '/profile/security': typeof ProfileSecurityRoute
+  '/profile/support': typeof ProfileSupportRoute
   '/profile/theme': typeof ProfileThemeRoute
   '/profile/verification': typeof ProfileVerificationRoute
   '/property/$id': typeof PropertyIdRoute
@@ -356,6 +380,9 @@ export interface FileRoutesById {
   '/pro/stats': typeof ProStatsRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/language': typeof ProfileLanguageRoute
+  '/profile/notifications': typeof ProfileNotificationsRoute
+  '/profile/security': typeof ProfileSecurityRoute
+  '/profile/support': typeof ProfileSupportRoute
   '/profile/theme': typeof ProfileThemeRoute
   '/profile/verification': typeof ProfileVerificationRoute
   '/property/$id': typeof PropertyIdRoute
@@ -399,6 +426,9 @@ export interface FileRouteTypes {
     | '/pro/stats'
     | '/profile/edit'
     | '/profile/language'
+    | '/profile/notifications'
+    | '/profile/security'
+    | '/profile/support'
     | '/profile/theme'
     | '/profile/verification'
     | '/property/$id'
@@ -437,6 +467,9 @@ export interface FileRouteTypes {
     | '/pro/stats'
     | '/profile/edit'
     | '/profile/language'
+    | '/profile/notifications'
+    | '/profile/security'
+    | '/profile/support'
     | '/profile/theme'
     | '/profile/verification'
     | '/property/$id'
@@ -478,6 +511,9 @@ export interface FileRouteTypes {
     | '/pro/stats'
     | '/profile/edit'
     | '/profile/language'
+    | '/profile/notifications'
+    | '/profile/security'
+    | '/profile/support'
     | '/profile/theme'
     | '/profile/verification'
     | '/property/$id'
@@ -672,6 +708,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileEditRouteImport
       parentRoute: typeof ProfileRoute
     }
+    '/profile/notifications': {
+      id: '/profile/notifications'
+      path: '/notifications'
+      fullPath: '/profile/notifications'
+      preLoaderRoute: typeof ProfileNotificationsRouteImport
+      parentRoute: typeof ProfileRoute
+    }
+    '/profile/security': {
+      id: '/profile/security'
+      path: '/security'
+      fullPath: '/profile/security'
+      preLoaderRoute: typeof ProfileSecurityRouteImport
+      parentRoute: typeof ProfileRoute
+    }
+    '/profile/support': {
+      id: '/profile/support'
+      path: '/support'
+      fullPath: '/profile/support'
+      preLoaderRoute: typeof ProfileSupportRouteImport
+      parentRoute: typeof ProfileRoute
+    }
     '/pro/stats': {
       id: '/pro/stats'
       path: '/stats'
@@ -848,6 +905,9 @@ const ProRouteWithChildren = ProRoute._addFileChildren(ProRouteChildren)
 interface ProfileRouteChildren {
   ProfileEditRoute: typeof ProfileEditRoute
   ProfileLanguageRoute: typeof ProfileLanguageRoute
+  ProfileNotificationsRoute: typeof ProfileNotificationsRoute
+  ProfileSecurityRoute: typeof ProfileSecurityRoute
+  ProfileSupportRoute: typeof ProfileSupportRoute
   ProfileThemeRoute: typeof ProfileThemeRoute
   ProfileVerificationRoute: typeof ProfileVerificationRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
@@ -856,6 +916,9 @@ interface ProfileRouteChildren {
 const ProfileRouteChildren: ProfileRouteChildren = {
   ProfileEditRoute: ProfileEditRoute,
   ProfileLanguageRoute: ProfileLanguageRoute,
+  ProfileNotificationsRoute: ProfileNotificationsRoute,
+  ProfileSecurityRoute: ProfileSecurityRoute,
+  ProfileSupportRoute: ProfileSupportRoute,
   ProfileThemeRoute: ProfileThemeRoute,
   ProfileVerificationRoute: ProfileVerificationRoute,
   ProfileIndexRoute: ProfileIndexRoute,
@@ -886,3 +949,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -65,7 +65,7 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -74,7 +74,15 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        toast.success("Готово! Проверьте почту для подтверждения.");
+        if (data.session) {
+          toast.success("Добро пожаловать!");
+          navigate({ to: "/" });
+        } else {
+          toast.success(
+            "Аккаунт создан — проверьте почту и перейдите по ссылке для подтверждения.",
+            { duration: 6000 },
+          );
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -82,26 +90,17 @@ function AuthPage() {
         navigate({ to: "/" });
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Ошибка";
-      toast.error(msg.includes("already") ? "Email уже зарегистрирован" : msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleApple = async () => {
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "apple",
-        options: { redirectTo: window.location.origin },
-      });
-      if (error) {
-        toast.error("Не удалось войти через Apple");
-        setLoading(false);
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("already registered") || msg.includes("already")) {
+        toast.error("Email уже зарегистрирован — попробуйте войти");
+      } else if (msg.includes("Email not confirmed")) {
+        toast.error("Email не подтверждён — проверьте почту и перейдите по ссылке");
+      } else if (msg.includes("Invalid login credentials")) {
+        toast.error("Неверный email или пароль");
+      } else {
+        toast.error(msg);
       }
-    } catch {
-      toast.error("Ошибка входа через Apple");
+    } finally {
       setLoading(false);
     }
   };
@@ -242,23 +241,6 @@ function AuthPage() {
           )}
         </div>
       )}
-
-      <div className="my-5 flex items-center gap-3 text-[11px] uppercase tracking-wider text-muted-foreground">
-        <div className="h-px flex-1 bg-border" />
-        или
-        <div className="h-px flex-1 bg-border" />
-      </div>
-
-      <button
-        onClick={handleApple}
-        disabled={loading}
-        className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground text-sm font-semibold text-background disabled:opacity-60"
-      >
-        <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" aria-hidden>
-          <path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12 0-.23-.02-.3-.03-.01-.06-.04-.22-.04-.39 0-1.15.572-2.27 1.206-2.98.804-.94 2.142-1.64 3.248-1.68.03.13.05.28.05.43zm4.565 16.07c-.42.95-.6 1.37-1.13 2.21-.73 1.18-1.78 2.65-3.07 2.66-1.15.01-1.44-.75-3-.74-1.56.01-1.88.75-3.03.74-1.3-.01-2.28-1.34-3.02-2.52C5.04 16.5 4.84 12.16 6.51 9.95c1.18-1.56 3.04-2.48 4.78-2.48 1.78 0 2.9.98 4.38.98 1.42 0 2.29-.98 4.34-.98 1.55 0 3.18.85 4.34 2.32-3.81 2.09-3.19 7.54.51 7.71z" />
-        </svg>
-        Продолжить с Apple
-      </button>
 
       <p className="mt-6 text-center text-[11px] text-muted-foreground">
         Продолжая, вы соглашаетесь с условиями использования и политикой YURTA.
