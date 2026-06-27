@@ -14,4 +14,16 @@ export default defineConfig({
   resolve: {
     dedupe: ["react", "react-dom", "@tanstack/react-router"],
   },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["./src/test/setup.ts"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "lcov"],
+      include: ["src/lib/**/*.ts", "src/components/**/*.tsx"],
+      exclude: ["src/lib/mock-data.ts", "src/**/*.test.*"],
+      thresholds: { lines: 70, functions: 70 },
+    },
+  },
 });
