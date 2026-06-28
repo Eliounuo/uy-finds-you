@@ -65,8 +65,7 @@ function CompleteProfile() {
       const phone = user.phone ? normalizePhone(user.phone) : null;
       const { error } = await supabase
         .from("profiles")
-        .update({ full_name: cleanName, ...(phone ? { phone } : {}) })
-        .eq("id", user.id);
+        .upsert({ id: user.id, full_name: cleanName, ...(phone ? { phone } : {}) }, { onConflict: "id" });
       if (error) {
         toast.error(error.message || `Ошибка ${error.code}`);
         return;

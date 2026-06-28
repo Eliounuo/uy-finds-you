@@ -13,18 +13,18 @@ const ALLOWED_INCOMPLETE = new Set<string>(["/complete-profile", "/auth"]);
  */
 export function ProfileGate() {
   const { user, loading: authLoading } = useAuth();
-  const { profile, loading: profileLoading } = useProfile();
+  const { profile, loading: profileLoading, hasFetched } = useProfile();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (authLoading || profileLoading) return;
+    if (authLoading || profileLoading || !hasFetched) return;
     if (!user) return;
     if (ALLOWED_INCOMPLETE.has(pathname)) return;
     if (!profile || !isProfileComplete(profile)) {
       navigate({ to: "/complete-profile", search: { next: pathname } });
     }
-  }, [authLoading, profileLoading, user, profile, pathname, navigate]);
+  }, [authLoading, profileLoading, hasFetched, user, profile, pathname, navigate]);
 
   return null;
 }

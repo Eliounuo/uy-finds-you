@@ -20,11 +20,13 @@ export function useProfile() {
   const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchedForUserId, setFetchedForUserId] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
     if (!user) {
       setProfile(null);
       setLoading(false);
+      setFetchedForUserId(null);
       return;
     }
     setLoading(true);
@@ -35,6 +37,7 @@ export function useProfile() {
       .maybeSingle();
     setProfile((data as Profile | null) ?? null);
     setLoading(false);
+    setFetchedForUserId(user.id);
   }, [user]);
 
   useEffect(() => {
@@ -42,7 +45,10 @@ export function useProfile() {
     void reload();
   }, [authLoading, reload]);
 
-  return { profile, loading: loading || authLoading, reload };
+  // true only after profile was actually fetched for the current user
+  const hasFetched = fetchedForUserId === (user?.id ?? null);
+
+  return { profile, loading: loading || authLoading, reload, hasFetched };
 }
 
 /** Returns a signed URL for the current user's avatar, refreshing when path changes. */
