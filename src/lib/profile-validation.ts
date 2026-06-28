@@ -97,6 +97,5 @@ export function isProfileComplete(profile: {
 }): boolean {
   if (!profile) return false;
   if (validateFullName(profile.full_name ?? "")) return false;
-  if (validatePhone(profile.phone ?? "")) return false;
   return true;
 }
