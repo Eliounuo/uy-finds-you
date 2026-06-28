@@ -14,7 +14,7 @@ export const Route = createFileRoute("/complete-profile")({
 function CompleteProfile() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const { profile, loading: profileLoading, reload } = useProfile();
+  const { profile, loading: profileLoading } = useProfile();
   const searchRaw = useRouterState({ select: (s) => s.location.search });
   const search = (searchRaw as unknown as Record<string, unknown>) ?? {};
 
@@ -71,10 +71,9 @@ function CompleteProfile() {
         toast.error(error.message || `Ошибка ${error.code}`);
         return;
       }
-      await reload();
-      toast.success("Профиль готов");
+      toast.success("Профиль готов!");
       const next = typeof search?.next === "string" ? search.next : "/";
-      navigate({ to: next });
+      window.location.assign(next);
     } catch (err) {
       const msg =
         err instanceof Error
