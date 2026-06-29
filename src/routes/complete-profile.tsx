@@ -65,28 +65,34 @@ function CompleteProfile() {
       const cleanName = fullName.trim().replace(/\s+/g, " ");
       const phone = user.phone ? normalizePhone(user.phone) : null;
 
-      const { data: updated, error: updateErr } = await supabase
-        .from("profiles")
-        .update({ full_name: cleanName, ...(phone ? { phone } : {}) })
-        .eq("id", user.id)
-        .select("id");
-      if (updateErr) {
-        toast.error(updateErr.message || `Ошибка ${updateErr.code}`);
-        return;
-      }
+      // RPC is SECURITY DEFINER — bypasses RLS, atomic UPSERT.
+      const { error: rpcErr } = await supabase.rpc("save_my_profile", {
+        p_full_name: cleanName,
+        ...(phone ? { p_phone: phone } : {}),
+      });
 
-      if (!updated || updated.length === 0) {
-        const { error: insertErr } = await supabase
-          .from("profiles")
-          .insert({ id: user.id, full_name: cleanName, ...(phone ? { phone } : {}) });
-        if (insertErr) {
-          toast.error(insertErr.message || `Ошибка ${insertErr.code}`);
+      if (rpcErr) {
+        // PGRST202 = function not found → RPC not yet deployed, use raw UPDATE fallback
+        if (rpcErr.code === "PGRST202") {
+          const { data: updated, error: updateErr } = await supabase
+            .from("profiles")
+            .update({ full_name: cleanName, ...(phone ? { phone } : {}) })
+            .eq("id", user.id)
+            .select("id");
+          if (updateErr) { toast.error(updateErr.message || `Ошибка ${updateErr.code}`); return; }
+          if (!updated || updated.length === 0) {
+            const { error: insertErr } = await supabase
+              .from("profiles")
+              .insert({ id: user.id, full_name: cleanName, ...(phone ? { phone } : {}) });
+            if (insertErr) { toast.error(insertErr.message || `Ошибка ${insertErr.code}`); return; }
+          }
+        } else {
+          toast.error(rpcErr.message || `Ошибка ${rpcErr.code}`);
           return;
         }
       }
 
-      // Push confirmed save into shared TanStack Query cache immediately —
-      // ProfileGate reads the same cache and won't redirect.
+      // Patch shared cache immediately so ProfileGate won't redirect.
       setCachedProfile({ full_name: cleanName, ...(phone ? { phone } : {}) });
 
       toast.success("Профиль готов!");
