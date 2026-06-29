@@ -16,8 +16,12 @@ function CompleteProfile() {
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading } = useProfile();
   const { setProfile: setCachedProfile } = useProfileCache();
-  const searchRaw = useRouterState({ select: (s) => s.location.search });
-  const search = (searchRaw as unknown as Record<string, unknown>) ?? {};
+  const nextRoute = useRouterState({
+    select: (s) => {
+      const search = s.location.search as Record<string, unknown>;
+      return typeof search?.next === "string" ? search.next : "/";
+    },
+  });
 
   const [fullName, setFullName] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -45,10 +49,9 @@ function CompleteProfile() {
   useEffect(() => {
     if (profileLoading) return;
     if (profile && isProfileComplete(profile)) {
-      const next = typeof search?.next === "string" ? search.next : "/";
-      navigate({ to: next });
+      navigate({ to: nextRoute });
     }
-  }, [profile, profileLoading, navigate, search]);
+  }, [profile, profileLoading, navigate, nextRoute]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,7 +90,7 @@ function CompleteProfile() {
       setCachedProfile({ full_name: cleanName, ...(phone ? { phone } : {}) });
 
       toast.success("Профиль готов!");
-      const next = typeof search?.next === "string" ? search.next : "/";
+      const next = nextRoute;
       navigate({ to: next });
     } catch (err) {
       const msg =
@@ -112,10 +115,7 @@ function CompleteProfile() {
 
   return (
     <div className="h-dvh overflow-hidden bg-background flex flex-col px-5">
-      <div
-        className="shrink-0"
-        style={{ paddingTop: "max(env(safe-area-inset-top), 1.5rem)" }}
-      >
+      <div className="shrink-0" style={{ paddingTop: "max(env(safe-area-inset-top), 1.5rem)" }}>
         <button
           type="button"
           onClick={() => navigate({ to: "/" })}

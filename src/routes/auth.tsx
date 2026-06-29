@@ -10,14 +10,17 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+// BUG-01 fix: no leading space — was " (" causing "+7  (747)"
 function formatPhoneDigits(digits: string): string {
   let out = "";
-  if (digits.length > 0) out += " (" + digits.slice(0, 3);
+  if (digits.length > 0) out += "(" + digits.slice(0, 3);
   if (digits.length >= 3) out += ") " + digits.slice(3, 6);
   if (digits.length >= 6) out += "-" + digits.slice(6, 8);
   if (digits.length >= 8) out += "-" + digits.slice(8, 10);
   return out;
 }
+
+const RESEND_COOLDOWN = 60;
 
 function AuthPage() {
   const navigate = useNavigate();
@@ -27,10 +30,19 @@ function AuthPage() {
   const [otpPending, setOtpPending] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpLoading, setOtpLoading] = useState(false);
+  // BUG-03 fix: cooldown prevents SMS spam
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   useEffect(() => {
     if (user) navigate({ to: "/" });
   }, [user, navigate]);
+
+  // BUG-03: countdown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const id = setInterval(() => setResendCooldown((c) => c - 1), 1000);
+    return () => clearInterval(id);
+  }, [resendCooldown]);
 
   const normalizedPhone = normalizePhone("+7" + phoneDigits);
 
@@ -46,6 +58,23 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithOtp({ phone: normalizedPhone });
       if (error) throw error;
       setOtpPending(true);
+      setResendCooldown(RESEND_COOLDOWN);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(msg.includes("rate limit") ? "Слишком много запросов, подождите немного" : msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (resendCooldown > 0 || loading) return;
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({ phone: normalizedPhone });
+      if (error) throw error;
+      setResendCooldown(RESEND_COOLDOWN);
+      toast.success("Код отправлен повторно");
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       toast.error(msg.includes("rate limit") ? "Слишком много запросов, подождите немного" : msg);
@@ -139,13 +168,23 @@ function AuthPage() {
             </button>
           </form>
 
+          {/* BUG-04 fix: delivery hint so user knows what to do */}
+          <p className="mt-3 text-center text-xs text-muted-foreground">
+            Код приходит в течение 1 минуты. Проверьте папку «Спам».
+          </p>
+
+          {/* BUG-03 fix: cooldown prevents SMS spam, shows countdown */}
           <button
             type="button"
-            onClick={handleSendOtp}
-            disabled={loading}
-            className="mt-4 w-full text-center text-xs font-semibold text-primary disabled:opacity-50"
+            onClick={handleResend}
+            disabled={loading || resendCooldown > 0}
+            className="mt-3 w-full text-center text-xs font-semibold text-primary disabled:opacity-50"
           >
-            {loading ? "Отправляем..." : "Отправить код повторно"}
+            {loading
+              ? "Отправляем..."
+              : resendCooldown > 0
+                ? `Отправить повторно через ${resendCooldown} с`
+                : "Отправить код повторно"}
           </button>
         </div>
 
@@ -182,7 +221,8 @@ function AuthPage() {
 
         <form onSubmit={handleSendOtp} className="space-y-3">
           <div className="flex items-center overflow-hidden rounded-2xl bg-card ring-1 ring-border focus-within:ring-primary">
-            <span className="shrink-0 pl-4 pr-1 text-sm font-semibold text-foreground select-none">
+            {/* BUG-01/05 fix: pr-2 + formatPhoneDigits starts with "(" not " (" */}
+            <span className="shrink-0 pl-4 pr-2 text-sm font-semibold text-foreground select-none">
               +7
             </span>
             <input
