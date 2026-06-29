@@ -4,7 +4,7 @@ import { ArrowLeft, Loader2, UserCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
-import { useProfile } from "@/lib/use-profile";
+import { useProfile, useProfileCache } from "@/lib/use-profile";
 import { validateFullName, normalizePhone, isProfileComplete } from "@/lib/profile-validation";
 
 export const Route = createFileRoute("/complete-profile")({
@@ -15,6 +15,7 @@ function CompleteProfile() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading } = useProfile();
+  const { setProfile: setCachedProfile } = useProfileCache();
   const searchRaw = useRouterState({ select: (s) => s.location.search });
   const search = (searchRaw as unknown as Record<string, unknown>) ?? {};
 
@@ -60,46 +61,34 @@ function CompleteProfile() {
     try {
       const cleanName = fullName.trim().replace(/\s+/g, " ");
       const phone = user.phone ? normalizePhone(user.phone) : null;
-      // Try UPDATE first
+
       const { data: updated, error: updateErr } = await supabase
         .from("profiles")
         .update({ full_name: cleanName, ...(phone ? { phone } : {}) })
         .eq("id", user.id)
         .select("id");
       if (updateErr) {
-        toast.error(`UPDATE: ${updateErr.message || updateErr.code}`);
+        toast.error(updateErr.message || `Ошибка ${updateErr.code}`);
         return;
       }
 
-      // No row to update → INSERT
       if (!updated || updated.length === 0) {
         const { error: insertErr } = await supabase
           .from("profiles")
           .insert({ id: user.id, full_name: cleanName, ...(phone ? { phone } : {}) });
         if (insertErr) {
-          toast.error(`INSERT: ${insertErr.message || insertErr.code}`);
+          toast.error(insertErr.message || `Ошибка ${insertErr.code}`);
           return;
         }
       }
 
-      // Verify the save actually persisted
-      const { data: verify, error: verifyErr } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (verifyErr) {
-        toast.error(`Verify error: ${verifyErr.message}`);
-        return;
-      }
-      if (!verify?.full_name) {
-        toast.error(`Сохранение не прошло (full_name пустой). user.id=${user.id.slice(0, 8)}`);
-        return;
-      }
+      // Push confirmed save into shared TanStack Query cache immediately —
+      // ProfileGate reads the same cache and won't redirect.
+      setCachedProfile({ full_name: cleanName, ...(phone ? { phone } : {}) });
 
       toast.success("Профиль готов!");
       const next = typeof search?.next === "string" ? search.next : "/";
-      window.location.assign(next);
+      navigate({ to: next });
     } catch (err) {
       const msg =
         err instanceof Error
@@ -123,11 +112,14 @@ function CompleteProfile() {
 
   return (
     <div className="h-dvh overflow-hidden bg-background flex flex-col px-5">
-      <div className="pt-6 shrink-0">
+      <div
+        className="shrink-0"
+        style={{ paddingTop: "max(env(safe-area-inset-top), 1.5rem)" }}
+      >
         <button
           type="button"
           onClick={() => navigate({ to: "/" })}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border"
+          className="mt-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>

@@ -94,14 +94,14 @@ function AuthPage() {
   if (otpPending) {
     return (
       <div className="h-dvh overflow-hidden bg-background flex flex-col px-5">
-        <div className="pt-6 shrink-0">
+        <div className="shrink-0" style={{ paddingTop: "max(env(safe-area-inset-top), 1.5rem)" }}>
           <button
             type="button"
             onClick={() => {
               setOtpPending(false);
               setOtp("");
             }}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border"
+            className="mt-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
@@ -158,10 +158,10 @@ function AuthPage() {
 
   return (
     <div className="h-dvh overflow-hidden bg-background flex flex-col px-5">
-      <div className="pt-6 shrink-0">
+      <div className="shrink-0" style={{ paddingTop: "max(env(safe-area-inset-top), 1.5rem)" }}>
         <Link
           to="/"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border"
+          className="mt-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
