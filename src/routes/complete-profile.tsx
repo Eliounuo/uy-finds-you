@@ -60,24 +60,43 @@ function CompleteProfile() {
     try {
       const cleanName = fullName.trim().replace(/\s+/g, " ");
       const phone = user.phone ? normalizePhone(user.phone) : null;
+      // Try UPDATE first
       const { data: updated, error: updateErr } = await supabase
         .from("profiles")
         .update({ full_name: cleanName, ...(phone ? { phone } : {}) })
         .eq("id", user.id)
         .select("id");
       if (updateErr) {
-        toast.error(updateErr.message || `Ошибка ${updateErr.code}`);
+        toast.error(`UPDATE: ${updateErr.message || updateErr.code}`);
         return;
       }
+
+      // No row to update → INSERT
       if (!updated || updated.length === 0) {
         const { error: insertErr } = await supabase
           .from("profiles")
           .insert({ id: user.id, full_name: cleanName, ...(phone ? { phone } : {}) });
         if (insertErr) {
-          toast.error(insertErr.message || `Ошибка ${insertErr.code}`);
+          toast.error(`INSERT: ${insertErr.message || insertErr.code}`);
           return;
         }
       }
+
+      // Verify the save actually persisted
+      const { data: verify, error: verifyErr } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (verifyErr) {
+        toast.error(`Verify error: ${verifyErr.message}`);
+        return;
+      }
+      if (!verify?.full_name) {
+        toast.error(`Сохранение не прошло (full_name пустой). user.id=${user.id.slice(0, 8)}`);
+        return;
+      }
+
       toast.success("Профиль готов!");
       const next = typeof search?.next === "string" ? search.next : "/";
       window.location.assign(next);
