@@ -11,7 +11,6 @@ export const Route = createFileRoute("/auth")({
 });
 
 function formatPhoneDigits(digits: string): string {
-  // digits = up to 10 chars after "+7"
   let out = "";
   if (digits.length > 0) out += " (" + digits.slice(0, 3);
   if (digits.length >= 3) out += ") " + digits.slice(3, 6);
@@ -23,7 +22,7 @@ function formatPhoneDigits(digits: string): string {
 function AuthPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [phoneDigits, setPhoneDigits] = useState(""); // 10 digits after +7
+  const [phoneDigits, setPhoneDigits] = useState("");
   const [loading, setLoading] = useState(false);
   const [otpPending, setOtpPending] = useState(false);
   const [otp, setOtp] = useState("");
@@ -94,60 +93,63 @@ function AuthPage() {
 
   if (otpPending) {
     return (
-      <div className="min-h-dvh bg-background px-5 pb-10 pt-6">
-        <button
-          type="button"
-          onClick={() => {
-            setOtpPending(false);
-            setOtp("");
-          }}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-
-        <div className="mt-6">
-          <div className="mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
-            <MessageSquare className="h-6 w-6" />
-          </div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Введите код</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Отправили SMS на{" "}
-            <span className="font-semibold text-foreground">{maskedPhone}</span>
-          </p>
+      <div className="h-dvh overflow-hidden bg-background flex flex-col px-5">
+        <div className="pt-6 shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              setOtpPending(false);
+              setOtp("");
+            }}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
         </div>
 
-        <form onSubmit={handleVerifyOtp} className="mt-6 space-y-3">
-          <input
-            type="text"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            placeholder="000000"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-            maxLength={6}
-            autoFocus
-            className="w-full rounded-2xl bg-card px-4 py-3.5 text-center text-2xl font-bold tracking-widest ring-1 ring-border outline-none focus:ring-primary"
-          />
+        <div className="flex-1 flex flex-col justify-center">
+          <div className="mb-6">
+            <div className="mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
+              <MessageSquare className="h-6 w-6" />
+            </div>
+            <h1 className="font-display text-3xl font-bold tracking-tight">Введите код</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Отправили SMS на <span className="font-semibold text-foreground">{maskedPhone}</span>
+            </p>
+          </div>
+
+          <form onSubmit={handleVerifyOtp} className="space-y-3">
+            <input
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              placeholder="000000"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              maxLength={6}
+              autoFocus
+              className="w-full rounded-2xl bg-card px-4 py-3.5 text-center text-2xl font-bold tracking-widest ring-1 ring-border outline-none focus:ring-primary"
+            />
+            <button
+              type="submit"
+              disabled={otpLoading || otp.length !== 6}
+              className="flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 disabled:opacity-60"
+            >
+              {otpLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Подтвердить"}
+            </button>
+          </form>
+
           <button
-            type="submit"
-            disabled={otpLoading || otp.length !== 6}
-            className="flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 disabled:opacity-60"
+            type="button"
+            onClick={handleSendOtp}
+            disabled={loading}
+            className="mt-4 w-full text-center text-xs font-semibold text-primary disabled:opacity-50"
           >
-            {otpLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Подтвердить"}
+            {loading ? "Отправляем..." : "Отправить код повторно"}
           </button>
-        </form>
+        </div>
 
-        <button
-          type="button"
-          onClick={handleSendOtp}
-          disabled={loading}
-          className="mt-4 w-full text-center text-xs font-semibold text-primary disabled:opacity-50"
-        >
-          {loading ? "Отправляем..." : "Отправить код повторно"}
-        </button>
-
-        <p className="mt-3 text-center text-[11px] text-muted-foreground">
+        <p className="pb-6 shrink-0 text-center text-[11px] text-muted-foreground">
           Код действителен 5 минут
         </p>
       </div>
@@ -155,55 +157,59 @@ function AuthPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-background px-5 pb-10 pt-6">
-      <Link
-        to="/"
-        className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border"
-      >
-        <ArrowLeft className="h-5 w-5" />
-      </Link>
-
-      <div className="mt-6">
-        <div className="mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
-          <Phone className="h-6 w-6" />
-        </div>
-        <h1 className="font-display text-3xl font-bold tracking-tight">
-          Войти или создать аккаунт
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Введите номер — пришлём код подтверждения по SMS
-        </p>
+    <div className="h-dvh overflow-hidden bg-background flex flex-col px-5">
+      <div className="pt-6 shrink-0">
+        <Link
+          to="/"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Link>
       </div>
 
-      <form onSubmit={handleSendOtp} className="mt-6 space-y-3">
-        <div className="flex items-center overflow-hidden rounded-2xl bg-card ring-1 ring-border focus-within:ring-primary">
-          <span className="shrink-0 pl-4 pr-1 text-sm font-semibold text-foreground select-none">
-            +7
-          </span>
-          <input
-            type="tel"
-            inputMode="numeric"
-            autoComplete="tel-national"
-            placeholder="700 123 45 67"
-            value={formatPhoneDigits(phoneDigits)}
-            onChange={(e) => {
-              const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
-              setPhoneDigits(digits);
-            }}
-            className="flex-1 bg-transparent py-3.5 pr-4 text-sm outline-none"
-          />
+      <div className="flex-1 flex flex-col justify-center">
+        <div className="mb-6">
+          <div className="mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
+            <Phone className="h-6 w-6" />
+          </div>
+          <h1 className="font-display text-3xl font-bold tracking-tight">
+            Войти или создать аккаунт
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Введите номер — пришлём код подтверждения по SMS
+          </p>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading || phoneDigits.length < 10}
-          className="flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 disabled:opacity-60"
-        >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Получить код по SMS"}
-        </button>
-      </form>
+        <form onSubmit={handleSendOtp} className="space-y-3">
+          <div className="flex items-center overflow-hidden rounded-2xl bg-card ring-1 ring-border focus-within:ring-primary">
+            <span className="shrink-0 pl-4 pr-1 text-sm font-semibold text-foreground select-none">
+              +7
+            </span>
+            <input
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel-national"
+              placeholder="700 123 45 67"
+              value={formatPhoneDigits(phoneDigits)}
+              onChange={(e) => {
+                const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+                setPhoneDigits(digits);
+              }}
+              className="flex-1 bg-transparent py-3.5 pr-4 text-sm outline-none"
+            />
+          </div>
 
-      <p className="mt-6 text-center text-[11px] text-muted-foreground">
+          <button
+            type="submit"
+            disabled={loading || phoneDigits.length < 10}
+            className="flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 disabled:opacity-60"
+          >
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Получить код по SMS"}
+          </button>
+        </form>
+      </div>
+
+      <p className="pb-6 shrink-0 text-center text-[11px] text-muted-foreground">
         Продолжая, вы соглашаетесь с условиями использования и политикой YURTA.
       </p>
     </div>

@@ -26,7 +26,6 @@ function CompleteProfile() {
     if (!authLoading && !user) navigate({ to: "/auth" });
   }, [authLoading, user, navigate]);
 
-  // Prefill name from existing data or auth metadata
   useEffect(() => {
     if (!profile && !user) return;
     const metaName =
@@ -42,7 +41,6 @@ function CompleteProfile() {
     setFullName((prev) => prev || candidate);
   }, [profile, user]);
 
-  // Bounce if already complete
   useEffect(() => {
     if (profileLoading) return;
     if (profile && isProfileComplete(profile)) {
@@ -61,15 +59,24 @@ function CompleteProfile() {
     setSubmitting(true);
     try {
       const cleanName = fullName.trim().replace(/\s+/g, " ");
-      // Phone comes from phone auth — sync it to the profiles table
       const phone = user.phone ? normalizePhone(user.phone) : null;
-      const { error } = await supabase
+      const { data: updated, error: updateErr } = await supabase
         .from("profiles")
         .update({ full_name: cleanName, ...(phone ? { phone } : {}) })
-        .eq("id", user.id);
-      if (error) {
-        toast.error(error.message || `Ошибка ${error.code}`);
+        .eq("id", user.id)
+        .select("id");
+      if (updateErr) {
+        toast.error(updateErr.message || `Ошибка ${updateErr.code}`);
         return;
+      }
+      if (!updated || updated.length === 0) {
+        const { error: insertErr } = await supabase
+          .from("profiles")
+          .insert({ id: user.id, full_name: cleanName, ...(phone ? { phone } : {}) });
+        if (insertErr) {
+          toast.error(insertErr.message || `Ошибка ${insertErr.code}`);
+          return;
+        }
       }
       toast.success("Профиль готов!");
       const next = typeof search?.next === "string" ? search.next : "/";
@@ -89,73 +96,77 @@ function CompleteProfile() {
 
   if (authLoading || profileLoading) {
     return (
-      <div className="grid min-h-dvh place-items-center">
+      <div className="h-dvh overflow-hidden grid place-items-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-dvh bg-background px-5 pb-10 pt-10">
-      <div className="mx-auto max-w-md">
+    <div className="h-dvh overflow-hidden bg-background flex flex-col px-5">
+      <div className="pt-6 shrink-0">
         <button
           type="button"
           onClick={() => navigate({ to: "/" })}
-          className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-border"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-
-        <div className="mb-6 flex items-center gap-3">
-          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
-            <UserCircle2 className="h-6 w-6" />
-          </div>
-          <div>
-            <h1 className="font-display text-2xl font-bold tracking-tight">
-              Завершите регистрацию
-            </h1>
-            <p className="text-xs text-muted-foreground">Осталось указать ваше имя</p>
-          </div>
-        </div>
-
-        {user?.phone && (
-          <div className="mb-5 flex items-center gap-2 rounded-2xl bg-muted/60 px-4 py-3 ring-1 ring-border">
-            <span className="text-sm text-muted-foreground">Телефон:</span>
-            <span className="text-sm font-semibold">{user.phone}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Имя и фамилия
-            </label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              maxLength={80}
-              autoComplete="name"
-              autoFocus
-              placeholder="Например, Алия Нурланова"
-              className="w-full rounded-2xl bg-card px-4 py-3.5 text-sm ring-1 ring-border outline-none focus:ring-primary"
-            />
-            {nameErr && <p className="mt-1.5 text-xs text-destructive">{nameErr}</p>}
-          </div>
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 disabled:opacity-60"
-          >
-            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Сохранить и продолжить"}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-[11px] text-muted-foreground">
-          Имя отображается владельцам, к которым вы обращаетесь по заявкам.
-        </p>
       </div>
+
+      <div className="flex-1 flex flex-col justify-center">
+        <div className="mx-auto w-full max-w-md">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
+              <UserCircle2 className="h-6 w-6" />
+            </div>
+            <div>
+              <h1 className="font-display text-2xl font-bold tracking-tight">
+                Завершите регистрацию
+              </h1>
+              <p className="text-xs text-muted-foreground">Осталось указать ваше имя</p>
+            </div>
+          </div>
+
+          {user?.phone && (
+            <div className="mb-5 flex items-center gap-2 rounded-2xl bg-muted/60 px-4 py-3 ring-1 ring-border">
+              <span className="text-sm text-muted-foreground">Телефон:</span>
+              <span className="text-sm font-semibold">{user.phone}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Имя и фамилия
+              </label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                maxLength={80}
+                autoComplete="name"
+                autoFocus
+                placeholder="Например, Алия Нурланова"
+                className="w-full rounded-2xl bg-card px-4 py-3.5 text-sm ring-1 ring-border outline-none focus:ring-primary"
+              />
+              {nameErr && <p className="mt-1.5 text-xs text-destructive">{nameErr}</p>}
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 disabled:opacity-60"
+            >
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Сохранить и продолжить"}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <p className="pb-6 shrink-0 text-center text-[11px] text-muted-foreground">
+        Имя отображается владельцам, к которым вы обращаетесь по заявкам.
+      </p>
     </div>
   );
 }
