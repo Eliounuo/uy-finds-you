@@ -82,12 +82,16 @@ function MapPage() {
       if (cancel || !mapContainerRef.current || mapRef.current) return;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const map = (L as any).map(mapContainerRef.current, { zoomControl: true }).setView(ALMATY, 11);
+      const map = (L as any)
+        .map(mapContainerRef.current, { zoomControl: true })
+        .setView(ALMATY, 11);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (L as any).tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap",
-        maxZoom: 19,
-      }).addTo(map);
+      (L as any)
+        .tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "© OpenStreetMap",
+          maxZoom: 19,
+        })
+        .addTo(map);
       mapRef.current = map;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -147,7 +151,9 @@ function MapPage() {
       const L = (await import("leaflet")).default;
       const map = mapRef.current;
       if (!map) return;
-      if (userDotRef.current) { userDotRef.current.remove(); }
+      if (userDotRef.current) {
+        userDotRef.current.remove();
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dot = (L as any).divIcon({
         className: "",
@@ -156,7 +162,8 @@ function MapPage() {
         iconAnchor: [9, 9],
       });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      userDotRef.current = (L as any).marker(userPos, { icon: dot, zIndexOffset: 2000 })
+      userDotRef.current = (L as any)
+        .marker(userPos, { icon: dot, zIndexOffset: 2000 })
         .bindPopup("Вы здесь")
         .addTo(map);
       map.setView(userPos, 13);
@@ -199,17 +206,22 @@ function MapPage() {
     [data],
   );
 
-  useEffect(() => { updateMarkers(null); }, [updateMarkers]);
+  useEffect(() => {
+    updateMarkers(null);
+  }, [updateMarkers]);
 
   // ── Lasso / freehand draw ───────────────────────────────────────────
-  const startLasso = useCallback((e: PointerEvent) => {
-    if (!drawMode || !mapRef.current) return;
-    isDrawing.current = true;
-    const ll = mapRef.current.mouseEventToLatLng(e);
-    setLassoPoints([[ll.lat, ll.lng]]);
-    mapRef.current.dragging.disable();
-    mapRef.current.scrollWheelZoom.disable();
-  }, [drawMode]);
+  const startLasso = useCallback(
+    (e: PointerEvent) => {
+      if (!drawMode || !mapRef.current) return;
+      isDrawing.current = true;
+      const ll = mapRef.current.mouseEventToLatLng(e);
+      setLassoPoints([[ll.lat, ll.lng]]);
+      mapRef.current.dragging.disable();
+      mapRef.current.scrollWheelZoom.disable();
+    },
+    [drawMode],
+  );
 
   const moveLasso = useCallback((e: PointerEvent) => {
     if (!isDrawing.current || !mapRef.current) return;
@@ -240,13 +252,21 @@ function MapPage() {
 
     setLassoPoints((pts) => {
       if (pts.length < 3) {
-        if (lassoPlineRef.current) { lassoPlineRef.current.remove(); lassoPlineRef.current = null; }
+        if (lassoPlineRef.current) {
+          lassoPlineRef.current.remove();
+          lassoPlineRef.current = null;
+        }
         return [];
       }
       (async () => {
         const L = (await import("leaflet")).default;
-        if (lassoPlineRef.current) { lassoPlineRef.current.remove(); lassoPlineRef.current = null; }
-        if (lassoPolyRef.current) { lassoPolyRef.current.remove(); }
+        if (lassoPlineRef.current) {
+          lassoPlineRef.current.remove();
+          lassoPlineRef.current = null;
+        }
+        if (lassoPolyRef.current) {
+          lassoPolyRef.current.remove();
+        }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         lassoPolyRef.current = (L as any)
           .polygon(pts, { color: BRAND_COLOR, weight: 2, fillOpacity: 0.08, dashArray: "6 4" })
@@ -281,8 +301,14 @@ function MapPage() {
   }, [startLasso, moveLasso, endLasso]);
 
   const clearLasso = useCallback(() => {
-    if (lassoPlineRef.current) { lassoPlineRef.current.remove(); lassoPlineRef.current = null; }
-    if (lassoPolyRef.current) { lassoPolyRef.current.remove(); lassoPolyRef.current = null; }
+    if (lassoPlineRef.current) {
+      lassoPlineRef.current.remove();
+      lassoPlineRef.current = null;
+    }
+    if (lassoPolyRef.current) {
+      lassoPolyRef.current.remove();
+      lassoPolyRef.current = null;
+    }
     setLassoPoints([]);
     setZoneCount(null);
     setDrawMode(false);
@@ -294,7 +320,12 @@ function MapPage() {
   }, [updateMarkers]);
 
   const toggleDraw = () => {
-    if (drawMode) { clearLasso(); } else { clearLasso(); setDrawMode(true); }
+    if (drawMode) {
+      clearLasso();
+    } else {
+      clearLasso();
+      setDrawMode(true);
+    }
   };
 
   // ── City search ─────────────────────────────────────────────────────
@@ -302,7 +333,10 @@ function MapPage() {
     setSearchQ(q);
     setShowResults(q.length > 1);
     if (searchTimer.current) clearTimeout(searchTimer.current);
-    if (q.length < 2) { setSearchResults([]); return; }
+    if (q.length < 2) {
+      setSearchResults([]);
+      return;
+    }
     searchTimer.current = setTimeout(async () => {
       setSearching(true);
       const results = await geocode(q);
@@ -316,7 +350,8 @@ function MapPage() {
     const lat = parseFloat(r.lat);
     const lng = parseFloat(r.lon);
     if (!isNaN(lat) && !isNaN(lng) && mapRef.current) {
-      mapRef.current.setView([lat, lng], 12);
+      mapRef.current.flyTo([lat, lng], 12, { animate: true, duration: 0.8 });
+      setTimeout(() => mapRef.current?.invalidateSize(), 900);
     }
     setSearchQ(r.display_name.split(",")[0] ?? r.display_name);
     setShowResults(false);
@@ -329,7 +364,10 @@ function MapPage() {
     } else if (!locating) {
       setLocating(true);
       navigator.geolocation?.getCurrentPosition(
-        (pos) => { setUserPos([pos.coords.latitude, pos.coords.longitude]); setLocating(false); },
+        (pos) => {
+          setUserPos([pos.coords.latitude, pos.coords.longitude]);
+          setLocating(false);
+        },
         () => setLocating(false),
       );
     }
@@ -349,9 +387,11 @@ function MapPage() {
         <div className="pointer-events-auto absolute left-3 right-3 top-3 z-[1000]">
           <div className="relative">
             <div className="flex items-center gap-2 rounded-2xl bg-card/95 px-3 py-2.5 shadow-pop ring-1 ring-border backdrop-blur-sm">
-              {searching
-                ? <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />
-                : <Search className="h-4 w-4 shrink-0 text-muted-foreground" />}
+              {searching ? (
+                <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />
+              ) : (
+                <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+              )}
               <input
                 type="text"
                 value={searchQ}
@@ -362,7 +402,14 @@ function MapPage() {
                 className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               />
               {searchQ && (
-                <button type="button" onClick={() => { setSearchQ(""); setSearchResults([]); setShowResults(false); }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQ("");
+                    setSearchResults([]);
+                    setShowResults(false);
+                  }}
+                >
                   <X className="h-3.5 w-3.5 text-muted-foreground" />
                 </button>
               )}
@@ -394,9 +441,13 @@ function MapPage() {
             title="Моё местоположение"
             className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-pop ring-1 ring-border"
           >
-            {locating
-              ? <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              : <Navigation className={`h-4 w-4 ${userPos ? "fill-primary text-primary" : "text-muted-foreground"}`} />}
+            {locating ? (
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            ) : (
+              <Navigation
+                className={`h-4 w-4 ${userPos ? "fill-primary text-primary" : "text-muted-foreground"}`}
+              />
+            )}
           </button>
 
           <button
@@ -426,7 +477,9 @@ function MapPage() {
         {zoneCount !== null && (
           <div className="pointer-events-auto absolute inset-x-4 bottom-28 z-[1000] flex items-center justify-between rounded-2xl bg-card px-4 py-3 shadow-pop ring-1 ring-border">
             <span className="text-sm font-semibold">
-              {zoneCount > 0 ? `${zoneCount} ${countWord(zoneCount)} в зоне` : "В зоне нет объявлений"}
+              {zoneCount > 0
+                ? `${zoneCount} ${countWord(zoneCount)} в зоне`
+                : "В зоне нет объявлений"}
             </span>
             <button
               type="button"
